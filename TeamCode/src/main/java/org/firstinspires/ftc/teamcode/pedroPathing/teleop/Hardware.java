@@ -16,10 +16,9 @@ public class Hardware {
         ll = hardwareMap.get(Limelight3A.class, "ll");
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         transfer = hardwareMap.get(DcMotorEx.class, "transfer");
-        flywheel1 = hardwareMap.get(DcMotorEx.class, "shooter1");
-        flywheel2 = hardwareMap.get(DcMotorEx.class, "shooter2");
-        hood1 = hardwareMap.get(Servo.class, "hood1");
-        hood2 = hardwareMap.get(Servo.class, "hood2");
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+        hood1 = hardwareMap.get(Servo.class, "hood");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
         led = hardwareMap.get(Servo.class, "led");
