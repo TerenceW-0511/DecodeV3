@@ -43,8 +43,6 @@ public class Methods {
                 kI = Values.flywheelConstants.fI;
                 kD = Values.flywheelConstants.fD;
                 kF = Values.flywheelConstants.fK;
-                kV = Values.flywheelConstants.fV;
-                kA = Values.flywheelConstants.fA;
                 controller = Values.flywheelConstants.flywheelPIDF;
                 break;
 

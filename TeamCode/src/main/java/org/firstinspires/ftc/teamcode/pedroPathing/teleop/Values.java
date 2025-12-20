@@ -19,8 +19,6 @@ public final class Values {
         public static double fI = 0;
         public static double fD = 0.00005;
         public static double fK = 0.000445;
-        public static double fV  = 0;
-        public static double fA = 0;
 
         public static double flywheelVelocity=1800;
     }

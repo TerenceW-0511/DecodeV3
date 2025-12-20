@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @Config
 @TeleOp(name = "FlywheelVelocityTuner", group = "Tuning")
-public class FlywheelVelocityTuner extends LinearOpMode {
+public class VelocityTuner extends LinearOpMode {
 
     public static double targetVelocity = 1500;
 
