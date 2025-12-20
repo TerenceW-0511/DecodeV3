@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Hardware {
-    private Limelight3A ll;
-    private DcMotorEx intake, transfer, flywheel1, flywheel2;
-    private Servo led;
-    private Servo hood1, hood2, turret1, turret2;
+    public Limelight3A ll;
+    public DcMotorEx intake, transfer, flywheel1, flywheel2;
+    public Servo led;
+    public Servo hood1, hood2, turret1, turret2;
 
     public Hardware(HardwareMap hardwareMap) {
         ll = hardwareMap.get(Limelight3A.class, "ll");
