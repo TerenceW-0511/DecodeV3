@@ -24,7 +24,7 @@ public class Teleop extends OpMode {
     }
 
     @Override
-    public void loop(){
+    public void loop() {
         follower.update();
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
@@ -32,14 +32,31 @@ public class Teleop extends OpMode {
                 -gamepad1.right_stick_x,
                 true // Robot Centric
         );
-        if (gamepad1.aWasPressed()){
-            hardware.flywheel1.setPower(1);
-            hardware.flywheel2.setPower(1);
-        }
-        if (gamepad1.bWasPressed()){
+        if (gamepad1.bWasPressed()) {
             hardware.flywheel1.setPower(-1);
             hardware.flywheel2.setPower(-1);
         }
-    }
+        if (gamepad1.yWasPressed()) {
+            hardware.flywheel1.setPower(0);
+            hardware.flywheel2.setPower(0);
+        }
+        if (gamepad1.left_trigger > 0.05) {
+            double intakePower = gamepad1.left_trigger;
+            hardware.intake.setPower(intakePower);
+        } else {
+            hardware.intake.setPower(0);
+        }
+        if (gamepad1.right_trigger > 0.05) {
+            double transferPower = gamepad1.right_trigger;
+            hardware.transfer.setPower(transferPower);
+        } else {
+            hardware.transfer.setPower(0);
+        }
+            telemetry.addData("Flywhelvelocity2", hardware.flywheel2.getVelocity());
+            telemetry.addData("Flywheelvelocity1", hardware.flywheel1.getVelocity());
+            telemetry.addData("Intakepower", hardware.intake.getPower());
+            telemetry.addData("transferpower", hardware.transfer.getPower());
+            telemetry.update();
 
+    }
 }
