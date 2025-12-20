@@ -32,6 +32,14 @@ public class Teleop extends OpMode {
                 -gamepad1.right_stick_x,
                 true // Robot Centric
         );
+        if (gamepad1.aWasPressed()){
+            hardware.flywheel1.setPower(1);
+            hardware.flywheel2.setPower(1);
+        }
+        if (gamepad1.bWasPressed()){
+            hardware.flywheel1.setPower(-1);
+            hardware.flywheel2.setPower(-1);
+        }
     }
 
 }
