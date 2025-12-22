@@ -13,13 +13,6 @@ public class Methods {
         double kF, kD, kP,kI;
 
         switch (mode) {
-            case "flywheel":
-                kI = Values.flywheel_Values.fI;
-                kD = Values.flywheel_Values.fD;
-                kP = Values.flywheel_Values.fP;
-                kF = Values.flywheel_Values.fF;
-                controller = Values.flywheel_Values.flywheelPIDController;
-                break;
             case "intake":
                 kI = Values.intake_Values.iI;
                 kD = Values.intake_Values.iD;
@@ -45,7 +38,9 @@ public class Methods {
             firstLoop = false;
             return 0;
         }
-
+        if (mode.equals("flywehel")){
+            double currentPos=motor.getCurrentPosition();
+        }
         double currentPos = motor.getCurrentPosition();
         double currentTime = System.nanoTime() / 1e9;
 
@@ -67,6 +62,47 @@ public class Methods {
         controller.setPIDF(kP, kI, kD, kF);
         double power = controller.calculate(measuredVelocity, targetVelocity);
         motor.setPower(power);
+        return measuredVelocity;
+
+    }
+    public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity, String mode) {
+        PIDFController controller;
+        double kF, kD, kP,kI;
+
+        kI = Values.flywheel_Values.fI;
+        kD = Values.flywheel_Values.fD;
+        kP = Values.flywheel_Values.fP;
+        kF = Values.flywheel_Values.fF;
+        controller = Values.flywheel_Values.flywheelPIDController;
+
+        if (firstLoop) {
+            lastPos = motor.getCurrentPosition();
+            lastTime = System.nanoTime() / 1e9;
+            firstLoop = false;
+            return 0;
+        }
+        double currentPos = (double) (motor.getCurrentPosition() + motor2.getCurrentPosition()) /2;
+        double currentTime = System.nanoTime() / 1e9;
+
+        double dt = currentTime - lastTime;
+        double dp = currentPos - lastPos;
+
+        double measuredVelocity = dp / dt;
+
+
+
+        lastPos = currentPos;
+        lastTime = currentTime;
+
+        if (targetVelocity == 0) {
+            motor.setPower(0);
+            return 0;
+        }
+
+        controller.setPIDF(kP, kI, kD, kF);
+        double power = controller.calculate(measuredVelocity, targetVelocity);
+        motor.setPower(power);
+        motor2.setPower(power);
         return measuredVelocity;
 
     }

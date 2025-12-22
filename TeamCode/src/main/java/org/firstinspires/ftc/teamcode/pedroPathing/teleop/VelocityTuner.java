@@ -24,8 +24,12 @@ public class VelocityTuner extends LinearOpMode {
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Methods methods = new Methods();
 
+
+
     @Override
     public void runOpMode() {
+
+
 
         controlledMotor = hardwareMap.get(DcMotorEx.class, motorType);
         controlledMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -63,12 +67,13 @@ public class VelocityTuner extends LinearOpMode {
                     Values.intake_Values.intakePIDController.setPIDF(fP, fI, fD, fK);
                     break;
 
-                case "flywheel":
+                case "flywheel1":
                     Values.flywheel_Values.fP = fP;
                     Values.flywheel_Values.fI = fI;
                     Values.flywheel_Values.fD = fD;
                     Values.flywheel_Values.fF = fK;
                     controlledMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
                     Values.flywheel_Values.flywheelPIDController.setPIDF(fP, fI, fD, fK);
                     break;
 
@@ -86,7 +91,11 @@ public class VelocityTuner extends LinearOpMode {
             TelemetryPacket packet = new TelemetryPacket();
             packet.put("MotorType", motorType);
             packet.put("TargetVelocity", targetVelocity);
-            packet.put("MeasuredVelocity", methods.velocity_PID(controlledMotor, targetVelocity, motorType));
+            if (!motorType.equals("flywheel1"))
+                packet.put("MeasuredVelocity", methods.velocity_PID(controlledMotor, targetVelocity, motorType));
+            else{
+                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,hardwareMap.get(DcMotorEx.class,"flywheel2"),targetVelocity,motorType));
+            }
             packet.put("Power", controlledMotor.getPower());
             dashboard.sendTelemetryPacket(packet);
 

@@ -20,46 +20,24 @@ public class Values {
     public static class transfer_Values {
         public static PIDFController transferPIDController = new PIDFController(0, 0, 0, 0);
 
-        public static double trP = 0;
+        public static double trP = 0.001;
         public static double trI = 0;
-        public static double trD = 0;
-        public static double trF = 0;
+        public static double trD = 0.0000001;
+        public static double trF = 0.00036;
 
-        public static double transferTarget = 0;
-    }
-    public static class hood_Values {
-        public static PIDFController hoodPIDController = new PIDFController(0, 0, 0, 0);
-        public static double hP = 0;
-        public static double hI = 0;
-        public static double hD = 0;
-        public static double hF = 0;
 
-        public static double hoodTarget = 0;
+        public static double transferUp = 2000,transferIntake = 1400;
     }
 
     public static class intake_Values {
         public static PIDFController intakePIDController = new PIDFController(0, 0, 0, 0);
         public static double iP = 0;
         public static double iI = 0;
-        public static double iD = 0;
+        public static double iD = 0.000001;
 
-        public static double iK = 0;
-
-        public static double iV = 0;
-
-        public static double iA = 0;
-        public static double intakeTarget = 0;
+        public static double iK = 0.00048;
+        public static double intakeTarget = 1500;
     }
-    public static class turret_Values {
-        public static ProfiledPIDController turretPIDController =  new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0,0));
-        public static double tP = 0;
-        public static double tI = 0;
-        public static double tD = 0;
-        public static double tA = 0;
-        public static double tV = 0;
-        public static double turretTarget = 0;
-    }
-
 
     public static final double TURRET_RIGHT = 0;
 
