@@ -58,7 +58,9 @@ public class Teleop extends OpMode {
             Values.mode=Values.Modes.INTAKING;
             hardware.limiter.setPosition(Values.LIMITER_CLOSE);
         }
-
+        if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes.INTAKING){
+            Values.mode = Values.Modes.SHOOTING;
+        }
         switch(Values.mode){
             case INTAKING:
                 if (gamepad1.left_bumper){
@@ -72,6 +74,9 @@ public class Teleop extends OpMode {
             case SHOOTING:
                 if (gamepad1.right_bumper){
                     methods.velocity_PID(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelVelocity);
+                }else {
+                    hardware.flywheel1.setPower(0);
+                    hardware.flywheel2.setPower(0);
                 }
                 if (Math.abs(hardware.flywheel1.getVelocity()-Values.flywheel_Values.flywheelVelocity)<30){
                     hardware.limiter.setPosition(Values.LIMITER_OPEN);

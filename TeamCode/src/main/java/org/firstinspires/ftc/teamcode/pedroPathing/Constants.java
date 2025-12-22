@@ -57,8 +57,8 @@ public class Constants {
             .yVelocity(50.16638568067175); //lateral vel tuner 51.29702350286048, 49.92107817882628, 50.47421096441314, 49.9237944835753, 49.215821273683574
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(7.45965)
-            .strafePodX(0.19387)
+            .forwardPodY(-3.07653)
+            .strafePodX(2.92855)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
