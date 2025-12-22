@@ -38,9 +38,7 @@ public class Methods {
             firstLoop = false;
             return 0;
         }
-        if (mode.equals("flywehel")){
-            double currentPos=motor.getCurrentPosition();
-        }
+
         double currentPos = motor.getCurrentPosition();
         double currentTime = System.nanoTime() / 1e9;
 
@@ -65,7 +63,7 @@ public class Methods {
         return measuredVelocity;
 
     }
-    public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity, String mode) {
+    public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity) {
         PIDFController controller;
         double kF, kD, kP,kI;
 

@@ -4,18 +4,18 @@ import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
 import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 public class Values {
-    public Modes mode = Modes.INTAKING;
+    public static Modes mode = Modes.INTAKING;
     public static  double HOOD_FAR = 0;
     public static  double HOOD_CLOSE = 0;
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0;
+        public static double fP = 0.001;
         public static double fI = 0;
-        public static double fD = 0;
+        public static double fD = 0.0000001;
 
-        public static double fF = 0;
-        public double flyWheelVelocity = 1500;
+        public static double fF = 0.0004;
+        public static double flywheelVelocity = 1500; //MAX 2300
     }
     public static class transfer_Values {
         public static PIDFController transferPIDController = new PIDFController(0, 0, 0, 0);
@@ -40,10 +40,11 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
+    public static final double LIMITER_OPEN=0.8,LIMITER_CLOSE=0.5;
 
     public enum Modes {
         INTAKING,
         SHOOTING,
-        REST
+
     }
 }

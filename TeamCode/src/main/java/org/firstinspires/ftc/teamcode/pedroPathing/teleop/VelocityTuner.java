@@ -94,7 +94,7 @@ public class VelocityTuner extends LinearOpMode {
             if (!motorType.equals("flywheel1"))
                 packet.put("MeasuredVelocity", methods.velocity_PID(controlledMotor, targetVelocity, motorType));
             else{
-                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,hardwareMap.get(DcMotorEx.class,"flywheel2"),targetVelocity,motorType));
+                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,hardwareMap.get(DcMotorEx.class,"flywheel2"),targetVelocity));
             }
             packet.put("Power", controlledMotor.getPower());
             dashboard.sendTelemetryPacket(packet);
