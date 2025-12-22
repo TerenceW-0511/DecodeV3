@@ -53,41 +53,64 @@ public class Teleop extends OpMode {
 //            hardware.transfer.setPower(transferPower);
 //        } else {
 //            hardware.transfer.setPower(0);
-//        }
+////        }
         if (gamepad1.leftBumperWasPressed() && Values.mode== Values.Modes.SHOOTING){
             Values.mode=Values.Modes.INTAKING;
-            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+
         }
         if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes.INTAKING){
             Values.mode = Values.Modes.SHOOTING;
         }
-        switch(Values.mode){
+
+
+        switch(Values.mode) {
             case INTAKING:
-                if (gamepad1.left_bumper){
-                    methods.velocity_PID(hardware.intake,Values.intake_Values.intakeTarget,"intake");
-                    methods.velocity_PID(hardware.transfer,Values.transfer_Values.transferIntake,"transfer");
-                }else{
-                    hardware.intake.setPower(0);
-                    hardware.transfer.setPower(0);
+                hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+                Values.flywheel_Values.flywheelTarget = 0;
+                if (gamepad1.left_bumper) {
+                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
+                    Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
+                } else {
+                    Values.intake_Values.intakeTarget = 0;
+                    Values.transfer_Values.transferTarget = 0;
                 }
                 break;
             case SHOOTING:
-                if (gamepad1.right_bumper){
-                    methods.velocity_PID(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelVelocity);
-                }else {
-                    hardware.flywheel1.setPower(0);
-                    hardware.flywheel2.setPower(0);
+                hardware.limiter.setPosition(Values.LIMITER_OPEN);
+                Values.flywheel_Values.flywheelTarget = Values.flywheel_Values.flywheelVelocity;
+                if (gamepad1.right_bumper) {
+                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
+                    if (Math.abs(hardware.flywheel2.getVelocity()-Values.flywheel_Values.flywheelTarget)<30) {
+                        telemetry.addData("ready","hai");
+                        Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
+                    }else{
+                        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+                    }
                 }
-                if (Math.abs(hardware.flywheel1.getVelocity()-Values.flywheel_Values.flywheelVelocity)<30){
-                    hardware.limiter.setPosition(Values.LIMITER_OPEN);
-                }
-
+                break;
         }
+        Values.turretPos+= gamepad1.right_trigger/10;
+        Values.turretPos-= gamepad1.left_trigger/10;
+        Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
 
-        telemetry.addData("Flywhelvelocity2", hardware.flywheel2.getVelocity());
-        telemetry.addData("Flywheelvelocity1", hardware.flywheel1.getVelocity());
+
+
+
+        methods.velocity_PID(hardware.intake,Values.intake_Values.intakeTarget,"intake");
+        methods.velocity_PID(hardware.transfer,Values.transfer_Values.transferTarget,"transfer");
+        methods.velocity_PID(hardware.flywheel2,Values.flywheel_Values.flywheelTarget,"flywheel2");
+
+        hardware.turret1.setPosition(Values.turretPos);
+        hardware.turret2.setPosition(Values.turretPos);
+
+        telemetry.addData("mode",Values.mode);
+        telemetry.addData("limiter",hardware.limiter.getPosition());
+        telemetry.addData("flywheel 1 velocity", hardware.flywheel1.getVelocity());
+        telemetry.addData("flywheel 2 velocity", hardware.flywheel2.getVelocity());
+
+        telemetry.addData("flywheel target", Values.flywheel_Values.flywheelTarget);
         telemetry.addData("Intakepower", hardware.intake.getPower());
-        telemetry.addData("transferpower", hardware.transfer.getPower());
+        telemetry.addData("transferpower", Values.transfer_Values.transferTarget);
         telemetry.update();
 
     }

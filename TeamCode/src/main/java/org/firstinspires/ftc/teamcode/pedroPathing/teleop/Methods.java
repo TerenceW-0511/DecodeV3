@@ -27,6 +27,13 @@ public class Methods {
                 kF = Values.transfer_Values.trF;
                 controller = Values.transfer_Values.transferPIDController;
                 break;
+            case "flywheel2":
+                kI = Values.flywheel_Values.fI;
+                kD = Values.flywheel_Values.fD;
+                kP = Values.flywheel_Values.fP;
+                kF = Values.flywheel_Values.fF;
+                controller = Values.flywheel_Values.flywheelPIDController;
+                break;
 
             default:
                 throw new IllegalArgumentException("Error: " + mode);
