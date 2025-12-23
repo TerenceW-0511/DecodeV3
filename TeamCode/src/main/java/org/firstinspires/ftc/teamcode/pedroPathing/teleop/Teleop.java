@@ -80,7 +80,7 @@ public class Teleop extends OpMode {
                 Values.flywheel_Values.flywheelTarget = Values.flywheel_Values.flywheelVelocity;
                 if (gamepad1.right_bumper) {
                     Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
-                    if (Math.abs(hardware.flywheel2.getVelocity()-Values.flywheel_Values.flywheelTarget)<30) {
+                    if (Math.abs(hardware.flywheel2.getVelocity()-Values.flywheel_Values.flywheelTarget)<100) {
                         telemetry.addData("ready","hai");
                         Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
                     }else{
@@ -92,6 +92,7 @@ public class Teleop extends OpMode {
         Values.turretPos+= gamepad1.right_trigger/10;
         Values.turretPos-= gamepad1.left_trigger/10;
         Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
+
 
 
 
