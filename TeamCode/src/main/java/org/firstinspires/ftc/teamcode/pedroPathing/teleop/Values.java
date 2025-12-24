@@ -44,7 +44,7 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=0.65,LIMITER_CLOSE=0.3;
+    public static final double LIMITER_OPEN=0.7,LIMITER_CLOSE=0.2;
     public static double turretPos=0.5;
     public static double hoodPos = 0.5;
     public enum Team {
