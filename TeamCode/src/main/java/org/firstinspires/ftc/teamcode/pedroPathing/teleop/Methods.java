@@ -7,6 +7,7 @@ public class Methods {
     private boolean firstLoop = true;
     private double lastPos;
     private double lastTime;
+    private double lastTarget=0;
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
@@ -19,6 +20,7 @@ public class Methods {
                 kP = Values.intake_Values.iP;
                 kF = Values.intake_Values.iK;
                 controller = Values.intake_Values.intakePIDController;
+
                 break;
             case "transfer":
                 kI = Values.transfer_Values.trI;
@@ -27,7 +29,7 @@ public class Methods {
                 kF = Values.transfer_Values.trF;
                 controller = Values.transfer_Values.transferPIDController;
                 break;
-            case "flywheel2":
+            case "flywheel1":
                 kI = Values.flywheel_Values.fI;
                 kD = Values.flywheel_Values.fD;
                 kP = Values.flywheel_Values.fP;
@@ -60,12 +62,19 @@ public class Methods {
         lastTime = currentTime;
 
         if (targetVelocity == 0) {
+            controller.reset();
             motor.setPower(0);
+            lastTarget = 0;
             return 0;
         }
 
+        if (targetVelocity != lastTarget) {
+            controller.reset();
+            lastTarget = targetVelocity;
+        }
+
         controller.setPIDF(kP, kI, kD, kF);
-        double power = controller.calculate(measuredVelocity, targetVelocity);
+        double power = controller.calculate(motor.getVelocity(), targetVelocity);
         motor.setPower(power);
         return measuredVelocity;
 
@@ -105,7 +114,7 @@ public class Methods {
         }
 
         controller.setPIDF(kP, kI, kD, kF);
-        double power = controller.calculate(measuredVelocity, targetVelocity);
+        double power = controller.calculate( (motor.getVelocity() + motor2.getVelocity()) /2, targetVelocity);
         motor.setPower(power);
         motor2.setPower(power);
         return measuredVelocity;
@@ -123,6 +132,10 @@ public class Methods {
     public void Transfer(){
     }
     public void AutoAim(){
+    }
+
+    public void hoodControl(){
+
     }
 
 }

@@ -10,14 +10,9 @@ public class Values {
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-//        public static double fP = 0.001;
-//        public static double fI = 0;
-//        public static double fD = 0.0000001;
-//
-//        public static double fF = 0.0004;
-        public static double fP = 0.0012;
+        public static double fP = 0.0011;
         public static double fI = 0;
-        public static double fD = 0.000001;
+        public static double fD = 0.0000001;
 
         public static double fF = 0.0004;
         public static double flywheelTarget=0;
@@ -27,13 +22,13 @@ public class Values {
     public static class transfer_Values {
         public static PIDFController transferPIDController = new PIDFController(0, 0, 0, 0);
 
-        public static double trP = 0.001;
+        public static double trP = 0.0004;
         public static double trI = 0;
-        public static double trD = 0.0000001;
-        public static double trF = 0.00036;
+        public static double trD = 0.00001;
+        public static double trF = 0.00045;
 
         public static double transferTarget=0;
-        public static double transferUp = 2000,transferIntake = 1400;
+        public static double transferUp = 2000,transferIntake = 1000;
     }
 
     public static class intake_Values {
@@ -48,12 +43,16 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=0.8,LIMITER_CLOSE=0.5;
+    public static final double LIMITER_OPEN=0.6,LIMITER_CLOSE=0.2;
     public static double turretPos=0.5;
+    public static double hoodPos = 0.5;
 
     public enum Modes {
         INTAKING,
         SHOOTING,
 
+    }
+    public static void reset(){
+        turretPos = 0.5;
     }
 }

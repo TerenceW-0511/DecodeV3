@@ -67,7 +67,7 @@ public class VelocityTuner extends LinearOpMode {
                     Values.intake_Values.intakePIDController.setPIDF(fP, fI, fD, fK);
                     break;
 
-                case "flywheel2":
+                case "flywheel1":
                     Values.flywheel_Values.fP = fP;
                     Values.flywheel_Values.fI = fI;
                     Values.flywheel_Values.fD = fD;
@@ -94,7 +94,7 @@ public class VelocityTuner extends LinearOpMode {
             if (!motorType.equals("flywheel1"))
                 packet.put("MeasuredVelocity", methods.velocity_PID(controlledMotor, targetVelocity, motorType));
             else{
-                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,targetVelocity,motorType));
+                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,hardwareMap.get(DcMotorEx.class,"flywheel2"),targetVelocity));
             }
             packet.put("Power", controlledMotor.getPower());
             dashboard.sendTelemetryPacket(packet);
