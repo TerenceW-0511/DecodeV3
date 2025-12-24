@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.drawOnlyCurrent;
-import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.draw;
 import com.arcrobotics.ftclib.geometry.Pose2d;
-///import static org.firstinspires.ftc.teamcode.pedroPathing.Drawing.drawRobot;
 import com.arcrobotics.ftclib.kinematics.Odometry;
 import com.bylazar.field.FieldManager;
 import com.bylazar.field.PanelsField;
@@ -35,22 +32,27 @@ public class LimelightTest extends OpMode {
 
 
     private FieldManager fieldManager;
-    private Style llPos;
+    private Style robotStyle;
     private Limelight3A ll;
 
     private GoBildaPinpointDriver pinpoint;
+    static final double ROBOT_SIZE = 0.45;
+    static final double ROBOT_LINE = 0.35;
+
 
 
     @Override
     public void init() {
+        fieldManager = PanelsField.INSTANCE.getField();
+        fieldManager.init();
+        fieldManager.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         configurePinpoint();
         pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0));
-        fieldManager = PanelsField.INSTANCE.getField();
-        llPos = new Style("","#3F51B5",0.75);
-        fieldManager.setOffsets(PanelsField.INSTANCE.getPresets().getPEDRO_PATHING());
+        robotStyle = new Style("Robot", "#4CAF50", 2.0);
         ll = hardwareMap.get(Limelight3A.class, "ll");
         ll.pipelineSwitch(1);
+        fieldManager.update();
     }
 
 
@@ -62,6 +64,7 @@ public class LimelightTest extends OpMode {
 
     @Override
     public void loop() {
+        fieldManager.getCanvas().reset();
         double pose2D = pinpoint.getHeading(AngleUnit.RADIANS);
         ll.updateRobotOrientation(pose2D);
         LLResult LLResult = ll.getLatestResult();
@@ -79,17 +82,26 @@ public class LimelightTest extends OpMode {
             double dist = Math.hypot(dx,dy);
             Position pos = botpose.getPosition();
             Pose botpose2D = new Pose(pos.x, pos.y, Math.toRadians(pose2D));
-            draw();
+            drawRobot(botpose2D.getX(), botpose2D.getY(), botpose2D.getHeading());
         }
         telemetry.update();
         fieldManager.update();
         pinpoint.update();
     }
     public  void  configurePinpoint(){
-        pinpoint.setOffsets(-84.0, -168.0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+        pinpoint.setOffsets(-3.07653, 2.92855, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.resetPosAndIMU();
+    }
+    private void drawRobot(double x, double y, double heading) {
+        fieldManager.setStyle(robotStyle);
+
+        fieldManager.moveCursor(x, y);
+        fieldManager.rect(ROBOT_SIZE, ROBOT_SIZE);
+
+        fieldManager.moveCursor(x, y);
+        fieldManager.line(Math.cos(heading) * ROBOT_LINE, Math.sin(heading) * ROBOT_LINE );
     }
 }
