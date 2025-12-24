@@ -17,15 +17,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12.42843)
-            .forwardZeroPowerAcceleration(-62.29810319738266) //forward zero power accel tuner -65.60243346038591, -60.21660154951493, -58.84116279449511, -70.47662315434071, -56.353695028176666
-            .lateralZeroPowerAcceleration(-90.15549551388034) //lateral zero power accel tuner -88.07851685180407, -95.55018620025608, -82.66648718507551, -88.33451698329932, -96.14777034896672
+            .forwardZeroPowerAcceleration(-39.78129302887985) //forward zero power accel tuner -44.619473702954984, - 39.936622122632144, -39.596968154762116, -39.92922602911172, -34.82417513493827
+            .lateralZeroPowerAcceleration(-72.39521035844383) //lateral zero power accel tuner -73.51180795502009,-73.64004765072957,-72.70290804677099,-74.22335504722632,-67.89793309247216
             .useSecondaryTranslationalPIDF(false)
             .useSecondaryHeadingPIDF(false)
             .useSecondaryDrivePIDF(false)
             .translationalPIDFCoefficients(new PIDFCoefficients(.25,0,0.03,0))
-            .headingPIDFCoefficients(new PIDFCoefficients(3,0,0,0))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0,0,1,0))
-            .centripetalScaling(0.0001)
+            .headingPIDFCoefficients(new PIDFCoefficients(3,0,0.1,0))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0.003,0.0001,1,0))
+            .centripetalScaling(0.0004)
             ;
 
 
@@ -53,16 +53,16 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .useVoltageCompensation(true)
             .useBrakeModeInTeleOp(true)
-            .xVelocity(60.90678653266486) // forward vel tuner //61.05235278512549, 60.941393274021905, 60.80657286155881 , 60.476244828832435, 61.25736891378568
-            .yVelocity(50.16638568067175); //lateral vel tuner 51.29702350286048, 49.92107817882628, 50.47421096441314, 49.9237944835753, 49.215821273683574
+            .xVelocity(76.43420333261567) // forward vel tuner //75.62156569112943,75.82549712413879,77.05273821973427,77.28677440252832,76.38444122554749
+            .yVelocity(60.284353085014764); //lateral vel tuner 59.233080285740655,58.49578280711737, 61.447703924704726,61.026703121155265,61.218495286355804
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-3.07653)
-            .strafePodX(2.92855)
+            .forwardPodY(-2.83465)
+            .strafePodX(-4.22521)
             .distanceUnit(DistanceUnit.INCH)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
 
