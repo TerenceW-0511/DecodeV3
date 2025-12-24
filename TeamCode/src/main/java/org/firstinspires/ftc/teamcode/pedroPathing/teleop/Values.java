@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
 
 public class Values {
     public static Modes mode = Modes.INTAKING;
+    public static Team team = Team.RED;
     public static  double HOOD_FAR = 0;
     public static  double HOOD_CLOSE = 0;
 
@@ -46,6 +47,10 @@ public class Values {
     public static final double LIMITER_OPEN=0.6,LIMITER_CLOSE=0.2;
     public static double turretPos=0.5;
     public static double hoodPos = 0.5;
+    public enum Team {
+        RED,
+        BLUE
+    }
 
     public enum Modes {
         INTAKING,

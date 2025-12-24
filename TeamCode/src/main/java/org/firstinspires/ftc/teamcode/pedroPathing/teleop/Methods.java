@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class Methods {
@@ -126,15 +127,28 @@ public class Methods {
         firstLoop = true;
     }
 
+    public double getDist(Follower follower){
+        if (Values.team==Values.Team.BLUE){
+            return Math.hypot((follower.getPose().getX()-12.5),(follower.getPose().getY()-137.3));
+        }else{
+            return Math.hypot((follower.getPose().getX()-131.5),(follower.getPose().getY()-137.5));
+        }
+    }
+
+
     public void Relocalize(){
-        return;
+
     }
     public void Transfer(){
     }
     public void AutoAim(){
     }
 
-    public void hoodControl(){
+    public void hoodControl(Follower follower, DcMotorEx flywheel1, DcMotorEx flywheel2){
+        // 3d graph equation
+        double vel = (flywheel1.getVelocity() + flywheel2.getVelocity())/2;
+        double dist = getDist(follower);
+
 
     }
 
