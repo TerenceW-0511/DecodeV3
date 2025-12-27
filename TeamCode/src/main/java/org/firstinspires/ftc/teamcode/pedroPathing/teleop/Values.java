@@ -41,10 +41,11 @@ public class Values {
         public static double iK = 0.00048;
         public static double intakeIntaking=1500;
         public static double intakeTarget=0;
+        public static double intakeHold = 1000;
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=0.7,LIMITER_CLOSE=0.2;
+    public static final double LIMITER_OPEN=0.7,LIMITER_CLOSE=0.35;
     public static double turretPos=0.5;
     public static double hoodPos = 0.5;
     public enum Team {

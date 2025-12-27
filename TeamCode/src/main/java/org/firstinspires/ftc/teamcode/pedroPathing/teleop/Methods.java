@@ -2,13 +2,18 @@ package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Methods {
     private boolean firstLoop = true;
     private double lastPos;
     private double lastTime;
     private double lastTarget=0;
+    private double a= 1810.2766439035408,b=-3.449090076831704,c=-724.2250766458692,d=0.04813077393542908,e=224.62956712218775,f=4.943595431803776;
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
@@ -141,15 +146,46 @@ public class Methods {
     }
     public void Transfer(){
     }
-    public void AutoAim(){
+    public double AutoAim(Pose botPose){
+        double dy,dx,alpha;
+        if (Values.team==Values.Team.BLUE) {
+            dx = botPose.getX() - 12.5;
+            dy = 137.3 - botPose.getY();
+            alpha = 180 - Math.toDegrees(botPose.getHeading())
+                    - Math.toDegrees(Math.atan2(dy, dx));
+        }else{
+            dx = botPose.getX() - 131.5;
+            dy = 137.3 - botPose.getY();
+            alpha = 180-Math.toDegrees(botPose.getHeading())
+                    - Math.toDegrees(Math.atan2(dy, dx));
+        }
+        double servoAngle = 10.128*alpha/3600 + 0.5;
+        servoAngle = Math.min(1,Math.max(0,servoAngle));
+        return 1-servoAngle;
+
     }
 
-    public void hoodControl(Follower follower, DcMotorEx flywheel1, DcMotorEx flywheel2){
+    public double hoodControl(Follower follower, DcMotorEx flywheel1, DcMotorEx flywheel2){
         // 3d graph equation
         double vel = (flywheel1.getVelocity() + flywheel2.getVelocity())/2;
         double dist = getDist(follower);
+        double numerator = (-(c + f*dist) + Math.sqrt((c + f*dist)*(c + f*dist) - 4*e*(a + b*dist + d*dist*dist - vel))) / (2*e);
+        numerator = Math.min(1,Math.max(0,numerator));
+        return numerator;
 
 
+    }
+    //x = distance, y = hood
+    //flywheel = 2024.460854150586-5.521875372212847x-2088.3394044791553y+0.04960697997872554x^2+1095.182079053327y^2+14.997680959492307xy
+    public double flywheelControl(Follower follower, Servo hood){
+        double x = getDist(follower);
+        double y = hood.getPosition();
+        return a
+                +b*x
+                +c*y
+                +d*x*x
+                +e*y*y
+                +f*x*y;
     }
 
 }

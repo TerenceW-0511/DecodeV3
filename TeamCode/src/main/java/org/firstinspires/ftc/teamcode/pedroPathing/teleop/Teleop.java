@@ -16,6 +16,8 @@ public class Teleop extends OpMode {
     private Methods intakePID;
     private Methods transferPID;
     private Methods flywheelPID;
+    private Methods methods;
+    private double a,b,c,d,e,f;
 
 
     public void init(){
@@ -23,15 +25,24 @@ public class Teleop extends OpMode {
         intakePID = new Methods();
         transferPID = new Methods();
         flywheelPID = new Methods();
+        methods = new Methods();
         Values.reset();
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(129,113.221415,Math.toRadians(180)));
+
         follower.update();
     }
     @Override
+    public void init_loop(){
+        hardware.turret1.setPosition(Values.turretPos);
+        hardware.turret2.setPosition(Values.turretPos);
+    }
+    @Override
     public void start(){
+
         follower.startTeleopDrive();
     }
+
 
     @Override
     public void loop() {
@@ -69,18 +80,19 @@ public class Teleop extends OpMode {
         if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes.INTAKING){
             Values.mode = Values.Modes.SHOOTING;
         }
-        if (gamepad1.dpadUpWasPressed()){
-            Values.flywheel_Values.flywheelVelocity+= 10;
-        } else if (gamepad1.dpadDownWasPressed()) {
-            Values.flywheel_Values.flywheelVelocity -=10;
-        }
-
+//        if (gamepad1.dpadUpWasPressed()){
+//            Values.flywheel_Values.flywheelVelocity+= 10;
+//        } else if (gamepad1.dpadDownWasPressed()) {
+//            Values.flywheel_Values.flywheelVelocity -=10;
+//        }
         if (gamepad1.yWasPressed()){
-            Values.hoodPos+= 0.02;
+            Values.hoodPos+= 0.05;
         }else if (gamepad1.aWasPressed()){
-            Values.hoodPos-=0.02;
+            Values.hoodPos-=0.05;
         }
-        Values.flywheel_Values.flywheelTarget = Values.flywheel_Values.flywheelVelocity;
+//        Values.hoodPos=methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+
+        Values.flywheel_Values.flywheelTarget =methods.flywheelControl(follower,hardware.hood1);
 
 
         switch(Values.mode) {
@@ -91,7 +103,7 @@ public class Teleop extends OpMode {
 //                    hardware.transfer.setPower(.7);
                     Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
                 } else {
-                    Values.intake_Values.intakeTarget = 0;
+                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeHold;
                     Values.transfer_Values.transferTarget = 0;
 //                    hardware.transfer.setPower(0);
                 }
@@ -101,21 +113,21 @@ public class Teleop extends OpMode {
                 if (gamepad1.right_bumper) {
                     Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
                     if (Math.abs(hardware.flywheel2.getVelocity()-2000)<100) {
-                        telemetry.addData("ready","hai");
 //                        hardware.transfer.setPower(1);
                         Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
                     }else{
 //                        hardware.transfer.setPower(.7);
                         Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
                     }
+                }else {
+                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeHold;
                 }
                 break;
         }
-        Values.turretPos-= gamepad1.right_trigger/30;
-        Values.turretPos+= gamepad1.left_trigger/30;
-        Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
-
-
+//        Values.turretPos-= gamepad1.right_trigger/30;
+//        Values.turretPos+= gamepad1.left_trigger/30;
+//        Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
+         Values.turretPos = methods.AutoAim(follower.getPose());
 
 
 
@@ -128,9 +140,12 @@ public class Teleop extends OpMode {
         hardware.turret2.setPosition(Values.turretPos);
         hardware.hood1.setPosition(Values.hoodPos);
 
+        telemetry.addData("mode",Values.mode);
+        telemetry.addData("angular vel",follower.getAngularVelocity());
         telemetry.addData("pose",follower.getPose());
-        telemetry.addData("dist",intakePID.getDist(follower));
+        telemetry.addData("dist",methods.getDist(follower));
         telemetry.addData("limiter",hardware.limiter.getPosition());
+        telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
         telemetry.addData("flywheel 1 velocity", hardware.flywheel1.getVelocity());
         telemetry.addData("flywheel 2 velocity", hardware.flywheel2.getVelocity());
         telemetry.addData("flywheel 1 power",hardware.flywheel1.getPower());
