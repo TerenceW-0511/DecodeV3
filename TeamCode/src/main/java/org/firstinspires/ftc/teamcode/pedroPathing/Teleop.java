@@ -1,13 +1,10 @@
-package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @TeleOp(name = "Teleop", group = "Teleop")
 public class Teleop extends OpMode {
@@ -17,8 +14,7 @@ public class Teleop extends OpMode {
     private Methods transferPID;
     private Methods flywheelPID;
     private Methods methods;
-    private double a,b,c,d,e,f;
-
+    private Timer timer;
 
     public void init(){
         hardware = new Hardware(hardwareMap);
@@ -26,6 +22,7 @@ public class Teleop extends OpMode {
         transferPID = new Methods();
         flywheelPID = new Methods();
         methods = new Methods();
+        timer = new Timer();
         Values.reset();
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(129,113.221415,Math.toRadians(180)));
@@ -41,6 +38,7 @@ public class Teleop extends OpMode {
     public void start(){
 
         follower.startTeleopDrive();
+        timer.resetTimer();
     }
 
 
@@ -50,7 +48,7 @@ public class Teleop extends OpMode {
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
+                -gamepad1.right_stick_x/2,
                 true // Robot Centric
         );
 //        if (gamepad1.bWasPressed()) {
@@ -86,9 +84,12 @@ public class Teleop extends OpMode {
 //            Values.flywheel_Values.flywheelVelocity -=10;
 //        }
         if (gamepad1.yWasPressed()){
-            Values.hoodPos+= 0.05;
+            Values.hoodPos+= 0.03;
         }else if (gamepad1.aWasPressed()){
-            Values.hoodPos-=0.05;
+            Values.hoodPos-=0.03;
+        }
+        if (gamepad1.leftStickButtonWasPressed()){
+            methods.manualRelocalize(follower);
         }
 //        Values.hoodPos=methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
 
@@ -127,8 +128,9 @@ public class Teleop extends OpMode {
 //        Values.turretPos-= gamepad1.right_trigger/30;
 //        Values.turretPos+= gamepad1.left_trigger/30;
 //        Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
-         Values.turretPos = methods.AutoAim(follower.getPose());
-
+        if (timer.getElapsedTimeSeconds()>0.5) {
+            Values.turretPos = methods.AutoAim(follower.getPose());
+        }
 
 
         intakePID.velocity_PID(hardware.intake, Values.intake_Values.intakeTarget, "intake");

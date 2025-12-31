@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
+package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.arcrobotics.ftclib.controller.PIDFController;
-import com.arcrobotics.ftclib.controller.wpilibcontroller.ProfiledPIDController;
-import com.arcrobotics.ftclib.trajectory.TrapezoidProfile;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Values {
     public static Modes mode = Modes.INTAKING;
@@ -45,7 +46,7 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=0.7,LIMITER_CLOSE=0.35;
+    public static final double LIMITER_OPEN=0.6,LIMITER_CLOSE=0.2;
     public static double turretPos=0.5;
     public static double hoodPos = 0.5;
     public enum Team {
@@ -58,6 +59,12 @@ public class Values {
         SHOOTING,
 
     }
+    public static final TreeMap<Double,Double> lut = new TreeMap<>(
+            //distance, hood
+            Map.ofEntries(
+                    Map.entry(0.0,0.0)
+            )
+    );
     public static void reset(){
         turretPos = 0.5;
     }

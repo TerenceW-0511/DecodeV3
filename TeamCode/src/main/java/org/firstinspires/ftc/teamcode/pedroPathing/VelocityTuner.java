@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
+package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

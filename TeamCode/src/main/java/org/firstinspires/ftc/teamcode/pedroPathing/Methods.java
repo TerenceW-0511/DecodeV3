@@ -1,12 +1,11 @@
-package org.firstinspires.ftc.teamcode.pedroPathing.teleop;
+package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Methods {
     private boolean firstLoop = true;
@@ -141,7 +140,10 @@ public class Methods {
     }
 
 
-    public void Relocalize(){
+    public void manualRelocalize(Follower follower){
+        follower.setPose(new Pose(135,6.5,Math.toRadians(0)));
+    }
+    public void limelightRelocalize(Limelight3A ll, Follower follower){
 
     }
     public void Transfer(){
