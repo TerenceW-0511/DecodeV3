@@ -19,7 +19,7 @@ public class Teleop extends OpMode {
     private Methods methods;
     private Timer timer;
     private boolean speedFirstLoop = true;
-    public static double k=0;
+
     public static final double HOOD_DEADBAND = 0.002;
     public double lastHood = 0.50;
 
@@ -87,13 +87,13 @@ public class Teleop extends OpMode {
             methods.manualRelocalize(follower);
         }
         double hoodNominal = Methods.hoodNominal(dist);
+//        if (Math.abs(lastHood-hoodNominal)>0.02){
+//            hardware.hood1.setPosition(hoodNominal);
+//            lastHood=hoodNominal;
+//        }
+
+
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
-//        double rpmError = Values.flywheel_Values.flywheelTarget - (hardware.flywheel1.getVelocity()+hardware.flywheel2.getVelocity())/2.;
-//
-//        if (Math.abs(rpmError) < 50) rpmError = 0;
-//
-//        double hoodComp = k * rpmError;
-//        double desiredHood = hoodNominal + hoodComp;
 //
 //        hoodFiltered += HOOD_ALPHA * (desiredHood - hoodFiltered);
 //
@@ -103,7 +103,6 @@ public class Teleop extends OpMode {
 //                    Range.clip(hoodFiltered, 0, 1)
 //            );
 //        }
-        hardware.hood1.setPosition(hoodNominal);
 
         switch(Values.mode) {
             case INTAKING:
@@ -137,13 +136,13 @@ public class Teleop extends OpMode {
                 }
 
                 if (speedFirstLoop){
-                    if (timer.getElapsedTimeSeconds()>1.5){
+                    if (timer.getElapsedTimeSeconds()>2){
                         hardware.kicker.setPosition(Values.KICKER_UP);
                     }else{
                         hardware.kicker.setPosition(Values.KICKER_DOWN);
                     }
                 }else{
-                    if (timer.getElapsedTimeSeconds()>1){
+                    if (timer.getElapsedTimeSeconds()>1.2){
                         hardware.kicker.setPosition(Values.KICKER_UP);
                     }else{
                         hardware.kicker.setPosition(Values.KICKER_DOWN);
@@ -168,20 +167,18 @@ public class Teleop extends OpMode {
 
         hardware.turret1.setPosition(Values.turretPos);
         hardware.turret2.setPosition(Values.turretPos);
-        hardware.hood1.setPosition(Values.hoodPos);
 
         telemetry.addData("mode",Values.mode);
         telemetry.addData("timer",timer.getElapsedTimeSeconds());
         telemetry.addData("pose",follower.getPose());
         telemetry.addData("dist",dist);
-        telemetry.addData("limiter",hardware.limiter.getPosition());
         telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
         telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",hardware.flywheel1.getVelocity(),hardware.flywheel2.getVelocity()));
         telemetry.addData("flywheel power",String.format("1: %f,2: %f",hardware.flywheel1.getPower(),hardware.flywheel2.getPower()));
         telemetry.addData("Intakepower", hardware.intake.getPower());
         telemetry.addData("transferpower", hardware.transfer.getPower());
         telemetry.addData("dead zone",Values.turretDeadSpot);
-        telemetry.addData("hood pos",Values.hoodPos);
+        telemetry.addData("hood pos",hoodNominal);
         telemetry.update();
 
     }

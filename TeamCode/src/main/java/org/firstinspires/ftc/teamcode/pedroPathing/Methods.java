@@ -14,6 +14,7 @@ public class Methods {
     private double lastPos;
     private double lastTime;
     private double lastTarget=0;
+    public static final double k=0.0002;
     private double a= 1810.2766439035408,b=-3.449090076831704,c=-724.2250766458692,d=0.04813077393542908,e=224.62956712218775,f=4.943595431803776;
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
@@ -197,6 +198,13 @@ public class Methods {
 
         double t = (dist - x0) / (x1 - x0);
         return y0 + t * (y1 - y0);
+    }
+
+    public static double hoodControl(double dist,DcMotorEx flywheel1,DcMotorEx flywheel2){
+        double rpmError = Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2.;
+
+        double hoodComp = k * rpmError;
+        return hoodNominal(dist) + hoodComp;
     }
 
     //x = distance, y = hood
