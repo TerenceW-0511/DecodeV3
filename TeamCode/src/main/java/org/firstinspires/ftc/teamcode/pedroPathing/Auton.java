@@ -347,19 +347,58 @@ public class Auton extends OpMode {
     private void autonomousPathUpdate() {
         if (!pathStarted) {
             switch (pathState) {
-                case 0: follower.followPath(scorePreload); break;
-                case 1: follower.followPath(toFirstChain); break;
-                case 2: follower.followPath(grabMiddleChain); break;
-                case 3: follower.followPath(scoreMiddleChain); break;
-                case 4: follower.followPath(gateIntakeChain); break;
-                case 5: follower.followPath(scoreGateChain); break;
-                case 6: follower.followPath(toTopChain); break;
-                case 7: follower.followPath(grabTopChain); break;
-                case 8: follower.followPath(scoreTopChain); break;
-                case 9: follower.followPath(toBottomChain); break;
-                case 10: follower.followPath(grabBottomChain); break;
-                case 11: follower.followPath(scoreBottomChain); break;
-                case 12: follower.followPath(leave); break;
+                case 0:
+                    follower.followPath(scorePreload);
+                    shoot();
+                    break;
+                case 1:
+                    follower.followPath(toFirstChain);
+                    move();
+                    break;
+                case 2:
+                    follower.followPath(grabMiddleChain);
+                    intake();
+                    break;
+                case 3:
+                    follower.followPath(scoreMiddleChain);
+                    shoot();
+                    break;
+                case 4:
+                    follower.followPath(gateIntakeChain);
+                    move();
+                    break;
+                case 5:
+                    follower.followPath(scoreGateChain);
+                    shoot();
+                    break;
+                case 6:
+                    follower.followPath(toTopChain);
+                    move();
+                    break;
+                case 7:
+                    follower.followPath(grabTopChain);
+                    intake();
+                    break;
+                case 8:
+                    follower.followPath(scoreTopChain);
+                    shoot();
+                    break;
+                case 9:
+                    follower.followPath(toBottomChain);
+                    move();
+                    break;
+                case 10:
+                    follower.followPath(grabBottomChain);
+                    intake();
+                    break;
+                case 11:
+                    follower.followPath(scoreBottomChain);
+                    shoot();
+                    break;
+                case 12:
+                    follower.followPath(leave);
+                    move();
+                    break;
             }
             pathStarted = true;
         }
