@@ -20,11 +20,6 @@ public class Teleop extends OpMode {
     private Timer timer;
     private boolean speedFirstLoop = true;
 
-    public static final double HOOD_DEADBAND = 0.002;
-    public double lastHood = 0.50;
-
-    public double hoodFiltered = 0.30;
-    public static final double HOOD_ALPHA = 0.08;
 
 
     public void init(){
@@ -86,23 +81,13 @@ public class Teleop extends OpMode {
         if (gamepad1.leftStickButtonWasPressed()){
             methods.manualRelocalize(follower);
         }
-        double hoodNominal = Methods.hoodNominal(dist);
-//        if (Math.abs(lastHood-hoodNominal)>0.02){
-//            hardware.hood1.setPosition(hoodNominal);
-//            lastHood=hoodNominal;
-//        }
+
+
 
 
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
-//
-//        hoodFiltered += HOOD_ALPHA * (desiredHood - hoodFiltered);
-//
-//       if (Math.abs(hoodFiltered - lastHood) > HOOD_DEADBAND) {
-//            lastHood = hoodFiltered;
-//            hardware.hood1.setPosition(
-//                    Range.clip(hoodFiltered, 0, 1)
-//            );
-//        }
+        hardware.hood1.setPosition(methods.hoodControl(dist, hardware.flywheel1, hardware.flywheel2));
+
 
         switch(Values.mode) {
             case INTAKING:
@@ -178,7 +163,6 @@ public class Teleop extends OpMode {
         telemetry.addData("Intakepower", hardware.intake.getPower());
         telemetry.addData("transferpower", hardware.transfer.getPower());
         telemetry.addData("dead zone",Values.turretDeadSpot);
-        telemetry.addData("hood pos",hoodNominal);
         telemetry.update();
 
     }

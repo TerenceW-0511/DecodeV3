@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
-
+//we are skibidi, we are rizzlers
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -144,6 +144,7 @@ public class Auton extends OpMode {
         isRed = (Values.team == Values.Team.RED);
 
         buildPaths();
+        //what the freak is this bruh (i dont program) nvm i got it
         follower.setStartingPose(startingPose);
 
         scorePreload     = isRed ? scorePreloadRedChain     : scorePreloadBlue;

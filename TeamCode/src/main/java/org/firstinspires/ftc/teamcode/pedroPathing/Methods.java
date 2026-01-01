@@ -7,6 +7,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
 import java.util.Map;
 
 public class Methods {
@@ -147,10 +149,10 @@ public class Methods {
         follower.setPose(new Pose(135,6.5,Math.toRadians(0)));
     }
     public void limelightRelocalize(Limelight3A ll, Follower follower){
+        Pose3D llPose = ll.getLatestResult().getBotpose_MT2();
 
     }
-    public void Transfer(){
-    }
+
     public double AutoAim(Pose botPose){
         double dy,dx,alpha;
         if (Values.team==Values.Team.BLUE) {
@@ -200,7 +202,7 @@ public class Methods {
         return y0 + t * (y1 - y0);
     }
 
-    public static double hoodControl(double dist,DcMotorEx flywheel1,DcMotorEx flywheel2){
+    public double hoodControl(double dist,DcMotorEx flywheel1,DcMotorEx flywheel2){
         double rpmError = Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2.;
 
         double hoodComp = k * rpmError;
