@@ -14,6 +14,7 @@ public class Auton extends OpMode {
 
     private Hardware robot;
     private Follower follower;
+    private Methods intakePID,transferPID,flywheelPID,methods;
     private boolean pathStarted = false;
 
 
@@ -89,21 +90,6 @@ public class Auton extends OpMode {
     private PathChain toBottomChain, grabBottomChain, scoreBottomChain;
     private PathChain leave;
 
-    public void intake(){
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
-    }
-    public void move(){
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold;
-        Values.transfer_Values.transferTarget=0;
-    }
-    public void shoot(){
-        robot.limiter.setPosition(Values.LIMITER_OPEN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
-    }
 
 
 
@@ -114,6 +100,12 @@ public class Auton extends OpMode {
 
         pathTimer = new Timer();
         actionTimer = new Timer();
+
+        robot = new Hardware(hardwareMap);
+        intakePID = new Methods();
+        transferPID = new Methods();
+        flywheelPID = new Methods();
+        methods = new Methods();
     }
 
     @Override
@@ -131,6 +123,8 @@ public class Auton extends OpMode {
             Values.team = Values.Team.BLUE;
             startingPose = startingPoseBlue;
         }
+        robot.turret1.setPosition(0.5);
+        robot.turret2.setPosition(0.5);
 
         telemetry.addData("Team", Values.team);
         telemetry.addData("Starting Pose", startingPose);
@@ -144,7 +138,7 @@ public class Auton extends OpMode {
         isRed = (Values.team == Values.Team.RED);
 
         buildPaths();
-        //what the freak is this bruh (i dont program) nvm i got it
+
         follower.setStartingPose(startingPose);
 
         scorePreload     = isRed ? scorePreloadRedChain     : scorePreloadBlue;
@@ -168,11 +162,44 @@ public class Auton extends OpMode {
     public void loop() {
         follower.update();
         autonomousPathUpdate();
+        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
+        flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
+        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
+        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower),robot.flywheel1,robot.flywheel2));
+        robot.turret1.setPosition(methods.AutoAim(follower.getPose()));
+        robot.turret2.setPosition(methods.AutoAim(follower.getPose()));
+
         telemetry.addData("Path State", pathState);
         telemetry.addData("drive error",follower.getDriveError());
         telemetry.addData("heading error",follower.getHeadingError());
+
         telemetry.update();
     }
+
+    public void intake(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+    }
+    public void move(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold;
+        Values.transfer_Values.transferTarget=0;
+    }
+    public boolean shoot(){
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
+        if (pathTimer.getElapsedTimeSeconds()>3){
+            robot.kicker.setPosition(Values.KICKER_UP);
+            return pathTimer.getElapsedTimeSeconds() > 5;
+        }
+        return false;
+    }
+
 
     private void buildPaths() {
 
@@ -346,69 +373,124 @@ public class Auton extends OpMode {
     }
 
     private void autonomousPathUpdate() {
-        if (!pathStarted) {
-            switch (pathState) {
-                case 0:
+        switch (pathState) {
+            case 0:
+                if (!follower.isBusy()) {
                     follower.followPath(scorePreload);
-                    shoot();
-                    break;
-                case 1:
+
+                }
+                if (follower.getPathCompletion()>0.3 && Math.abs(robot.flywheel1.getVelocity() - Values.flywheel_Values.flywheelTarget) < 50) {
+                    if (shoot()){
+                        nextPath();
+                    }
+                }else{
+                    move();
+                }
+                break;
+            case 1:
+                if (!follower.isBusy()) {
                     follower.followPath(toFirstChain);
-                    move();
-                    break;
-                case 2:
+                    nextPath();
+                }
+                break;
+            case 2:
+
+                move();
+                if (!follower.isBusy()) {
                     follower.followPath(grabMiddleChain);
-                    intake();
-                    break;
-                case 3:
+                    nextPath();
+                }
+                break;
+            case 3:
+
+                intake();
+                if (!follower.isBusy()) {
                     follower.followPath(scoreMiddleChain);
-                    shoot();
-                    break;
-                case 4:
+                    setPathState(100);
+                }
+                break;
+            case 100:
+                if (shoot()){
+                    setPathState(4);
+                }
+                break;
+            case 4:
+                if (!follower.isBusy()) {
                     follower.followPath(gateIntakeChain);
-                    move();
-                    break;
-                case 5:
+                    nextPath();
+                }
+                move();
+                break;
+            case 5:
+                if (!follower.isBusy()) {
                     follower.followPath(scoreGateChain);
-                    shoot();
-                    break;
-                case 6:
+                    setPathState(101);
+                }
+                break;
+            case 101:
+                if (shoot()){
+                    setPathState(6);
+                }
+                break;
+            case 6:
+                if (!follower.isBusy()) {
                     follower.followPath(toTopChain);
-                    move();
-                    break;
-                case 7:
+                    nextPath();
+                }
+                move();
+                break;
+            case 7:
+                if (!follower.isBusy()) {
                     follower.followPath(grabTopChain);
-                    intake();
-                    break;
-                case 8:
+                    nextPath();
+                }
+                intake();
+                break;
+            case 8:
+                if (!follower.isBusy()) {
                     follower.followPath(scoreTopChain);
-                    shoot();
-                    break;
-                case 9:
+                    setPathState(102);
+                }
+                break;
+            case 102:
+                if (shoot()){
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if (!follower.isBusy()) {
                     follower.followPath(toBottomChain);
-                    move();
-                    break;
-                case 10:
+                    nextPath();
+                }
+                move();
+                break;
+            case 10:
+                if (!follower.isBusy()) {
                     follower.followPath(grabBottomChain);
-                    intake();
-                    break;
-                case 11:
+                    nextPath();
+                }
+                intake();
+                break;
+            case 11:
+                if (!follower.isBusy()) {
                     follower.followPath(scoreBottomChain);
-                    shoot();
-                    break;
-                case 12:
+                    setPathState(103);
+                }
+                break;
+            case 103:
+                if (shoot()){
+                    setPathState(12);
+                }
+                break;
+            case 12:
+                if (!follower.isBusy()) {
                     follower.followPath(leave);
-                    move();
-                    break;
-            }
-            pathStarted = true;
+                    nextPath();
+                }
+                move();
+                break;
         }
 
-        if (pathStarted && !follower.isBusy()) {
-            pathState++;
-            pathStarted = false;
-            pathTimer.resetTimer();
-        }
     }
 
     private void nextPath() {
