@@ -7,6 +7,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import java.util.Map;
+
 public class Methods {
     private boolean firstLoop = true;
     private double lastPos;
@@ -162,21 +164,41 @@ public class Methods {
                     - Math.toDegrees(Math.atan2(dy, dx));
         }
         double servoAngle = 10.128*alpha/3600 + 0.5;
+        if (servoAngle>1 || servoAngle<0){
+            Values.turretDeadSpot=true;
+        }else{
+            Values.turretDeadSpot=false;
+        }
         servoAngle = Math.min(1,Math.max(0,servoAngle));
         return 1-servoAngle;
 
     }
 
-    public double hoodControl(Follower follower, DcMotorEx flywheel1, DcMotorEx flywheel2){
-        // 3d graph equation
-        double vel = (flywheel1.getVelocity() + flywheel2.getVelocity())/2;
-        double dist = getDist(follower);
-        double numerator = (-(c + f*dist) + Math.sqrt((c + f*dist)*(c + f*dist) - 4*e*(a + b*dist + d*dist*dist - vel))) / (2*e);
-        numerator = Math.min(1,Math.max(0,numerator));
-        return numerator;
+    public static double hoodNominal(double dist) {
 
+        if (dist <= Values.hoodLUT.firstKey()) return Values.hoodLUT.firstEntry().getValue();
+        if (dist >= Values.hoodLUT.lastKey())  return Values.hoodLUT.lastEntry().getValue();
 
+        Map.Entry<Double, Double> lower = Values.hoodLUT.floorEntry(dist);
+        Map.Entry<Double, Double> upper = Values.hoodLUT.ceilingEntry(dist);
+
+        if (lower == null || upper == null) {
+            return Values.hoodLUT.lastEntry().getValue();
+        }
+
+        if (lower.getKey().equals(upper.getKey())) {
+            return lower.getValue();
+        }
+
+        double x0 = lower.getKey();
+        double y0 = lower.getValue();
+        double x1 = upper.getKey();
+        double y1 = upper.getValue();
+
+        double t = (dist - x0) / (x1 - x0);
+        return y0 + t * (y1 - y0);
     }
+
     //x = distance, y = hood
     //flywheel = 2024.460854150586-5.521875372212847x-2088.3394044791553y+0.04960697997872554x^2+1095.182079053327y^2+14.997680959492307xy
     public double flywheelControl(Follower follower, Servo hood){

@@ -10,7 +10,7 @@ public class Hardware {
     public Limelight3A ll;
     public DcMotorEx intake, transfer, flywheel1, flywheel2;
     public Servo led;
-    public Servo hood1, limiter, turret1, turret2;
+    public Servo hood1, limiter, turret1, turret2, kicker;
 
     public Hardware(HardwareMap hardwareMap) {
         ll = hardwareMap.get(Limelight3A.class, "ll");
@@ -22,6 +22,7 @@ public class Hardware {
         limiter = hardwareMap.get(Servo.class,"limiter");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
+        kicker = hardwareMap.get(Servo.class,"kick");
         led = hardwareMap.get(Servo.class, "led");
         ll.pipelineSwitch(1);
         flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);

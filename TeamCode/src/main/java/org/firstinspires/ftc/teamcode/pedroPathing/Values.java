@@ -47,7 +47,9 @@ public class Values {
 
     public static final double TURRET_RIGHT = 0;
     public static final double LIMITER_OPEN=0.6,LIMITER_CLOSE=0.2;
+    public static final double KICKER_DOWN = 0.35, KICKER_UP = 1;
     public static double turretPos=0.5;
+    public static boolean turretDeadSpot = false;
     public static double hoodPos = 0.5;
     public enum Team {
         RED,
@@ -59,10 +61,17 @@ public class Values {
         SHOOTING,
 
     }
-    public static final TreeMap<Double,Double> lut = new TreeMap<>(
+    public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
             //distance, hood
             Map.ofEntries(
-                    Map.entry(0.0,0.0)
+                    Map.entry(32.1,1.0),
+                    Map.entry(45.98,0.74),
+                    Map.entry(58.8,0.68),
+                    Map.entry(73.0,0.59),
+                    Map.entry(92.2,0.38),
+                    Map.entry(100.1,0.32),
+                    Map.entry(134.2,0.04),
+                    Map.entry(136.3,0.0)
             )
     );
     public static void reset(){

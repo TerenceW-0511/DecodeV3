@@ -89,6 +89,24 @@ public class Auton extends OpMode {
     private PathChain toBottomChain, grabBottomChain, scoreBottomChain;
     private PathChain leave;
 
+    public void intake(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+    }
+    public void move(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold;
+        Values.transfer_Values.transferTarget=0;
+    }
+    public void shoot(){
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
+    }
+
+
+
     @Override
     public void init() {
         follower = Constants.createFollower(hardwareMap);
