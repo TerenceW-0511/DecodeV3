@@ -31,7 +31,7 @@ public class Teleop extends OpMode {
         timer = new Timer();
         Values.reset();
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(129,113.221415,Math.toRadians(180)));
+        follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY));
 
         follower.update();
     }
@@ -154,6 +154,7 @@ public class Teleop extends OpMode {
         hardware.turret2.setPosition(Values.turretPos);
 
         telemetry.addData("mode",Values.mode);
+        telemetry.addData("limelight",methods.limelightRelocalize(hardware.ll,follower,hardware.turret1));
         telemetry.addData("timer",timer.getElapsedTimeSeconds());
         telemetry.addData("pose",follower.getPose());
         telemetry.addData("dist",dist);

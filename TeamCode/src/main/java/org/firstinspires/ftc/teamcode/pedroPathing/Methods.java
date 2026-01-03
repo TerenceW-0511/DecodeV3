@@ -3,10 +3,12 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.Map;
@@ -148,9 +150,28 @@ public class Methods {
     public void manualRelocalize(Follower follower){
         follower.setPose(new Pose(135,6.5,Math.toRadians(0)));
     }
-    public void limelightRelocalize(Limelight3A ll, Follower follower){
-        Pose3D llPose = ll.getLatestResult().getBotpose_MT2();
-
+    public String limelightRelocalize(Limelight3A ll, Follower follower,Servo turret){
+        LLResult result = ll.getLatestResult();
+        if (!result.isValid()) return "invalid result";
+        ll.updateRobotOrientation(Math.toDegrees(result.getBotpose().getOrientation().getYaw(AngleUnit.RADIANS)));
+        Pose3D turretCenterPose = result.getBotpose_MT2();
+        Pose pedroPose = fromPose3d(turretCenterPose);
+        double turretAngle = 3600/10.128*(turret.getPosition()-0.5);
+        double x = turretCenterPose.getPosition().x + 9.3393*Math.sin(Math.toRadians(-turretAngle));
+        double y = turretCenterPose.getPosition().y + 9.3393*Math.cos(Math.toRadians(-turretAngle));
+        Pose botPose = new Pose(x,y, pedroPose.getHeading());
+        return botPose.toString();
+    }
+    public static Pose fromPose3d(Pose3D original) {
+        Pose pose = new Pose(
+                toInches(original.getPosition().y) + 72,
+                -toInches(original.getPosition().x) + 72,
+                original.getOrientation().getYaw(AngleUnit.RADIANS) + Math.PI / 2
+        );
+        return pose.setHeading((pose.getHeading() + Math.PI) % (2 * Math.PI));
+    }
+    public static double toInches(double meters){
+        return meters*39.3701;
     }
 
     public double AutoAim(Pose botPose){

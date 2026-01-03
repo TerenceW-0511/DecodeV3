@@ -9,8 +9,8 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-@Autonomous(name = "Auton", group = "Auto")
-public class Auton extends OpMode {
+@Autonomous(name = "Auton 12 Gate", group = "Auto")
+public class AutonGate12 extends OpMode {
 
     private Hardware robot;
     private Follower follower;
@@ -39,19 +39,20 @@ public class Auton extends OpMode {
 
     public static Pose startingPose;
 
-    // BLUE POSES
+    // BLUE POSES+
     public static Pose startingPoseBlue = new Pose(18,120,Math.toRadians(144));
     public static Pose scorePreloadPoseBlue = new Pose(55.2,89,Math.toRadians(144));
-    public static Pose toFirstBlue = new Pose(44.8,60.3,Math.toRadians(180));
+    public static Pose toFirstBlue = new Pose(48,60,Math.toRadians(180));
     public static Pose controlToFirstBlue = new Pose(56.1,66.5);
-    public static Pose grabMiddleBlue = new Pose(14.2,59.4,Math.toRadians(180));
+    public static Pose grabMiddleBlue = new Pose(13,60,Math.toRadians(180));
     public static Pose scoreMiddleChainBlue = new Pose(53,81,Math.toRadians(180));
-    public static Pose gateIntakeBlue = new Pose(12.5,60,Math.toRadians(140));
-    public static Pose scoreGateBlue = new Pose(54,82,Math.toRadians(140));
+    public static Pose gateIntakeBlue = new Pose(12.7,60.8,Math.toRadians(140));
+    public static Pose controlScoreGateBlue = new Pose(61.2,61.7);
+    public static Pose scoreGateBlue = new Pose(54,84.1,Math.toRadians(140));
     public static Pose toTopChainBlue = new Pose(45.2,84.3,Math.toRadians(180));
     public static Pose controlToTopBlue = new Pose(40.6,67.4);
-    public static Pose grabTopChainBlue = new Pose(16.7,84.1,Math.toRadians(180));
-    public static Pose scoreTopChainBlue = new Pose(55,88.1,Math.toRadians(270));
+    public static Pose grabTopChainBlue = new Pose(17.5,84.1,Math.toRadians(180));
+    public static Pose scoreTopChainBlue = new Pose(55,84.1,Math.toRadians(180));
     public static Pose controlScoreTopBlue = new Pose(57.8,91.9);
     public static Pose toBottomChainBlue = new Pose(43.75,36.2,Math.toRadians(180));
     public static Pose controlToBottomBlue = new Pose(52.5,30.77);
@@ -67,6 +68,7 @@ public class Auton extends OpMode {
     public static Pose grabMiddleChainRed = mirrorPose(grabMiddleBlue);
     public static Pose scoreMiddleChainRed = mirrorPose(scoreMiddleChainBlue);
     public static Pose gateIntakeRed = mirrorPose(gateIntakeBlue);
+    public static Pose controlScoreGateRed = mirrorPoint(controlScoreGateBlue);
     public static Pose scoreGateRed = mirrorPose(scoreGateBlue);
     public static Pose toTopChainRed = mirrorPose(toTopChainBlue);
     public static Pose controlToTopRed = mirrorPoint(controlToTopBlue);
@@ -170,9 +172,14 @@ public class Auton extends OpMode {
         robot.turret1.setPosition(methods.AutoAim(follower.getPose()));
         robot.turret2.setPosition(methods.AutoAim(follower.getPose()));
 
+        Values.autonFollowerX = follower.getPose().getX();
+        Values.autonFollowerY = follower.getPose().getY();
+
         telemetry.addData("Path State", pathState);
         telemetry.addData("drive error",follower.getDriveError());
         telemetry.addData("heading error",follower.getHeadingError());
+        telemetry.addData("angular velocity",follower.getAngularVelocity());
+        telemetry.addData("velocity",follower.getVelocity().getMagnitude());
 
         telemetry.update();
     }
@@ -186,16 +193,16 @@ public class Auton extends OpMode {
     public void move(){
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold;
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*1.5;
         Values.transfer_Values.transferTarget=0;
     }
     public boolean shoot(){
         robot.limiter.setPosition(Values.LIMITER_OPEN);
         Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
         Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
-        if (pathTimer.getElapsedTimeSeconds()>3){
+        if (pathTimer.getElapsedTimeSeconds()>1.3){
             robot.kicker.setPosition(Values.KICKER_UP);
-            return pathTimer.getElapsedTimeSeconds() > 5;
+            return pathTimer.getElapsedTimeSeconds() > 1.6;
         }
         return false;
     }
@@ -209,6 +216,7 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseBlue.getHeading(),
                         scorePreloadPoseBlue.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toFirstChainBlue = follower.pathBuilder()
@@ -216,11 +224,14 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scorePreloadPoseBlue.getHeading(),
                         toFirstBlue.getHeading())
+                .setNoDeceleration()
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabMiddleChainBlue = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstBlue, grabMiddleBlue))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreMiddleChainBluePath = follower.pathBuilder()
@@ -228,6 +239,7 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleBlue.getHeading(),
                         scoreMiddleChainBlue.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         gateIntakeChainBlue = follower.pathBuilder()
@@ -235,13 +247,15 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreMiddleChainBlue.getHeading(),
                         gateIntakeBlue.getHeading())
+                .setHeadingConstraint(0.07)
                 .build();
 
         scoreGateChainBlue = follower.pathBuilder()
-                .addPath(new BezierLine(gateIntakeBlue, scoreGateBlue))
+                .addPath(new BezierCurve(gateIntakeBlue, scoreGateBlue))
                 .setLinearHeadingInterpolation(
                         gateIntakeBlue.getHeading(),
                         scoreGateBlue.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toTopChainBluePath = follower.pathBuilder()
@@ -249,18 +263,22 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreGateBlue.getHeading(),
                         toTopChainBlue.getHeading())
+                .setNoDeceleration()
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabTopChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(toTopChainBlue, grabTopChainBlue))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreTopChainBluePath = follower.pathBuilder()
-                .addPath(new BezierCurve(grabTopChainBlue, controlScoreTopBlue, scoreTopChainBlue))
+                .addPath(new BezierCurve(grabTopChainBlue, scoreTopChainBlue))
                 .setLinearHeadingInterpolation(
                         grabTopChainBlue.getHeading(),
                         scoreTopChainBlue.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toBottomChainBluePath = follower.pathBuilder()
@@ -268,11 +286,14 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreTopChainBlue.getHeading(),
                         toBottomChainBlue.getHeading())
+                .setNoDeceleration()
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabBottomChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainBlue, grabBottomChainBlue))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreBottomChainBluePath = follower.pathBuilder()
@@ -280,11 +301,13 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainBlue.getHeading(),
                         scoreBottomChainBlue.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         leaveBlue = follower.pathBuilder()
                 .addPath(new BezierLine(scoreBottomChainBlue, leavePathBlue))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         // RED
@@ -293,6 +316,7 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseRed.getHeading(),
                         scorePreloadPoseRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toFirstChainRed = follower.pathBuilder()
@@ -300,11 +324,13 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scorePreloadPoseRed.getHeading(),
                         toFirstRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabMiddleChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstRed, grabMiddleChainRed))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreMiddleChainRedPath = follower.pathBuilder()
@@ -312,6 +338,7 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleChainRed.getHeading(),
                         scoreMiddleChainRed.getHeading())
+                .setHeadingConstraint(0.1)
                 .build();
 
         gateIntakeChainRed = follower.pathBuilder()
@@ -319,13 +346,15 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreMiddleChainRed.getHeading(),
                         gateIntakeRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreGateChainRed = follower.pathBuilder()
-                .addPath(new BezierLine(gateIntakeRed, scoreGateRed))
+                .addPath(new BezierCurve(gateIntakeRed,controlScoreGateRed, scoreGateRed))
                 .setLinearHeadingInterpolation(
                         gateIntakeRed.getHeading(),
                         scoreGateRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toTopChainRedPath = follower.pathBuilder()
@@ -333,18 +362,21 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreGateRed.getHeading(),
                         toTopChainRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabTopChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toTopChainRed, grabTopChainRed))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreTopChainRedPath = follower.pathBuilder()
-                .addPath(new BezierCurve(grabTopChainRed, controlScoreTopRed, scoreTopChainRed))
+                .addPath(new BezierCurve(grabTopChainRed, scoreTopChainRed))
                 .setLinearHeadingInterpolation(
                         grabTopChainRed.getHeading(),
                         scoreTopChainRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         toBottomChainRedPath = follower.pathBuilder()
@@ -352,11 +384,13 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreTopChainRed.getHeading(),
                         toBottomChainRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         grabBottomChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainRed, grabBottomChainRed))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
 
         scoreBottomChainRedPath = follower.pathBuilder()
@@ -364,134 +398,89 @@ public class Auton extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainRed.getHeading(),
                         scoreBottomChainRed.getHeading())
+                .setHeadingConstraint(0.05)
                 .build();
 
         leaveRed = follower.pathBuilder()
                 .addPath(new BezierLine(scoreBottomChainRed, leavePathRed))
                 .setTangentHeadingInterpolation()
+                .setHeadingConstraint(0.05)
                 .build();
     }
 
     private void autonomousPathUpdate() {
         switch (pathState) {
-            case 0:
-                if (!follower.isBusy()) {
-                    follower.followPath(scorePreload);
 
-                }
-                if (follower.getPathCompletion()>0.3 && Math.abs(robot.flywheel1.getVelocity() - Values.flywheel_Values.flywheelTarget) < 50) {
-                    if (shoot()){
-                        nextPath();
-                    }
-                }else{
-                    move();
-                }
-                break;
-            case 1:
-                if (!follower.isBusy()) {
-                    follower.followPath(toFirstChain);
+            // ================= PRE-START PAUSE =================
+            case 0:
+                move();
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     nextPath();
                 }
                 break;
-            case 2:
 
+            // ================= SCORE PRELOAD =================
+            case 1:
                 move();
-                if (!follower.isBusy()) {
-                    follower.followPath(grabMiddleChain);
+                runPath(scorePreload);
+                break;
+
+            case 2:
+            case 6:
+            case 11:
+            case 15:
+                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<0.5) {
                     nextPath();
                 }
                 break;
             case 3:
-
-                intake();
-                if (!follower.isBusy()) {
-                    follower.followPath(scoreMiddleChain);
-                    setPathState(100);
-                }
-                break;
-            case 100:
-                if (shoot()){
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                    follower.followPath(gateIntakeChain);
-                    nextPath();
-                }
-                move();
-                break;
-            case 5:
-                if (!follower.isBusy()) {
-                    follower.followPath(scoreGateChain);
-                    setPathState(101);
-                }
-                break;
-            case 101:
-                if (shoot()){
-                    setPathState(6);
-                }
-                break;
-            case 6:
-                if (!follower.isBusy()) {
-                    follower.followPath(toTopChain);
-                    nextPath();
-                }
-                move();
-                break;
             case 7:
-                if (!follower.isBusy()) {
-                    follower.followPath(grabTopChain);
+            case 12:
+            case 16:
+                if (shoot()){
                     nextPath();
-                }
+                }break;
+
+            // ================= GRAB MIDDLE =================
+            case 4:
                 intake();
+                runPath(grabMiddleChain);
+                break;
+
+            case 5:
+                move();
+                runPath(scoreMiddleChain);
                 break;
             case 8:
-                if (!follower.isBusy()) {
-                    follower.followPath(scoreTopChain);
-                    setPathState(102);
-                }
-                break;
-            case 102:
-                if (shoot()){
-                    setPathState(9);
-                }
+                move();
+                runPath(gateIntakeChain);
                 break;
             case 9:
-                if (!follower.isBusy()) {
-                    follower.followPath(toBottomChain);
-                    nextPath();
-                }
-                move();
-                break;
-            case 10:
-                if (!follower.isBusy()) {
-                    follower.followPath(grabBottomChain);
-                    nextPath();
-                }
                 intake();
-                break;
-            case 11:
-                if (!follower.isBusy()) {
-                    follower.followPath(scoreBottomChain);
-                    setPathState(103);
-                }
-                break;
-            case 103:
-                if (shoot()){
-                    setPathState(12);
-                }
-                break;
-            case 12:
-                if (!follower.isBusy()) {
-                    follower.followPath(leave);
+                if (pathTimer.getElapsedTimeSeconds()>2){
                     nextPath();
-                }
+                }break;
+            case 10:
+                move();
+                runPath(scoreGateChain);
+                break;
+            case 13:
+                intake();
+                runPath(grabTopChain);
+                break;
+            case 14:
+                move();
+                runPath(scoreTopChain);
+
+
+
+            // ================= SAFETY =================
+            default:
                 move();
                 break;
         }
-
     }
+
 
     private void nextPath() {
         pathState++;
@@ -518,5 +507,23 @@ public class Auton extends OpMode {
                 p.getY()
         );
     }
+    private void runPath(PathChain path) {
+
+        if (!pathStarted) {
+            follower.followPath(path);
+            pathStarted = true;
+            pathTimer.resetTimer();
+        }
+
+        boolean headingGood =
+                Math.abs(follower.getHeadingError()) <follower.getCurrentPath().getPathEndHeadingConstraint();
+        if (follower.atParametricEnd() && headingGood) {
+            pathStarted = false;
+            pathTimer.resetTimer();
+            nextPath();
+        }
+
+    }
+
 
 }

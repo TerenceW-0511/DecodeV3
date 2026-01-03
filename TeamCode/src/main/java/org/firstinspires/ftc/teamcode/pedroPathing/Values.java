@@ -50,7 +50,7 @@ public class Values {
     public static final double KICKER_DOWN = 0.35, KICKER_UP = 1;
     public static double turretPos=0.5;
     public static boolean turretDeadSpot = false;
-    public static double hoodPos = 0.5;
+    public static double autonFollowerX,autonFollowerY;
     public enum Team {
         RED,
         BLUE
