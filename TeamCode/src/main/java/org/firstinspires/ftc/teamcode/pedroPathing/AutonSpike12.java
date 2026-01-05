@@ -16,6 +16,11 @@ public class AutonSpike12 extends OpMode {
     private Follower follower;
     private Methods intakePID,transferPID,flywheelPID,methods;
     private boolean pathStarted = false;
+    private static final double CALLBACK_TIME = 10.0;
+
+    private boolean emergencyTriggered = false;
+    private boolean case15Completed = false;
+
 
 
     // PATH CHAINS
@@ -61,17 +66,17 @@ public class AutonSpike12 extends OpMode {
     public static Pose scorePreloadPoseBlue = new Pose(55.2,89,Math.toRadians(144));
     public static Pose toFirstBlue = new Pose(48,60,Math.toRadians(180));
     public static Pose controlToFirstBlue = new Pose(56.1,66.5);
-    public static Pose grabMiddleBlue = new Pose(14,60,Math.toRadians(180));
-    public static Pose openGateBlue = new Pose(15.9,66,Math.toRadians(180));
+    public static Pose grabMiddleBlue = new Pose(14.5,60,Math.toRadians(180));
+    public static Pose openGateBlue = new Pose(15.9,66.5,Math.toRadians(180));
     public static Pose controlOpenGateBlue = new Pose(34.6,63);
     public static Pose scoreMiddleChainBlue = new Pose(53,84,Math.toRadians(180));
     public static Pose controlScoreMiddleBlue = new Pose(61.2,61.7);
     public static Pose grabTopChainBlue = new Pose(18,84,Math.toRadians(180));
-    public static Pose scoreTopChainBlue = new Pose(55,84,Math.toRadians(180));
+    public static Pose scoreTopChainBlue = new Pose(53,84,Math.toRadians(180));
     public static Pose toBottomChainBlue = new Pose(43.75,36.2,Math.toRadians(180));
     public static Pose controlToBottomBlue = new Pose(52.5,35);
     public static Pose grabBottomChainBlue = new Pose(14,36.2,Math.toRadians(180));
-    public static Pose scoreBottomChainBlue = new Pose(53.3,123.1,Math.toRadians(180));
+    public static Pose scoreBottomChainBlue = new Pose(61.3,101.5,Math.toRadians(180));
 
     // RED POSES
     public static Pose startingPoseRed = mirrorPose(startingPoseBlue);
@@ -202,9 +207,9 @@ public class AutonSpike12 extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_OPEN);
         Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
         Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
-        if (pathTimer.getElapsedTimeSeconds()>1.3){
+        if (pathTimer.getElapsedTimeSeconds()>1.1){
             robot.kicker.setPosition(Values.KICKER_UP);
-            return pathTimer.getElapsedTimeSeconds() > 1.6;
+            return pathTimer.getElapsedTimeSeconds() > 1.4;
         }
         return false;
     }
@@ -221,7 +226,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseBlue.getHeading(),
                         scorePreloadPoseBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toFirstChainBlue = follower.pathBuilder()
@@ -233,18 +238,18 @@ public class AutonSpike12 extends OpMode {
                         scorePreloadPoseBlue.getHeading(),
                         toFirstBlue.getHeading())
                 .setNoDeceleration()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         grabMiddleChainBlue = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstBlue, grabMiddleBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.1)
+                .setHeadingConstraint(0.3)
                 .build();
         openGatePathBlue = follower.pathBuilder()
                 .addPath(new BezierCurve(grabMiddleBlue,controlOpenGateBlue,openGateBlue))
                 .setLinearHeadingInterpolation(grabMiddleBlue.getHeading(),openGateBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreMiddleChainBluePath = follower.pathBuilder()
@@ -252,14 +257,14 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleBlue.getHeading(),
                         scoreMiddleChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
 
         grabTopChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(scoreMiddleChainBlue, grabTopChainBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreTopChainBluePath = follower.pathBuilder()
@@ -267,7 +272,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabTopChainBlue.getHeading(),
                         scoreTopChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toBottomChainBluePath = follower.pathBuilder()
@@ -279,13 +284,13 @@ public class AutonSpike12 extends OpMode {
                         scoreTopChainBlue.getHeading(),
                         toBottomChainBlue.getHeading())
                 .setNoDeceleration()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         grabBottomChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainBlue, grabBottomChainBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreBottomChainBluePath = follower.pathBuilder()
@@ -293,7 +298,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainBlue.getHeading(),
                         scoreBottomChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
 
@@ -306,7 +311,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseRed.getHeading(),
                         scorePreloadPoseRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toFirstChainRed = follower.pathBuilder()
@@ -317,18 +322,19 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scorePreloadPoseRed.getHeading(),
                         toFirstRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
+                .setNoDeceleration()
                 .build();
 
         grabMiddleChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstRed, grabMiddleRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
         openGatePathRed = follower.pathBuilder()
                 .addPath(new BezierCurve(grabMiddleRed,controlOpenGateRed,openGateRed))
                 .setLinearHeadingInterpolation(grabMiddleRed.getHeading(),openGateRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreMiddleChainRedPath = follower.pathBuilder()
@@ -336,14 +342,14 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleRed.getHeading(),
                         scoreMiddleChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
 
         grabTopChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(scoreMiddleChainRed, grabTopChainRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreTopChainRedPath = follower.pathBuilder()
@@ -351,7 +357,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabTopChainRed.getHeading(),
                         scoreTopChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toBottomChainRedPath = follower.pathBuilder()
@@ -362,13 +368,14 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreTopChainRed.getHeading(),
                         toBottomChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
+                .setNoDeceleration()
                 .build();
 
         grabBottomChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainRed, grabBottomChainRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreBottomChainRedPath = follower.pathBuilder()
@@ -376,7 +383,7 @@ public class AutonSpike12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainRed.getHeading(),
                         scoreBottomChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
     }
@@ -401,7 +408,7 @@ public class AutonSpike12 extends OpMode {
             case 7:
             case 11:
             case 16:
-                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<0.5) {
+                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<1) {
                     nextPath();
                 }
                 break;
@@ -436,6 +443,7 @@ public class AutonSpike12 extends OpMode {
                 move();
                 runPath(scoreTopChain);
                 break;
+            //grab bottom
             case 13:
                 move();
                 runPath(toBottomChain);
@@ -463,6 +471,7 @@ public class AutonSpike12 extends OpMode {
     private void nextPath() {
         pathState++;
         pathTimer.resetTimer();
+        pathStarted=false;
     }
 
     private void setPathState(int p) {
@@ -488,19 +497,28 @@ public class AutonSpike12 extends OpMode {
     private void runPath(PathChain path) {
 
         if (!pathStarted) {
-            follower.followPath(path);
+            follower.followPath(path,true);
             pathStarted = true;
             pathTimer.resetTimer();
+
         }
-        if (follower.getPathCompletion()>0.9){
-            follower.setMaxPower(0.8);
+        if (pathState==5){
+            follower.setMaxPower(0.6);
+            if (pathTimer.getElapsedTimeSeconds()>2){
+                nextPath();
+            }
         }else{
             follower.setMaxPower(1);
         }
+//        if (follower.getDistanceRemaining()<10){
+//            follower.setMaxPower(0.8);
+//        }else{
+//            follower.setMaxPower(1);
+//        }
 
         boolean headingGood =
                 Math.abs(follower.getHeadingError()) <follower.getCurrentPath().getPathEndHeadingConstraint();
-        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>12) {
+        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>8) {
             pathStarted = false;
             pathTimer.resetTimer();
             nextPath();

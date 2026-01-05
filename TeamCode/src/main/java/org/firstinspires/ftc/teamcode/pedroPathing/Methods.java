@@ -18,7 +18,8 @@ public class Methods {
     private double lastPos;
     private double lastTime;
     private double lastTarget=0;
-    public static final double k=0.0002;
+    public static final double rpmAdj = 20;
+    public static final double k=0.00022;
     private double a= 1810.2766439035408,b=-3.449090076831704,c=-724.2250766458692,d=0.04813077393542908,e=224.62956712218775,f=4.943595431803776;
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
@@ -193,6 +194,7 @@ public class Methods {
         }else{
             Values.turretDeadSpot=false;
         }
+        servoAngle += Values.turretOverride;
         servoAngle = Math.min(1,Math.max(0,servoAngle));
         return 1-servoAngle;
 
@@ -236,11 +238,12 @@ public class Methods {
         double x = getDist(follower);
         double y = hood.getPosition();
         return a
-                +b*x
-                +c*y
-                +d*x*x
-                +e*y*y
-                +f*x*y;
+                + b * x
+                + c * y
+                + d * x * x
+                + e * y * y
+                + f * x * y
+                ;
     }
 
 }

@@ -104,16 +104,27 @@ public class Teleop extends OpMode {
                 }
                 break;
             case SHOOTING:
-                hardware.limiter.setPosition(Values.LIMITER_OPEN);
+
                 if (gamepad1.right_bumper && !Values.turretDeadSpot) {
                     Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
-                    if (Math.abs(hardware.flywheel2.getVelocity()-2000)<100) {
-                        speedFirstLoop=false;
-//                        hardware.transfer.setPower(1);
-                        Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
-                    }else{
-//                        hardware.transfer.setPower(.7);
-                        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+                    if (dist>120) {
+                        if (Math.abs(hardware.flywheel2.getVelocity() - Values.flywheel_Values.flywheelTarget) < 50) {
+                            speedFirstLoop = false;
+                            hardware.limiter.setPosition(Values.LIMITER_OPEN);
+                            Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
+                        } else {
+                            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+                            Values.transfer_Values.transferTarget = 0;
+                        }
+                    }
+                    else{
+                        hardware.limiter.setPosition(Values.LIMITER_OPEN);
+                        if (Math.abs(hardware.flywheel2.getVelocity() - Values.flywheel_Values.flywheelTarget) < 100) {
+                            speedFirstLoop = false;
+                            Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
+                        } else {
+                            Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
+                        }
                     }
 
                 }else {
@@ -122,6 +133,12 @@ public class Teleop extends OpMode {
 
                 if (speedFirstLoop){
                     if (timer.getElapsedTimeSeconds()>2){
+                        hardware.kicker.setPosition(Values.KICKER_UP);
+                    }else{
+                        hardware.kicker.setPosition(Values.KICKER_DOWN);
+                    }
+                }else if(dist>120){
+                    if (timer.getElapsedTimeSeconds()>1.6){
                         hardware.kicker.setPosition(Values.KICKER_UP);
                     }else{
                         hardware.kicker.setPosition(Values.KICKER_DOWN);
@@ -143,6 +160,9 @@ public class Teleop extends OpMode {
         if (timer.getElapsedTimeSeconds()>0.5) {
             Values.turretPos = methods.AutoAim(follower.getPose());
         }
+        Values.turretOverride += gamepad1.left_trigger/1000;
+        Values.turretOverride -= gamepad1.right_trigger/1000;
+        Values.turretOverride = Math.min(0.5,Math.max(-0.5,Values.turretOverride));
 
 
         intakePID.velocity_PID(hardware.intake, Values.intake_Values.intakeTarget, "intake");

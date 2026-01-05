@@ -9,6 +9,7 @@ public class Values {
     public static Team team = Team.RED;
     public static  double HOOD_FAR = 0;
     public static  double HOOD_CLOSE = 0;
+    public static double turretOverride = 0;
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
