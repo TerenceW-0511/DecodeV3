@@ -128,8 +128,8 @@ public class AutonSpike12 extends OpMode {
         }
 
         if (startingPose == null) {
-            Values.team = Values.Team.BLUE;
-            startingPose = startingPoseBlue;
+            Values.team = Values.Team.RED;
+            startingPose = startingPoseRed;
         }
         robot.turret1.setPosition(0.5);
         robot.turret2.setPosition(0.5);
@@ -518,7 +518,7 @@ public class AutonSpike12 extends OpMode {
 
         boolean headingGood =
                 Math.abs(follower.getHeadingError()) <follower.getCurrentPath().getPathEndHeadingConstraint();
-        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>8) {
+        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>7 || !follower.isBusy()) {
             pathStarted = false;
             pathTimer.resetTimer();
             nextPath();

@@ -43,7 +43,7 @@ public class Teleop extends OpMode {
     }
     @Override
     public void start(){
-
+        hardware.ll.start();
         follower.startTeleopDrive();
         timer.resetTimer();
     }
@@ -108,7 +108,7 @@ public class Teleop extends OpMode {
                 if (gamepad1.right_bumper && !Values.turretDeadSpot) {
                     Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
                     if (dist>120) {
-                        if (Math.abs(hardware.flywheel2.getVelocity() - Values.flywheel_Values.flywheelTarget) < 50) {
+                        if (Math.abs(hardware.flywheel2.getVelocity() - Values.flywheel_Values.flywheelTarget) < 80) {
                             speedFirstLoop = false;
                             hardware.limiter.setPosition(Values.LIMITER_OPEN);
                             Values.transfer_Values.transferTarget = Values.transfer_Values.transferUp;
@@ -160,8 +160,8 @@ public class Teleop extends OpMode {
         if (timer.getElapsedTimeSeconds()>0.5) {
             Values.turretPos = methods.AutoAim(follower.getPose());
         }
-        Values.turretOverride += gamepad1.left_trigger/1000;
-        Values.turretOverride -= gamepad1.right_trigger/1000;
+        Values.turretOverride += gamepad1.left_trigger/300;
+        Values.turretOverride -= gamepad1.right_trigger/300;
         Values.turretOverride = Math.min(0.5,Math.max(-0.5,Values.turretOverride));
 
 

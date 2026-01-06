@@ -13,7 +13,7 @@ public class Values {
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0.0011;
+        public static double fP = 0.0013;
         public static double fI = 0;
         public static double fD = 0.0000001;
 
@@ -76,6 +76,8 @@ public class Values {
             )
     );
     public static void reset(){
+
         turretPos = 0.5;
+        turretOverride = 0;
     }
 }

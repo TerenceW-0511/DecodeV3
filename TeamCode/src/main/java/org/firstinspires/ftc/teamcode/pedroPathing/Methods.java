@@ -153,7 +153,9 @@ public class Methods {
     }
     public String limelightRelocalize(Limelight3A ll, Follower follower,Servo turret){
         LLResult result = ll.getLatestResult();
+        if (!ll.isConnected()) return "not connected";
         if (!result.isValid()) return "invalid result";
+
         ll.updateRobotOrientation(Math.toDegrees(result.getBotpose().getOrientation().getYaw(AngleUnit.RADIANS)));
         Pose3D turretCenterPose = result.getBotpose_MT2();
         Pose pedroPose = fromPose3d(turretCenterPose);
@@ -247,8 +249,5 @@ public class Methods {
     }
 
 }
-/// intake: PID,velocity
-/// Hood: PID,position
-/// flywheel: PID velocity
-/// transfer: PID?, autoaim turret
+/// turret servo angle LUT
 /// ll: relocalization
