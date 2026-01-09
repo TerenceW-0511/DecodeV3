@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -24,7 +25,6 @@ public class Hardware {
         turret2 = hardwareMap.get(Servo.class, "turret2");
         kicker = hardwareMap.get(Servo.class,"kick");
         led = hardwareMap.get(Servo.class, "led");
-        ll.pipelineSwitch(1);
         flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

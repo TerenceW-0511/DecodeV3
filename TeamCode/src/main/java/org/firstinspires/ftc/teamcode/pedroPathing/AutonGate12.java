@@ -125,8 +125,11 @@ public class AutonGate12 extends OpMode {
             Values.team = Values.Team.BLUE;
             startingPose = startingPoseBlue;
         }
-        robot.turret1.setPosition(0.5);
-        robot.turret2.setPosition(0.5);
+        Values.turretOverride -= gamepad1.left_trigger/300;
+        Values.turretOverride += gamepad1.right_trigger/300;
+        robot.turret1.setPosition(Values.turretPos+Values.turretOverride);
+        robot.turret2.setPosition(Values.turretPos+Values.turretOverride);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
 
         telemetry.addData("Team", Values.team);
         telemetry.addData("Starting Pose", startingPose);
@@ -165,12 +168,12 @@ public class AutonGate12 extends OpMode {
         follower.update();
         autonomousPathUpdate();
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
-        flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFF(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
         intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower),robot.flywheel1,robot.flywheel2));
-        robot.turret1.setPosition(methods.AutoAim(follower.getPose()));
-        robot.turret2.setPosition(methods.AutoAim(follower.getPose()));
+        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
+        robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
+        robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
 
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();
@@ -193,7 +196,7 @@ public class AutonGate12 extends OpMode {
     public void move(){
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*1.5;
+        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
         Values.transfer_Values.transferTarget=0;
     }
     public boolean shoot(){
@@ -216,7 +219,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseBlue.getHeading(),
                         scorePreloadPoseBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toFirstChainBlue = follower.pathBuilder()
@@ -225,13 +228,13 @@ public class AutonGate12 extends OpMode {
                         scorePreloadPoseBlue.getHeading(),
                         toFirstBlue.getHeading())
                 .setNoDeceleration()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         grabMiddleChainBlue = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstBlue, grabMiddleBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreMiddleChainBluePath = follower.pathBuilder()
@@ -239,7 +242,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleBlue.getHeading(),
                         scoreMiddleChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         gateIntakeChainBlue = follower.pathBuilder()
@@ -247,15 +250,15 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreMiddleChainBlue.getHeading(),
                         gateIntakeBlue.getHeading())
-                .setHeadingConstraint(0.07)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreGateChainBlue = follower.pathBuilder()
-                .addPath(new BezierCurve(gateIntakeBlue, scoreGateBlue))
+                .addPath(new BezierCurve(gateIntakeBlue, controlScoreGateBlue, scoreGateBlue))
                 .setLinearHeadingInterpolation(
                         gateIntakeBlue.getHeading(),
                         scoreGateBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toTopChainBluePath = follower.pathBuilder()
@@ -264,13 +267,13 @@ public class AutonGate12 extends OpMode {
                         scoreGateBlue.getHeading(),
                         toTopChainBlue.getHeading())
                 .setNoDeceleration()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         grabTopChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(toTopChainBlue, grabTopChainBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreTopChainBluePath = follower.pathBuilder()
@@ -278,7 +281,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabTopChainBlue.getHeading(),
                         scoreTopChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toBottomChainBluePath = follower.pathBuilder()
@@ -287,13 +290,13 @@ public class AutonGate12 extends OpMode {
                         scoreTopChainBlue.getHeading(),
                         toBottomChainBlue.getHeading())
                 .setNoDeceleration()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         grabBottomChainBluePath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainBlue, grabBottomChainBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreBottomChainBluePath = follower.pathBuilder()
@@ -301,13 +304,13 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainBlue.getHeading(),
                         scoreBottomChainBlue.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         leaveBlue = follower.pathBuilder()
                 .addPath(new BezierLine(scoreBottomChainBlue, leavePathBlue))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         // RED
@@ -316,7 +319,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         startingPoseRed.getHeading(),
                         scorePreloadPoseRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toFirstChainRed = follower.pathBuilder()
@@ -324,13 +327,14 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scorePreloadPoseRed.getHeading(),
                         toFirstRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
+                .setNoDeceleration()
                 .build();
 
         grabMiddleChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toFirstRed, grabMiddleChainRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreMiddleChainRedPath = follower.pathBuilder()
@@ -338,7 +342,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabMiddleChainRed.getHeading(),
                         scoreMiddleChainRed.getHeading())
-                .setHeadingConstraint(0.1)
+                .setHeadingConstraint(0.3)
                 .build();
 
         gateIntakeChainRed = follower.pathBuilder()
@@ -346,7 +350,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreMiddleChainRed.getHeading(),
                         gateIntakeRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreGateChainRed = follower.pathBuilder()
@@ -354,7 +358,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         gateIntakeRed.getHeading(),
                         scoreGateRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toTopChainRedPath = follower.pathBuilder()
@@ -362,13 +366,14 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreGateRed.getHeading(),
                         toTopChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
+                .setNoDeceleration()
                 .build();
 
         grabTopChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toTopChainRed, grabTopChainRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreTopChainRedPath = follower.pathBuilder()
@@ -376,7 +381,7 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabTopChainRed.getHeading(),
                         scoreTopChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         toBottomChainRedPath = follower.pathBuilder()
@@ -384,13 +389,14 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         scoreTopChainRed.getHeading(),
                         toBottomChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
+                .setNoDeceleration()
                 .build();
 
         grabBottomChainRedPath = follower.pathBuilder()
                 .addPath(new BezierLine(toBottomChainRed, grabBottomChainRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         scoreBottomChainRedPath = follower.pathBuilder()
@@ -398,13 +404,13 @@ public class AutonGate12 extends OpMode {
                 .setLinearHeadingInterpolation(
                         grabBottomChainRed.getHeading(),
                         scoreBottomChainRed.getHeading())
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
 
         leaveRed = follower.pathBuilder()
                 .addPath(new BezierLine(scoreBottomChainRed, leavePathRed))
                 .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.05)
+                .setHeadingConstraint(0.3)
                 .build();
     }
 
@@ -429,7 +435,7 @@ public class AutonGate12 extends OpMode {
             case 6:
             case 11:
             case 15:
-                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<0.5) {
+                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<1) {
                     nextPath();
                 }
                 break;
@@ -517,7 +523,7 @@ public class AutonGate12 extends OpMode {
 
         boolean headingGood =
                 Math.abs(follower.getHeadingError()) <follower.getCurrentPath().getPathEndHeadingConstraint();
-        if (follower.atParametricEnd() && headingGood) {
+        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>7 || !follower.isBusy()) {
             pathStarted = false;
             pathTimer.resetTimer();
             nextPath();

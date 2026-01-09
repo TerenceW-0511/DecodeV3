@@ -62,12 +62,12 @@ public class AutonSpike12 extends OpMode {
     public static Pose startingPose;
 
     // BLUE POSES+
-    public static Pose startingPoseBlue = new Pose(18,120,Math.toRadians(144));
-    public static Pose scorePreloadPoseBlue = new Pose(55.2,89,Math.toRadians(144));
+    public static Pose startingPoseBlue = new Pose(33.3,136.7,Math.toRadians(180));
+    public static Pose scorePreloadPoseBlue = new Pose(55.2,89,Math.toRadians(180));
     public static Pose toFirstBlue = new Pose(48,60,Math.toRadians(180));
     public static Pose controlToFirstBlue = new Pose(56.1,66.5);
     public static Pose grabMiddleBlue = new Pose(14.5,60,Math.toRadians(180));
-    public static Pose openGateBlue = new Pose(15.9,66.5,Math.toRadians(180));
+    public static Pose openGateBlue = new Pose(15.9,69.5,Math.toRadians(180));
     public static Pose controlOpenGateBlue = new Pose(34.6,63);
     public static Pose scoreMiddleChainBlue = new Pose(53,84,Math.toRadians(180));
     public static Pose controlScoreMiddleBlue = new Pose(61.2,61.7);
@@ -87,7 +87,7 @@ public class AutonSpike12 extends OpMode {
     public static Pose openGateRed = mirrorPose(openGateBlue);
     public static Pose controlOpenGateRed = mirrorPoint(controlOpenGateBlue);
     public static Pose scoreMiddleChainRed = mirrorPose(scoreMiddleChainBlue);
-    public static Pose controlScoreMiddleRed = mirrorPose(controlScoreMiddleBlue);
+    public static Pose controlScoreMiddleRed = mirrorPoint(controlScoreMiddleBlue);
     public static Pose grabTopChainRed = mirrorPose(grabTopChainBlue);
     public static Pose scoreTopChainRed = mirrorPose(scoreTopChainBlue);
     public static Pose toBottomChainRed = mirrorPose(toBottomChainBlue);
@@ -95,7 +95,7 @@ public class AutonSpike12 extends OpMode {
     public static Pose grabBottomChainRed = mirrorPose(grabBottomChainBlue);
     public static Pose scoreBottomChainRed = mirrorPose(scoreBottomChainBlue);
 
-    private boolean isRed = true;
+    private boolean isRed = false;
 
 
 
@@ -120,19 +120,24 @@ public class AutonSpike12 extends OpMode {
     public void init_loop() {
 
         if (gamepad1.aWasPressed()) {
+            isRed = false;
             Values.team = Values.Team.BLUE;
             startingPose = startingPoseBlue;
         } else if (gamepad1.bWasPressed()) {
+            isRed = true;
             Values.team = Values.Team.RED;
             startingPose = startingPoseRed;
         }
 
         if (startingPose == null) {
-            Values.team = Values.Team.RED;
-            startingPose = startingPoseRed;
+            Values.team = Values.Team.BLUE;
+            startingPose = startingPoseBlue;
         }
-        robot.turret1.setPosition(0.5);
-        robot.turret2.setPosition(0.5);
+        Values.turretOverride -= gamepad1.left_trigger/300;
+        Values.turretOverride += gamepad1.right_trigger/300;
+        robot.turret1.setPosition(Values.turretPos-Values.turretOverride);
+        robot.turret2.setPosition(Values.turretPos-Values.turretOverride);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
 
         telemetry.addData("Team", Values.team);
         telemetry.addData("Starting Pose", startingPose);
@@ -144,6 +149,12 @@ public class AutonSpike12 extends OpMode {
     public void start() {
 
         isRed = (Values.team == Values.Team.RED);
+        robot.ll.start();
+        if (isRed){
+            robot.ll.pipelineSwitch(1);
+        }else{
+            robot.ll.pipelineSwitch(2);
+        }
 
         buildPaths();
 
@@ -175,9 +186,10 @@ public class AutonSpike12 extends OpMode {
         flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
         intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower),robot.flywheel1,robot.flywheel2));
-        robot.turret1.setPosition(methods.AutoAim(follower.getPose()));
-        robot.turret2.setPosition(methods.AutoAim(follower.getPose()));
+        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
+        methods.limelightCorrection(robot.ll,methods.getDist(follower.getPose()));
+        robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
+        robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
 
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();

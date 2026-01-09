@@ -22,6 +22,7 @@ dependencies {
     implementation 'org.ftclib.ftclib:core:2.1.1' // core
 
     implementation 'com.bylazar:fullpanels:1.0.9'
+    implementation "com.bylazar:limelightproxy:1.0.4"
     implementation 'androidx.appcompat:appcompat:1.7.1'
 
     implementation 'com.acmerobotics.dashboard:dashboard:0.5.0'

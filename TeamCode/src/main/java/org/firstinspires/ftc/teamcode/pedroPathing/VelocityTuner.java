@@ -4,104 +4,64 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 @Config
 @TeleOp(name = "FlywheelVelocityTuner", group = "Tuning")
-public class VelocityTuner extends LinearOpMode {
+public class VelocityTuner extends OpMode {
 
     public static double targetVelocity = 1500;
     public static String motorType = "intake";
-    public static double fP = 0.002;
-    public static double fI = 0.0;
-    public static double fD = 0.0;
-    public static double fK = 0.001;
+    public static double kp=0,ks=0,kv=0;
 
-    private DcMotorEx controlledMotor;
+    private DcMotorEx flywheel1,flywheel2;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Methods methods = new Methods();
 
+    @Override
+    public void init(){
 
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
+        flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setDirection(DcMotorEx.Direction.FORWARD);
+        flywheel1.setPower(0);
+        flywheel2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
+    }
 
     @Override
-    public void runOpMode() {
+    public void loop() {
+        double target = targetVelocity;
 
+        double currentVel = (flywheel1.getVelocity() + flywheel2.getVelocity()) / 2.0;
+        double error = target - currentVel;
 
+        double ff = kv * target
+                + ks * Math.signum(target);
 
-        controlledMotor = hardwareMap.get(DcMotorEx.class, motorType);
-        controlledMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        controlledMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        controlledMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        controlledMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        double p = kp * error;
 
-        telemetry.addLine("Velocity Tuner Ready");
-        telemetry.update();
+        double power = Range.clip(ff + p, -1.0, 1.0);
 
-        String lastMotorType = motorType;
-
-        waitForStart();
-        methods.resetPID();
-
-        while (opModeIsActive()) {
-
-            if (!motorType.equals(lastMotorType)) {
-                lastMotorType = motorType;
-
-                controlledMotor = hardwareMap.get(DcMotorEx.class, motorType);
-                controlledMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                controlledMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                controlledMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            }
-
-            switch (motorType) {
-
-                case "intake":
-                    Values.intake_Values.iP = fP;
-                    Values.intake_Values.iI = fI;
-                    Values.intake_Values.iD = fD;
-                    Values.intake_Values.iK = fK;
-                    controlledMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    Values.intake_Values.intakePIDController.setPIDF(fP, fI, fD, fK);
-                    break;
-
-                case "flywheel1":
-                    Values.flywheel_Values.fP = fP;
-                    Values.flywheel_Values.fI = fI;
-                    Values.flywheel_Values.fD = fD;
-                    Values.flywheel_Values.fF = fK;
-                    controlledMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
-                    Values.flywheel_Values.flywheelPIDController.setPIDF(fP, fI, fD, fK);
-                    break;
-
-                case "transfer":
-                    Values.transfer_Values.trP = fP;
-                    Values.transfer_Values.trI = fI;
-                    Values.transfer_Values.trD = fD;
-                    Values.transfer_Values.trF = fK;
-                    controlledMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    Values.transfer_Values.transferPIDController.setPIDF(fP, fI, fD, fK);
-                    break;
-
-            }
-
-            TelemetryPacket packet = new TelemetryPacket();
-            packet.put("MotorType", motorType);
-            packet.put("TargetVelocity", targetVelocity);
-            if (!motorType.equals("flywheel1"))
-                packet.put("MeasuredVelocity", methods.velocity_PID(controlledMotor, targetVelocity, motorType));
-            else{
-                packet.put("MeasuredVelocity",methods.velocity_PID(controlledMotor,hardwareMap.get(DcMotorEx.class,"flywheel2"),targetVelocity));
-            }
-            packet.put("Power", controlledMotor.getPower());
-            dashboard.sendTelemetryPacket(packet);
-
-            telemetry.update();
-        }
-
-        controlledMotor.setPower(0);
+        flywheel1.setPower(power);
+        flywheel2.setPower(power);
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("Target Vel", target);
+        packet.put("Current Vel", currentVel);
+        packet.put("Error", error);
+        packet.put("Power", power);
+        dashboard.sendTelemetryPacket(packet);
     }
 }

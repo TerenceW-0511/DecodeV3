@@ -108,8 +108,11 @@ public class AutonFar9 extends OpMode {
             Values.team = Values.Team.RED;
             startingPose = startingPoseRed;
         }
-        robot.turret1.setPosition(0.5);
-        robot.turret2.setPosition(0.5);
+        Values.turretOverride -= gamepad1.left_trigger/300;
+        Values.turretOverride += gamepad1.right_trigger/300;
+        robot.turret1.setPosition(Values.turretPos+Values.turretOverride);
+        robot.turret2.setPosition(Values.turretPos+Values.turretOverride);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
 
         telemetry.addData("Team", Values.team);
         telemetry.addData("Starting Pose", startingPose);
@@ -142,12 +145,12 @@ public class AutonFar9 extends OpMode {
         follower.update();
         autonomousPathUpdate();
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
-        flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFF(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
         intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower),robot.flywheel1,robot.flywheel2));
-        robot.turret1.setPosition(methods.AutoAim(follower.getPose()));
-        robot.turret2.setPosition(methods.AutoAim(follower.getPose()));
+        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
+        robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
+        robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
 
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();
