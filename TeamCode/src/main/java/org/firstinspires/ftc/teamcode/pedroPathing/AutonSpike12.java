@@ -67,8 +67,8 @@ public class AutonSpike12 extends OpMode {
     public static Pose toFirstBlue = new Pose(48,60,Math.toRadians(180));
     public static Pose controlToFirstBlue = new Pose(56.1,66.5);
     public static Pose grabMiddleBlue = new Pose(14.5,60,Math.toRadians(180));
-    public static Pose openGateBlue = new Pose(15.9,69.5,Math.toRadians(180));
-    public static Pose controlOpenGateBlue = new Pose(34.6,63);
+    public static Pose openGateBlue = new Pose(15.9,74,Math.toRadians(180));
+    public static Pose controlOpenGateBlue = new Pose(51.5,51.5);
     public static Pose scoreMiddleChainBlue = new Pose(53,84,Math.toRadians(180));
     public static Pose controlScoreMiddleBlue = new Pose(61.2,61.7);
     public static Pose grabTopChainBlue = new Pose(18,84,Math.toRadians(180));
@@ -133,8 +133,8 @@ public class AutonSpike12 extends OpMode {
             Values.team = Values.Team.BLUE;
             startingPose = startingPoseBlue;
         }
-        Values.turretOverride -= gamepad1.left_trigger/300;
-        Values.turretOverride += gamepad1.right_trigger/300;
+        Values.turretOverride -= gamepad1.left_trigger/1000;
+        Values.turretOverride += gamepad1.right_trigger/1000;
         robot.turret1.setPosition(Values.turretPos-Values.turretOverride);
         robot.turret2.setPosition(Values.turretPos-Values.turretOverride);
         robot.kicker.setPosition(Values.KICKER_DOWN);
@@ -213,6 +213,12 @@ public class AutonSpike12 extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
         Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
+        Values.transfer_Values.transferTarget=0;
+    }
+    public void moveNoIntake(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
+        Values.intake_Values.intakeTarget=0;
         Values.transfer_Values.transferTarget=0;
     }
     public boolean shoot(){
@@ -515,10 +521,12 @@ public class AutonSpike12 extends OpMode {
 
         }
         if (pathState==5){
-            follower.setMaxPower(0.6);
-            if (pathTimer.getElapsedTimeSeconds()>2){
+            follower.setMaxPower(0.7);
+            if (pathTimer.getElapsedTimeSeconds()>4){
                 nextPath();
             }
+        }else if (pathState==4){
+            follower.setMaxPower(0.7);
         }else{
             follower.setMaxPower(1);
         }

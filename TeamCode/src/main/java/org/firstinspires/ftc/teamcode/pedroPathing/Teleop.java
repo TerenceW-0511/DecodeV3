@@ -113,7 +113,7 @@ public class Teleop extends OpMode {
         }
 
 
-
+        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
         hardware.hood1.setPosition(methods.hoodControl(dist, hardware.flywheel1, hardware.flywheel2));
 
 
@@ -122,7 +122,6 @@ public class Teleop extends OpMode {
 
         switch(Values.mode) {
             case INTAKING:
-                Values.flywheel_Values.flywheelTarget=Values.flywheel_Values.flywheelIdle;
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                     hardware.kicker.setPosition(Values.KICKER_DOWN);
@@ -150,7 +149,7 @@ public class Teleop extends OpMode {
 //                if (gamepad1.rightBumperWasPressed()){
 //                methods.limelightCorrection(hardware.ll,dist);
 //                Values.turretPos = methods.AutoAim(follower.getPose(),hardware.ll);
-                Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
+
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
 
                 hardware.kicker.setPosition(Values.KICKER_DOWN);

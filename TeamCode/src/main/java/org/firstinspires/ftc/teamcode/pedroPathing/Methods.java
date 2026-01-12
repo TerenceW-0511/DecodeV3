@@ -262,9 +262,9 @@ public class Methods {
 //        }
         if (dist>120){
             if (Values.team==Values.Team.RED) {
-                offsetAmt = -5;
+                offsetAmt = 0.5;
             }else{
-                offsetAmt = 5;
+                offsetAmt = -0.5;
             }
         }else{
             offsetAmt = 0;

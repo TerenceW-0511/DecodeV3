@@ -53,7 +53,7 @@ public class Values {
 
     public static final double TURRET_RIGHT = 0;
     public static final double LIMITER_OPEN=0.8,LIMITER_CLOSE=0.3;
-    public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.95;
+    public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
@@ -72,15 +72,13 @@ public class Values {
             //distance, hood
             Map.ofEntries(
                     Map.entry(32.1,1.0),
-                    Map.entry(92.2,0.5),
-                    Map.entry(190.0,0.0)
-//                    Map.entry(45.98,0.74),
-//                    Map.entry(58.8,0.68),
-//                    Map.entry(73.0,0.59),
-//                    Map.entry(92.2,0.38),
-//                    Map.entry(100.1,0.32),
-//                    Map.entry(134.2,0.04),
-//                    Map.entry(136.3,0.0)
+                    Map.entry(45.98,0.74),
+                    Map.entry(58.8,0.68),
+                    Map.entry(73.0,0.59),
+                    Map.entry(92.2,0.38),
+                    Map.entry(100.1,0.32),
+                    Map.entry(134.2,0.04),
+                    Map.entry(136.3,0.0)
             )
     );
 
