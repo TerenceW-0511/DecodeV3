@@ -245,7 +245,9 @@ public class Teleop extends OpMode {
  //       intakePID.velocity_PID(hardware.intake, Values.intake_Values.intakeTarget, "intake");
 //        transferPID.velocity_PID(hardware.transfer, Values.transfer_Values.transferTarget, "transfer");
         if(dist>115) {
-            flywheelPID.flywheelFF(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+//            flywheelPID.flywheelFF(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+            hardware.flywheel1.setPower(1);
+            hardware.flywheel2.setPower(1);
         }else{
             flywheelPID.velocity_PID(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
         }

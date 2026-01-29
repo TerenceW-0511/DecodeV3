@@ -183,7 +183,12 @@ public class AutonSpike12 extends OpMode {
         follower.update();
         autonomousPathUpdate();
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
-        flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        if (robot.flywheel1.getCurrentPosition() < 100){
+            robot.flywheel1.setPower(1);
+            robot.flywheel2.setPower(1);
+        }else {
+            flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        }
         intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
         robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
