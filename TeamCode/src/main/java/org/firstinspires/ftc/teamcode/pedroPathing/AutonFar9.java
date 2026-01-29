@@ -167,19 +167,33 @@ public class AutonFar9 extends OpMode {
     public void intake(){
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+//        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
+        robot.intake.setPower(1);
+        robot.transfer.setPower(.7);
     }
     public void move(){
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
-        Values.transfer_Values.transferTarget=0;
+//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
+        robot.intake.setPower(0);
+        robot.transfer.setPower(1);
+//        Values.transfer_Values.transferTarget=0;
+    }
+    public void moveNoIntake(){
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.kicker.setPosition(Values.KICKER_DOWN);
+//        Values.intake_Values.intakeTarget=0;
+//        Values.transfer_Values.transferTarget=0;
+        robot.transfer.setPower(0);
+        robot.intake.setPower(0);
     }
     public boolean shoot(){
         robot.limiter.setPosition(Values.LIMITER_OPEN);
-        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
+//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
+//        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
+        robot.intake.setPower(1);
+        robot.transfer.setPower(1);
         if (pathTimer.getElapsedTimeSeconds()>1.1){
             robot.kicker.setPosition(Values.KICKER_UP);
             return pathTimer.getElapsedTimeSeconds() > 1.4;

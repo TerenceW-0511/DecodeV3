@@ -131,13 +131,15 @@ public class Teleop extends OpMode {
                     hardware.limiter.setPosition(Values.LIMITER_CLOSE);
                 }
                 if (gamepad1.left_bumper) {
-                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
-//                    hardware.transfer.setPower(.7);
-                    Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
+//                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
+                    hardware.intake.setPower(1);
+                    hardware.transfer.setPower(1);
+//                    Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
                 } else {
-                    Values.intake_Values.intakeTarget = 2*Values.intake_Values.intakeHold;
-                    Values.transfer_Values.transferTarget = 0;
-//                    hardware.transfer.setPower(0);
+                    hardware.intake.setPower(0);
+//                    Values.intake_Values.intakeTarget = 2*Values.intake_Values.intakeHold;
+                    //Values.transfer_Values.transferTarget = 0;
+                    hardware.transfer.setPower(0);
                 }
                 break;
             case SHOOTING:
@@ -240,8 +242,8 @@ public class Teleop extends OpMode {
         Values.turretOverride = Math.min(0.5,Math.max(-0.5,Values.turretOverride));
 
 
-        intakePID.velocity_PID(hardware.intake, Values.intake_Values.intakeTarget, "intake");
-        transferPID.velocity_PID(hardware.transfer, Values.transfer_Values.transferTarget, "transfer");
+ //       intakePID.velocity_PID(hardware.intake, Values.intake_Values.intakeTarget, "intake");
+//        transferPID.velocity_PID(hardware.transfer, Values.transfer_Values.transferTarget, "transfer");
         if(dist>115) {
             flywheelPID.flywheelFF(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
         }else{
