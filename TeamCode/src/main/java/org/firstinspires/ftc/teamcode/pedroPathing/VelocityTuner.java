@@ -19,15 +19,17 @@ public class VelocityTuner extends OpMode {
 
     public static double targetVelocity = 1500;
     public static String motorType = "intake";
-    public static double kp=0,ks=0,kv=0;
+    public static double kp=0,ks=0,kv=0,ki=0,kd=0;
+
+    public static double threshold = 200;
 
     private DcMotorEx flywheel1,flywheel2;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private Methods methods = new Methods();
-
+    double integral = 0;
+    double lastError = 0;
     @Override
     public void init(){
-
         flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
         flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -48,13 +50,21 @@ public class VelocityTuner extends OpMode {
         double currentVel = (flywheel1.getVelocity() + flywheel2.getVelocity()) / 2.0;
         double error = target - currentVel;
 
-        double ff = kv * target
-                + ks * Math.signum(target);
+        double power;
+//        double ff = kv * target
+//                + ks * Math.signum(target);
+        if (Math.abs(error) > threshold) {
+            power = 1;
+        }  else{
 
+        integral += error;
+        double derivative = error - lastError;
         double p = kp * error;
-
-        double power = Range.clip(ff + p, -1.0, 1.0);
-
+        double i = ki * integral;
+        double d = kd * derivative;
+        power = p + i + d;
+        }
+        power = Range.clip(power, -1.0, 1.0);
         flywheel1.setPower(power);
         flywheel2.setPower(power);
         TelemetryPacket packet = new TelemetryPacket();
