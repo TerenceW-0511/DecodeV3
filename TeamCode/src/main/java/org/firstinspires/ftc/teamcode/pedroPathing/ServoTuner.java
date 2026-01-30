@@ -39,14 +39,14 @@ public class ServoTuner extends OpMode {
         double power;
 //        double ff = kv * target
 //                + ks * Math.signum(target);
-
+        lastError = error;
         integral += error;
         double derivative = error - lastError;
         double p = kp * error;
         double i = ki * integral;
         double d = kd * derivative;
         power = p + i + d;
-        power = Range.clip(power, -1.0, 1.0);
+        power = Range.clip(power, 0.0, 1.0);
         turret1.setPosition(power);
         turret2.setPosition(power);
         TelemetryPacket packet = new TelemetryPacket();

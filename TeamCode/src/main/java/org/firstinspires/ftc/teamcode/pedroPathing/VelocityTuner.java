@@ -56,7 +56,7 @@ public class VelocityTuner extends OpMode {
         if (Math.abs(error) > threshold) {
             power = 1;
         }  else{
-
+        lastError = error;
         integral += error;
         double derivative = error - lastError;
         double p = kp * error;
