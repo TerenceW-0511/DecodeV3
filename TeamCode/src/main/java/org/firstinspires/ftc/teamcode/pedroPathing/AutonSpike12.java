@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 //we are skibidi, we are rizzlers
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -20,6 +22,7 @@ public class AutonSpike12 extends OpMode {
 
     private boolean emergencyTriggered = false;
     private boolean case15Completed = false;
+    private FtcDashboard dashboard = FtcDashboard.getInstance();
 
 
 
@@ -133,11 +136,9 @@ public class AutonSpike12 extends OpMode {
             Values.team = Values.Team.BLUE;
             startingPose = startingPoseBlue;
         }
-        Values.turretOverride -= gamepad1.left_trigger/1000;
-        Values.turretOverride += gamepad1.right_trigger/1000;
-        robot.turret1.setPosition(Values.turretPos-Values.turretOverride);
-        robot.turret2.setPosition(Values.turretPos-Values.turretOverride);
-        robot.kicker.setPosition(Values.KICKER_DOWN);
+
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        TelemetryPacket packet = new TelemetryPacket();
 
         telemetry.addData("Team", Values.team);
         telemetry.addData("Starting Pose", startingPose);
@@ -182,29 +183,37 @@ public class AutonSpike12 extends OpMode {
     public void loop() {
         follower.update();
         autonomousPathUpdate();
+        Pose pose = follower.getPose();
+        double dist = methods.getDist(pose);
+        double flywheelVel1 = robot.flywheel1.getVelocity();
+        double flywheelVel2 = robot.flywheel2.getVelocity();
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
-        if (robot.flywheel1.getCurrentPosition() < 100){
-            robot.flywheel1.setPower(1);
-            robot.flywheel2.setPower(1);
-        }else {
-            flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
-        }
-        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
-        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
-        methods.limelightCorrection(robot.ll,methods.getDist(follower.getPose()));
-        robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
-        robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
+        flywheelPID.velocity_PID(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
+        double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
+
+//        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
+//        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
+        robot.hood1.setPosition(0);
+        methods.limelightCorrection(robot.ll,dist);
+        double targetTurret = methods.AutoAim(pose,robot.ll);
+        double turretEncoder = -robot.intake.getCurrentPosition();
+        Values.turretPos = methods.turretPID(turretEncoder, targetTurret+Values.turretOverride);
+        robot.turret1.setPosition(Values.turretPos);
+        robot.turret2.setPosition(Values.turretPos);
 
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();
-
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("Target Vel", Values.flywheel_Values.flywheelTarget);
+        packet.put("Curr Vel", (flywheelVel1+flywheelVel2)/2);
+        dashboard.sendTelemetryPacket(packet);
         telemetry.addData("Path State", pathState);
         telemetry.addData("drive error",follower.getDriveError());
         telemetry.addData("heading error",follower.getHeadingError());
         telemetry.addData("angular velocity",follower.getAngularVelocity());
         telemetry.addData("velocity",follower.getVelocity().getMagnitude());
-
+        telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
+        telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",flywheelVel1,flywheelVel2));
         telemetry.update();
     }
 
@@ -213,15 +222,15 @@ public class AutonSpike12 extends OpMode {
         robot.kicker.setPosition(Values.KICKER_DOWN);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
 //        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
-        robot.intake.setPower(1);
-        robot.transfer.setPower(.7);
+        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeIntaking,"intake");
+        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferIntake,"transfer");
     }
     public void move(){
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.kicker.setPosition(Values.KICKER_DOWN);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
         robot.intake.setPower(0);
-        robot.transfer.setPower(1);
+        robot.transfer.setPower(0);
 //        Values.transfer_Values.transferTarget=0;
     }
     public void moveNoIntake(){
@@ -233,14 +242,17 @@ public class AutonSpike12 extends OpMode {
         robot.intake.setPower(0);
     }
     public boolean shoot(){
+        //methods.limelightCorrection(robot.ll, methods.getDist(follower.getPose()));
         robot.limiter.setPosition(Values.LIMITER_OPEN);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
 //        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
-        robot.intake.setPower(1);
-        robot.transfer.setPower(1);
-        if (pathTimer.getElapsedTimeSeconds()>1.1){
-            robot.kicker.setPosition(Values.KICKER_UP);
-            return pathTimer.getElapsedTimeSeconds() > 1.4;
+        double flywheelVel1 = robot.flywheel1.getVelocity();
+        double flywheelVel2 = robot.flywheel2.getVelocity();
+        double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
+        if (rpmError<100&&pathTimer.getElapsedTimeSeconds()>.1){
+            robot.intake.setPower(1);
+            robot.transfer.setPower(1);
+            return pathTimer.getElapsedTimeSeconds()>1;
         }
         return false;
     }
@@ -439,7 +451,7 @@ public class AutonSpike12 extends OpMode {
             case 7:
             case 11:
             case 16:
-                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<1) {
+                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<80 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<1) {
                     nextPath();
                 }
                 break;

@@ -14,10 +14,13 @@ public class Values {
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
         public static double fP = 0;
-        public static double fI = 0.045;
+        public static double fI = 0.06;
         public static double fD = 0;
 
-        public static double fF = 00.0004;
+        public static double fF = 0.0004;
+        public static double kP = 0.001;
+        public static double fS = 0.01;
+        public static double fV = 0.000395;
         public static double flywheelTarget=1500;
         public static double flywheelIdle = 1000; //MAX 2300
 
@@ -42,7 +45,7 @@ public class Values {
 
         public static double iK = 0.00048;
         public static double intakeShoot = 3000;
-        public static double intakeIntaking=1000;
+        public static double intakeIntaking=1500;
         public static double intakeTarget=0;
         public static double intakeHold = 1000;
     }
@@ -51,13 +54,13 @@ public class Values {
         public static PIDFController turretPIDController = new PIDFController(0,0,0,0);
         public static double kP = 0.0002;
         public static double kI = 0.05;
-        public static double kD = 0.00001;
+        public static double kD = 0.000005;
         public static final double MAX = 17500, MIN = -17500;// negative is clockwise
         public static double idle = 0.5;
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.46;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
     public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;

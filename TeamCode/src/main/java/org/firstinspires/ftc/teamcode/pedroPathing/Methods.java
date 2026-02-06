@@ -101,6 +101,38 @@ public class Methods {
         return measuredVelocity;
 
     }
+
+    public double flywheelFF(
+            DcMotorEx m1,
+            DcMotorEx m2,
+            double targetVel // ticks/sec
+    ) {
+        double kS = Values.flywheel_Values.fS;
+        double kV = Values.flywheel_Values.fV;
+        double kP = Values.flywheel_Values.kP;
+
+        // Average measured velocity
+        double currentVel = (m1.getVelocity() + m2.getVelocity()) / 2.0;
+
+        if (targetVel == 0) {
+            m1.setPower(0);
+            m2.setPower(0);
+            return 0;
+        }
+
+        double error = targetVel - currentVel;
+
+        double ff = kV * targetVel + kS * Math.signum(targetVel);
+        double p  = kP * error;
+
+        double power = ff + p;
+        power = Range.clip(power, -1.0, 1.0);
+
+        m1.setPower(power);
+        m2.setPower(power);
+
+        return currentVel;
+    }
     public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity) {
 
         if (targetVelocity == 0) {
@@ -113,7 +145,7 @@ public class Methods {
         double error = targetVelocity - currentVel;
 
         double power;
-        if (currentVel/targetVelocity<0.9) {
+        if (currentVel/targetVelocity<0.8) {
             power = 1*Math.signum(error);
         }  else{
             power = Values.flywheel_Values.flywheelPIDController.calculate(currentVel,targetVelocity);

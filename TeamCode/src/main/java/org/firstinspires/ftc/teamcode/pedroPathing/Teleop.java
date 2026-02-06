@@ -185,7 +185,7 @@ public class Teleop extends OpMode {
 
                 if (gamepad1.right_bumper && !Values.turretDeadSpot) {
 
-                    boolean atSpeed = rpmError <100;
+                    boolean atSpeed = rpmError <70;
 
                     if (atSpeed && timer.getElapsedTimeSeconds()>0.1) {
                         hardware.intake.setPower(1);
@@ -281,6 +281,8 @@ public class Teleop extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("Turret Target", targetTurret);
         packet.put("Turret Current", -hardware.intake.getCurrentPosition());
+        packet.put("target vel",Values.flywheel_Values.flywheelTarget);
+        packet.put("curr vel",flywheelVel1);
         dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger*500;
@@ -292,7 +294,7 @@ public class Teleop extends OpMode {
         telemetry.addData("turret pos",targetTurret+Values.turretOverride);
 
 
-        flywheelPID.velocity_PID(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFF(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
 
 
 
