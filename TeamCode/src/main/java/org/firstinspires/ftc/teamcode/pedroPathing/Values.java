@@ -6,23 +6,19 @@ import java.util.TreeMap;
 
 public class Values {
     public static Modes mode = Modes.INTAKING;
-    public static Team team = Team.RED;
+    public static Team team = Team.BLUE;
     public static boolean init = true;
     public static double turretOverride = 0;
     public static double llOverride = 0;
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0.002;
-        public static double fI = 0;
-        public static double fD = 0.0000001;
+        public static double fP = 0;
+        public static double fI = 0.045;
+        public static double fD = 0;
 
-        public static double fF = 0.0004;
-
-        public static double kP = 0.01;
-        public static double kS = 0.08;
-        public static double kV = 0.0004;
-        public static double flywheelTarget=0;
+        public static double fF = 00.0004;
+        public static double flywheelTarget=1500;
         public static double flywheelIdle = 1000; //MAX 2300
 
     }
@@ -35,7 +31,7 @@ public class Values {
         public static double trF = 0.00045;
 
         public static double transferTarget=0;
-        public static double transferUp = 3000,transferIntake = 1000;
+        public static double transferUp = 3000,transferIntake = 500;
     }
 
     public static class intake_Values {
@@ -46,18 +42,28 @@ public class Values {
 
         public static double iK = 0.00048;
         public static double intakeShoot = 3000;
-        public static double intakeIntaking=1500;
+        public static double intakeIntaking=1000;
         public static double intakeTarget=0;
         public static double intakeHold = 1000;
     }
 
+    public static class turret_Values {
+        public static PIDFController turretPIDController = new PIDFController(0,0,0,0);
+        public static double kP = 0.0002;
+        public static double kI = 0.05;
+        public static double kD = 0.00001;
+        public static final double MAX = 17500, MIN = -17500;// negative is clockwise
+        public static double idle = 0.5;
+    }
+
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=0.8,LIMITER_CLOSE=0.3;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.46;
     public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
-    public static double autonFollowerX=72,autonFollowerY=72;
+    public static double hoodPos = 0;
+    public static double autonFollowerX=9,autonFollowerY=6.5;
     public enum Team {
         RED,
         BLUE
@@ -111,4 +117,5 @@ public class Values {
         turretPos = 0.5;
         llOverride = 0;
     }
+    //TODO: retune flywheel pid, do auton turret? should be the only thing that changed
 }

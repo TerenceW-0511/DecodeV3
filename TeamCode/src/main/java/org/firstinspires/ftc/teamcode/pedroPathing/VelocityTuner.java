@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,10 +19,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class VelocityTuner extends OpMode {
 
     public static double targetVelocity = 1500;
-    public static String motorType = "intake";
-    public static double kp=0,ks=0,kv=0,ki=0,kd=0;
+    PIDFController pidf = new PIDFController(0,0,0,0);
+    public static double kp=0,ki=0,kd=0,kf=0;
 
-    public static double threshold = 200;
+    public static double threshold = 100;
 
     private DcMotorEx flywheel1,flywheel2;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -41,28 +42,23 @@ public class VelocityTuner extends OpMode {
         flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
+        flywheel2.setPower(0);
     }
 
     @Override
     public void loop() {
         double target = targetVelocity;
-
+        pidf.setPIDF(kp,ki,kd,kf);
         double currentVel = (flywheel1.getVelocity() + flywheel2.getVelocity()) / 2.0;
         double error = target - currentVel;
 
         double power;
 //        double ff = kv * target
 //                + ks * Math.signum(target);
-        if (Math.abs(error) > threshold) {
-            power = 1;
+        if (currentVel/target<0.9) {
+            power = 1*Math.signum(error);
         }  else{
-        lastError = error;
-        integral += error;
-        double derivative = error - lastError;
-        double p = kp * error;
-        double i = ki * integral;
-        double d = kd * derivative;
-        power = p + i + d;
+            power = pidf.calculate(currentVel,target);
         }
         power = Range.clip(power, -1.0, 1.0);
         flywheel1.setPower(power);

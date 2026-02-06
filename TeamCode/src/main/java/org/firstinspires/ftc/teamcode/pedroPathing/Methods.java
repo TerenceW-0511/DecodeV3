@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -13,6 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.math.RoundingMode;
@@ -29,12 +31,13 @@ public class Methods {
     public static double yawScalar = 1.0006;
 
 
-    public static double offsetAmt = 5, kp = -0.0001, ki=-0.0025, kd=0, maxSpeed = 0.01;
+    public static double offsetAmt = 0;
     private double integral = 0.0;
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
-    private double a= 1810.2766439035408,b=-3.449090076831704,c=-724.2250766458692,d=0.04813077393542908,e=224.62956712218775,f=4.943595431803776;
-
+    public static double test = -15;
+    private double a= 1207.016500764043,b=11.948747077231218,c=-537.0401495298296,d=-0.02555108984786969,e=387.86974836723056,f=5.963788201386407;
+    public double filteredX=0,aprilx = 0;
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
         double kF, kD, kP,kI;
@@ -99,77 +102,75 @@ public class Methods {
 
     }
     public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity) {
-        PIDFController controller;
-        double kF, kD, kP,kI;
-
-        kI = Values.flywheel_Values.fI;
-        kD = Values.flywheel_Values.fD;
-        kP = Values.flywheel_Values.fP;
-        kF = Values.flywheel_Values.fF;
-        controller = Values.flywheel_Values.flywheelPIDController;
-
-        if (firstLoop) {
-            lastPos = motor.getCurrentPosition();
-            lastTime = System.nanoTime() / 1e9;
-            firstLoop = false;
-            return 0;
-        }
-        double currentPos = (double) (motor.getCurrentPosition() + motor2.getCurrentPosition()) /2;
-        double currentTime = System.nanoTime() / 1e9;
-
-        double dt = currentTime - lastTime;
-        double dp = currentPos - lastPos;
-
-        double measuredVelocity = dp / dt;
-
-
-
-        lastPos = currentPos;
-        lastTime = currentTime;
 
         if (targetVelocity == 0) {
             motor.setPower(0);
             return 0;
         }
 
-        controller.setPIDF(kP, kI, kD, kF);
-        double power = controller.calculate( (motor.getVelocity() + motor2.getVelocity()) /2, targetVelocity);
+        Values.flywheel_Values.flywheelPIDController.setPIDF(Values.flywheel_Values.fP,Values.flywheel_Values.fI,Values.flywheel_Values.fD,Values.flywheel_Values.fF);
+        double currentVel = (motor.getVelocity() + motor2.getVelocity()) / 2.0;
+        double error = targetVelocity - currentVel;
+
+        double power;
+        if (currentVel/targetVelocity<0.9) {
+            power = 1*Math.signum(error);
+        }  else{
+            power = Values.flywheel_Values.flywheelPIDController.calculate(currentVel,targetVelocity);
+        }
+        power = Range.clip(power, -1.0, 1.0);
         motor.setPower(power);
         motor2.setPower(power);
-        return measuredVelocity;
+        return currentVel;
 
     }
-    public double flywheelFF(
-            DcMotorEx m1,
-            DcMotorEx m2,
-            double targetVel // ticks/sec
-    ) {
-        double kS = Values.flywheel_Values.kS;
-        double kV = Values.flywheel_Values.kV;
-        double kP = Values.flywheel_Values.kP;
+//    public double flywheelFF(
+//            DcMotorEx m1,
+//            DcMotorEx m2,
+//            double targetVel // ticks/sec
+//    ) {
+//        double kS = Values.flywheel_Values.kS;
+//        double kV = Values.flywheel_Values.kV;
+//        double kP = Values.flywheel_Values.kP;
+//
+//        // Average measured velocity
+//        double currentVel = (m1.getVelocity() + m2.getVelocity()) / 2.0;
+//
+//        if (targetVel == 0) {
+//            m1.setPower(0);
+//            m2.setPower(0);
+//            return 0;
+//        }
+//
+//        double error = targetVel - currentVel;
+//
+//        double ff = kV * targetVel + kS * Math.signum(targetVel);
+//        double p  = kP * error;
+//
+//        double power = ff + p;
+//        power = Range.clip(power, -1.0, 1.0);
+//
+//        m1.setPower(power);
+//        m2.setPower(power);
+//
+//        return currentVel;
+//    }
 
-        // Average measured velocity
-        double currentVel = (m1.getVelocity() + m2.getVelocity()) / 2.0;
 
-        if (targetVel == 0) {
-            m1.setPower(0);
-            m2.setPower(0);
-            return 0;
+
+    public double turretPID(double curr, double target) {
+
+        if (Math.abs(curr-target)<50){
+            return 0.5;
         }
-
-        double error = targetVel - currentVel;
-
-        double ff = kV * targetVel + kS * Math.signum(targetVel);
-        double p  = kP * error;
-
-        double power = ff + p;
+        Values.turret_Values.turretPIDController.setPIDF(Values.turret_Values.kP,Values.turret_Values.kI,Values.turret_Values.kD,0);
+        double power = Values.turret_Values.turretPIDController.calculate(curr,target+Values.llOverride);
         power = Range.clip(power, -1.0, 1.0);
 
-        m1.setPower(power);
-        m2.setPower(power);
-
-        return currentVel;
+        return (power + 1) / 2;
     }
+
+
 
 
 
@@ -188,10 +189,11 @@ public class Methods {
 
     public void manualRelocalize(Follower follower){
         if (Values.team==Values.Team.BLUE) {
-            follower.setPose(new Pose(135, 7.5, Math.toRadians(180)));
+            follower.setPose(new Pose(9, 6.5, Math.toRadians(0)));
         }else{
-            follower.setPose(new Pose(9,7.5,Math.toRadians(0)));
+            follower.setPose(new Pose(9,6.5,Math.toRadians(180)));
         }
+        filteredX=0;
         Values.turretOverride=0;
         Values.llOverride=0;
     }
@@ -228,62 +230,49 @@ public class Methods {
             dx = botPose.getX() - 12.5;
             dy = 137.3 - botPose.getY();
             alpha = 180
-                    - Math.toDegrees(botPose.getHeading()) * 1.0006
+                    - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy, dx));
         } else {
             dx = botPose.getX() - 131.5;
             dy = 137.3 - botPose.getY();
             alpha = 180
-                    - Math.toDegrees(botPose.getHeading()) * 1.0006
+                    - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy, dx));
         }
+        filteredX+=Values.tx*test;
+        double target =filteredX+alpha * 1725/18;
 
-        double servoAngle = turretAutoAimConversion(normalizeDeg(normalizeDeg(alpha)+Values.llOverride));
-        servoAngle+= Values.turretOverride;
-        if (servoAngle > 0.98) {
-            servoAngle -= 0.96;
-        } else if (servoAngle < 0.02) {
-            servoAngle += 0.96;
-        }
-        servoAngle = Math.min(0.98,Math.max(0.02,servoAngle));
 
-        return 1 - servoAngle;
+        double wrapped = (target+17000)%34000;
+        if (wrapped<0) wrapped+=34000;
+        wrapped-=17000;
+        return wrapped;
+
+
     }
+
 
 
 
 
     public double limelightCorrection(Limelight3A ll, double dist) {
         LLResult result = ll.getLatestResult();
-//        if (!result.isValid()) {
-//            integral = 0;
-//            prevError = 0;
-//            return 0;
-//        }
-        if (dist>120){
-            if (Values.team==Values.Team.RED) {
-                offsetAmt = 0.5;
-            }else{
-                offsetAmt = -0.5;
-            }
-        }else{
-            offsetAmt = 0;
+
+        double offsetAmt = 0;
+
+        if (dist > 120) {
+            offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
         }
 
+        double tx = result.getTx() - offsetAmt;
 
-
-        double tx = result.getTx()-offsetAmt;
-//        if (tx==0){
-//            return 91;
-//        }
-//        if (Math.abs(Values.tx)<3){
-//            return 0.01;
-//        }
-        //some tx conversion to degree and set to llOverride
-        //NOTE: this is the difference in degrees needed to correct
-        Values.llOverride = -0.917*tx - 0.384;
         Values.tx = tx;
+
+        if (Math.abs(tx) < 2) return tx;
+
         return tx;
+
+
 
 //        double targetOffset = 0.0;
 //        if (dist > 120) {
