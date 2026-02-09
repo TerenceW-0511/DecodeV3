@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -19,7 +20,8 @@ public class VelocityTuner extends OpMode {
 
     public static double targetVelocity = 1500;
     public static String motorType = "intake";
-    public static double kp=0,ks=0,kv=0;
+    public static double kp=0,ki=0,kd=0,kf=0;
+    PIDFController pidf = new PIDFController(0,0,0,0);
 
     private DcMotorEx flywheel1,flywheel2;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -47,13 +49,10 @@ public class VelocityTuner extends OpMode {
 
         double currentVel = (flywheel1.getVelocity() + flywheel2.getVelocity()) / 2.0;
         double error = target - currentVel;
+        pidf.setPIDF(kp,ki,kd,kf);
 
-        double ff = kv * target
-                + ks * Math.signum(target);
 
-        double p = kp * error;
-
-        double power = Range.clip(ff + p, -1.0, 1.0);
+        double power = pidf.calculate(currentVel,target);
 
         flywheel1.setPower(power);
         flywheel2.setPower(power);
