@@ -9,6 +9,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -33,14 +34,16 @@ public class Teleop extends OpMode {
     private double limiterOpenTime = 0;
 
 
-    Values.Team lastTeam;
 
+
+    Values.Team lastTeam;
 
 
 
 
     public void init(){
         hardware = new Hardware(hardwareMap);
+
         intakePID = new Methods();
         transferPID = new Methods();
         flywheelPID = new Methods();
@@ -48,7 +51,7 @@ public class Teleop extends OpMode {
         timer = new Timer();
         Values.reset();
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,0));
+        follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,Values.autonHeading));
         follower.update();
     }
     @Override
@@ -100,11 +103,7 @@ public class Teleop extends OpMode {
         }
 
 
-        if (gamepad1.yWasPressed()){
-            Values.hoodPos+= 0.02;
-        }else if (gamepad1.aWasPressed()){
-            Values.hoodPos-=0.02;
-        }
+
 
         if (gamepad1.bWasPressed()){
             methods.manualRelocalize(follower);
@@ -127,6 +126,7 @@ public class Teleop extends OpMode {
 //        }else if (gamepad1.dpadDownWasPressed()){
 //            Values.flywheel_Values.flywheelTarget-=30;
 //        }
+        Values.hoodPos = methods.hoodControl(dist,hardware.flywheel1,hardware.flywheel2);
         Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
         hardware.hood1.setPosition(Values.hoodPos);
 
@@ -173,12 +173,8 @@ public class Teleop extends OpMode {
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 hardware.kicker.setPosition(Values.KICKER_DOWN);
-                if (Math.abs(Values.tx)>3){
-                    hardware.led.setPosition(0.277); //red
-                }else if (Math.abs(Values.tx)<2){
-                    hardware.led.setPosition(0.722);
-                }else if (rpmError > 80){
-                    hardware.led.setPosition(0.6); //blue
+                if (rpmError > 80){
+                    hardware.led.setPosition(0.722); //purple
                 }else{
                     hardware.led.setPosition(0.444); //green
                 }
@@ -294,7 +290,7 @@ public class Teleop extends OpMode {
         telemetry.addData("turret pos",targetTurret+Values.turretOverride);
 
 
-        flywheelPID.flywheelFF(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
 
 
 

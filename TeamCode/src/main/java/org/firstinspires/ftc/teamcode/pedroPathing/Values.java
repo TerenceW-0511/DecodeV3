@@ -13,14 +13,12 @@ public class Values {
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0;
-        public static double fI = 0.06;
+        public static double fP = 0.0036;
+        public static double fI = 0;
         public static double fD = 0;
 
-        public static double fF = 0.0004;
-        public static double kP = 0.001;
-        public static double fS = 0.01;
-        public static double fV = 0.000395;
+        public static double fF = 0.00043;
+
         public static double flywheelTarget=1500;
         public static double flywheelIdle = 1000; //MAX 2300
 
@@ -53,20 +51,20 @@ public class Values {
     public static class turret_Values {
         public static PIDFController turretPIDController = new PIDFController(0,0,0,0);
         public static double kP = 0.0002;
-        public static double kI = 0.05;
+        public static double kI = 0.0;
         public static double kD = 0.000005;
         public static final double MAX = 17500, MIN = -17500;// negative is clockwise
         public static double idle = 0.5;
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.35;
     public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
     public static double hoodPos = 0;
-    public static double autonFollowerX=9,autonFollowerY=6.5;
+    public static double autonFollowerX=9,autonFollowerY=6.5,autonHeading = 0,autonTurret=0;
     public enum Team {
         RED,
         BLUE
@@ -80,14 +78,10 @@ public class Values {
     public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
             //distance, hood
             Map.ofEntries(
-                    Map.entry(32.1,1.0),
-                    Map.entry(45.98,0.74),
-                    Map.entry(58.8,0.68),
-                    Map.entry(73.0,0.59),
-                    Map.entry(92.2,0.38),
-                    Map.entry(100.1,0.32),
-                    Map.entry(134.2,0.04),
-                    Map.entry(136.3,0.0)
+                    Map.entry(35.2,0.46),
+                    Map.entry(60.9,0.24),
+                    Map.entry(84.7,0.12),
+                    Map.entry(108.5,0.0)
             )
     );
 

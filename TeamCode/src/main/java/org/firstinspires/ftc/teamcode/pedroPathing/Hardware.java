@@ -36,8 +36,7 @@ public class Hardware {
         flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
         flywheel2.setPower(0);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         intake.setDirection(DcMotorEx.Direction.REVERSE);
         intake.setPower(0);
         transfer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);

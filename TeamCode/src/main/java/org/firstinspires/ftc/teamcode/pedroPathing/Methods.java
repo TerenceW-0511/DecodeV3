@@ -35,7 +35,7 @@ public class Methods {
     private double integral = 0.0;
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
-    public static double test = -15;
+    public static double test = -20;
     private double a= 1207.016500764043,b=11.948747077231218,c=-537.0401495298296,d=-0.02555108984786969,e=387.86974836723056,f=5.963788201386407;
     public double filteredX=0,aprilx = 0;
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
@@ -102,59 +102,15 @@ public class Methods {
 
     }
 
-    public double flywheelFF(
-            DcMotorEx m1,
-            DcMotorEx m2,
-            double targetVel // ticks/sec
-    ) {
-        double kS = Values.flywheel_Values.fS;
-        double kV = Values.flywheel_Values.fV;
-        double kP = Values.flywheel_Values.kP;
 
-        // Average measured velocity
-        double currentVel = (m1.getVelocity() + m2.getVelocity()) / 2.0;
-
-        if (targetVel == 0) {
-            m1.setPower(0);
-            m2.setPower(0);
-            return 0;
-        }
-
-        double error = targetVel - currentVel;
-
-        double ff = kV * targetVel + kS * Math.signum(targetVel);
-        double p  = kP * error;
-
-        double power = ff + p;
-        power = Range.clip(power, -1.0, 1.0);
-
-        m1.setPower(power);
-        m2.setPower(power);
-
-        return currentVel;
-    }
-    public double velocity_PID(DcMotorEx motor,DcMotorEx motor2, double targetVelocity) {
-
-        if (targetVelocity == 0) {
-            motor.setPower(0);
-            return 0;
-        }
+    public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
 
         Values.flywheel_Values.flywheelPIDController.setPIDF(Values.flywheel_Values.fP,Values.flywheel_Values.fI,Values.flywheel_Values.fD,Values.flywheel_Values.fF);
-        double currentVel = (motor.getVelocity() + motor2.getVelocity()) / 2.0;
-        double error = targetVelocity - currentVel;
-
-        double power;
-        if (currentVel/targetVelocity<0.8) {
-            power = 1*Math.signum(error);
-        }  else{
-            power = Values.flywheel_Values.flywheelPIDController.calculate(currentVel,targetVelocity);
-        }
-        power = Range.clip(power, -1.0, 1.0);
-        motor.setPower(power);
-        motor2.setPower(power);
-        return currentVel;
-
+        double curr = (m1.getVelocity()+m2.getVelocity())/2;
+        double power = Values.flywheel_Values.flywheelPIDController.calculate(curr,target);
+        m1.setPower(power);
+        m2.setPower(power);
+        return curr;
     }
 //    public double flywheelFF(
 //            DcMotorEx m1,
@@ -221,11 +177,11 @@ public class Methods {
 
     public void manualRelocalize(Follower follower){
         if (Values.team==Values.Team.BLUE) {
-            follower.setPose(new Pose(9, 6.5, Math.toRadians(0)));
+            follower.setPose(new Pose(135, 6.5, Math.toRadians(180)));
         }else{
-            follower.setPose(new Pose(9,6.5,Math.toRadians(180)));
+            follower.setPose(new Pose(9,6.5,Math.toRadians(0)));
         }
-        filteredX=0;
+        filteredX=0; 
         Values.turretOverride=0;
         Values.llOverride=0;
     }
