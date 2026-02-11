@@ -25,7 +25,7 @@ public class Methods {
     private double lastTime;
     private double lastTarget=0;
     public static final double rpmAdj = 20;
-    public static final double k=0.0002;
+    public static final double k=0;
     private double lastLLError = 0;
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
@@ -35,7 +35,7 @@ public class Methods {
     private double integral = 0.0;
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
-    public static double test = -20;
+    public static double test = -15;
     private double a= 1207.016500764043,b=11.948747077231218,c=-537.0401495298296,d=-0.02555108984786969,e=387.86974836723056,f=5.963788201386407;
     public double filteredX=0,aprilx = 0;
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {

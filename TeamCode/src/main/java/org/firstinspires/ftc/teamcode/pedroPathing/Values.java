@@ -20,7 +20,7 @@ public class Values {
         public static double fF = 0.000375;
 
         public static double flywheelTarget=1500;
-        public static double flywheelIdle = 1000; //MAX 2300
+        public static double flywheelIdle = 1800; //MAX 2300
 
     }
     public static class transfer_Values {
@@ -63,8 +63,8 @@ public class Values {
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
-    public static double hoodPos = 0;
-    public static double autonFollowerX=9,autonFollowerY=6.5,autonHeading = 0,autonTurret=0;
+    public static double hoodPos = 0.5;
+    public static double autonFollowerX=135,autonFollowerY=6.5,autonHeading = 180,autonTurret=0;
     public enum Team {
         RED,
         BLUE
