@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class VelocityTuner extends OpMode {
 
     public static double targetVelocity = 1500;
-    public static String motorType = "intake";
+    //public static String motorType = "intake";
     public static double kp=0,ki=0,kd=0,kf=0;
     PIDFController pidf = new PIDFController(0,0,0,0);
 
@@ -41,6 +41,7 @@ public class VelocityTuner extends OpMode {
         flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
+        flywheel2.setPower(0);
     }
 
     @Override
@@ -50,7 +51,6 @@ public class VelocityTuner extends OpMode {
         double currentVel = (flywheel1.getVelocity() + flywheel2.getVelocity()) / 2.0;
         double error = target - currentVel;
         pidf.setPIDF(kp,ki,kd,kf);
-
 
         double power = pidf.calculate(currentVel,target);
 

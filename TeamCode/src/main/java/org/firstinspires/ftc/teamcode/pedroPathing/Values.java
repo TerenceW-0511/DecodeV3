@@ -13,11 +13,11 @@ public class Values {
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0.0025;
+        public static double fP = 0.0045;
         public static double fI = 0;
-        public static double fD = 0;
+        public static double fD = 0.00001;
 
-        public static double fF = 0.000375;
+        public static double fF = 0.00038;
 
         public static double flywheelTarget=1500;
         public static double flywheelIdle = 1800; //MAX 2300
