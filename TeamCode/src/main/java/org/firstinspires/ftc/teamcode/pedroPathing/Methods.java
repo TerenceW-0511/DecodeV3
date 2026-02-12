@@ -244,6 +244,7 @@ public class Methods {
 
 
     public double limelightCorrection(Limelight3A ll, double dist) {
+        double finaltx = 0;
         LLResult result = ll.getLatestResult();
         if (!result.isValid() || result.getStaleness()>500){
             Values.tx=0;
@@ -256,6 +257,12 @@ public class Methods {
             }
 
             double tx = result.getTx() - offsetAmt;
+
+            if (Values.team == Values.Team.BLUE){
+                tx -=1;
+            } else{
+                tx +=1;
+            }
 
             Values.tx = tx;
 
