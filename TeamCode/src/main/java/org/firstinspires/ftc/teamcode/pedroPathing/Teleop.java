@@ -36,7 +36,7 @@ public class Teleop extends OpMode {
  //TODO: add flywheel idle, turret no auto aim
 
     double targetHeading = Math.toRadians(180); // Radians
-    PIDFController controller = new com.pedropathing.control.PIDFController(follower.constants.coefficientsHeadingPIDF);
+    PIDFController controller;
     boolean headingLock = false;
 
     Values.Team lastTeam;
@@ -56,6 +56,7 @@ public class Teleop extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,Values.autonHeading));
         follower.update();
+        controller = new com.pedropathing.control.PIDFController(follower.constants.coefficientsHeadingPIDF);
     }
     @Override
     public void init_loop(){
@@ -88,13 +89,14 @@ public class Teleop extends OpMode {
                 -gamepad1.left_stick_x,
                     controller.run()
             );
+        }else {
+            follower.setTeleOpDrive(
+                    -gamepad1.left_stick_y,
+                    -gamepad1.left_stick_x,
+                    -gamepad1.right_stick_x,
+                    true // Robot Centric
+            );
         }
-        follower.setTeleOpDrive(
-                -gamepad1.left_stick_y,
-                -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
-                true // Robot Centric
-        );
         //UPDATE VARS
         Pose pose = follower.getPose();
         double dist = methods.getDist(pose);
@@ -141,6 +143,7 @@ public class Teleop extends OpMode {
 
         if (gamepad1.rightStickButtonWasPressed()){
             headingLock = !headingLock;
+            controller.reset();
         }
         if (gamepad1.dpadUpWasPressed()){
             Values.flywheel_Values.flywheelTarget+=30;
@@ -210,41 +213,22 @@ public class Teleop extends OpMode {
 
                 if (gamepad1.right_bumper && !Values.turretDeadSpot) {
 
-                    boolean atSpeed = rpmError <70;
+                    boolean atSpeed = rpmError < 70;
 
-                    if (atSpeed && timer.getElapsedTimeSeconds()>0.1) {
+                    if (headingLock) {
+                        atSpeed = atSpeed && Math.abs(follower.getAngularVelocity()) <0.1;
+                    }
+
+                    if (atSpeed && timer.getElapsedTimeSeconds() > 0.1) {
                         hardware.intake.setPower(1);
                         hardware.transfer.setPower(1);
-//
-//                        if (!waitingForLimiter) {
-//                            // First time reaching speed → open limiter + start timer
-//                            hardware.limiter.setPosition(Values.LIMITER_OPEN);
-//                            limiterOpenTime = timer.getElapsedTimeSeconds();
-//                            waitingForLimiter = true;
-//                        }
-//
-//                        // Wait 0.1s after opening limiter
-//                        if (timer.getElapsedTimeSeconds() - limiterOpenTime > 0.1) {
-//                            hardware.transfer.setPower(1);
-//                            hardware.intake.setPower(1);
-//                        }
-//
-//                    } else {  zz
-//                        // Lost speed → reset
-//                        waitingForLimiter = false;
-//                        hardware.limiter.setPosition(Values.LIMITER_CLOSE);
-//                        hardware.transfer.setPower(0);
-//                        hardware.intake.setPower(0);
-//                    }else if (dist>120){
-//                        hardware.intake.setPower(0.5);
-//                        hardware.transfer.setPower(0.5);
-//                    }
                     }
 
                 } else {
                     hardware.transfer.setPower(0);
                     hardware.intake.setPower(0);
                 }
+
 
 
 
@@ -356,9 +340,6 @@ public class Teleop extends OpMode {
 
     }
     public double getHeadingError() {
-        if (follower.getCurrentPath() == null) {
-            return 0;
-        }
         double dx, dy, alpha;
         Pose botPose = follower.getPose();
         if (Values.team == Values.Team.BLUE) {
