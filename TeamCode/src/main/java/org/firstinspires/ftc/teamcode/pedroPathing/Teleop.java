@@ -60,11 +60,6 @@ public class Teleop extends OpMode {
     }
     @Override
     public void init_loop(){
-//        Values.turretOverride -= gamepad1.left_trigger/300;
-//        Values.turretOverride += gamepad1.right_trigger/300;
-//        hardware.turret1.setPosition(Values.turretPos+Values.turretOverride);
-//        hardware.turret2.setPosition(Values.turretPos+Values.turretOverride);
-
     }
     @Override
     public void start(){
@@ -156,13 +151,7 @@ public class Teleop extends OpMode {
         }else if (gamepad1.yWasPressed()){
             Values.hoodPos -=0.02;
         }
-
-//        Values.hoodPos = methods.hoodControl(dist,hardware.flywheel1,hardware.flywheel2);
-//        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
         hardware.hood1.setPosition(Values.hoodPos);
-
-//        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
-//        hardware.hood1.setPosition(methods.hoodControl(dist, hardware.flywheel1, hardware.flywheel2));
 
 
 
@@ -180,27 +169,15 @@ public class Teleop extends OpMode {
                     hardware.limiter.setPosition(Values.LIMITER_CLOSE);
                 }
                 if (gamepad1.left_bumper) {
-//                    Values.intake_Values.intakeTarget = Values.intake_Values.intakeIntaking;
                     hardware.intake.setPower(1);
                     transferPID.velocity_PID(hardware.transfer,Values.transfer_Values.transferIntake,"transfer");
-//                    Values.transfer_Values.transferTarget = Values.transfer_Values.transferIntake;
                 } else {
 
                     hardware.intake.setPower(0);
-//                    Values.intake_Values.intakeTarget = 2*Values.intake_Values.intakeHold;
-                    //Values.transfer_Values.transferTarget = 0;
                     hardware.transfer.setPower(0);
                 }
                 break;
             case SHOOTING:
-//                if (Values.init){
-//                   Values.tx=methods.limelightCorrection(hardware.ll,dist);
-//                    Values.turretPos = methods.AutoAim(follower.getPose(),hardware.ll);
-//                    Values.init=false;
-//                }
-//                if (gamepad1.rightBumperWasPressed()){
-//                methods.limelightCorrection(hardware.ll,dist);
-//                Values.turretPos = methods.AutoAim(follower.getPose(),hardware.ll);
                 flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
@@ -230,60 +207,15 @@ public class Teleop extends OpMode {
                 }
 
 
-
-
-
-
-//
-//                if (speedFirstLoop){
-//                    if (timer.getElapsedTimeSeconds()>2 && timer.getElapsedTimeSeconds()>2.5){
-//                        hardware.kicker.setPosition(Values.KICKER_UP);
-//                    }else{
-//                        hardware.kicker.setPosition(Values.KICKER_DOWN);
-//                    }
-//                }else if(dist>120){
-//                    if (timer.getElapsedTimeSeconds()>1.6){
-//                        hardware.kicker.setPosition(Values.KICKER_UP);
-//                    }else{
-//                        hardware.kicker.setPosition(Values.KICKER_DOWN);
-//                    }
-//                }else{
-//                    if (timer.getElapsedTimeSeconds()>1.2){
-//                        hardware.kicker.setPosition(Values.KICKER_UP);
-//                    }else{
-//                        hardware.kicker.setPosition(Values.KICKER_DOWN);
-//                    }
-//                }
-
-
                 break;
         }
-//        Values.turretPos-= gamepad1.right_trigger/30;
-//        Values.turretPos+= gamepad1.left_trigger/30;
-//        Values.turretPos=Math.min(Math.max(0,Values.turretPos),1);
-//        if (timer.getElapsedTimeSeconds()>0.5) {
-//            Values.turretPos = methods.AutoAim(follower.getPose(),hardware.ll);
-//            double llOutput = methods.limelightCorrection(hardware.ll,dist);
-//            telemetry.addData("tx",llOutput);
-//            if (follower.getAngularVelocity()<0.2 && follower.getVelocity().getMagnitude()<0.5 && Math.abs(Values.lastTurret-Values.turretPos)<0.02) {
-//                hardware.ll.start();
-//                double[] llOutput = methods.limelightCorrection(hardware.ll, dist);
-//                if (llOutput.length == 1) {
-//                    telemetry.addData("tx", "invalid");
-//                } else {
-//                    telemetry.addData("tx,target,output", Arrays.toString(llOutput));
-//                    TelemetryPacket packet = new TelemetryPacket();
-//                    packet.put("tx", llOutput[0]);
-//                    packet.put("target", llOutput[1]);
-//                    dashboard.sendTelemetryPacket(packet);
-//                }
-//            }else{
-//                hardware.ll.pause();
-//            }
-
-//        }
 
         methods.limelightCorrection(hardware.ll, dist);
+        if (Values.team == Values.Team.BLUE){
+            Values.tx -=1;
+        } else{
+            Values.tx +=1;
+        }
         if (hardware.ll.getTimeSinceLastUpdate()>0.5){
             hardware.ll.reloadPipeline();
             Values.tx=0;
