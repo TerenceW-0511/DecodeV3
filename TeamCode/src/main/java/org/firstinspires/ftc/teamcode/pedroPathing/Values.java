@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.pedropathing.geometry.Pose;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -20,7 +21,7 @@ public class Values {
         public static double fF = 0.00038;
 
         public static double flywheelTarget=1500;
-        public static double flywheelIdle = 1800; //MAX 2300
+        public static double flywheelIdle = 1000; //MAX 2300
 
     }
     public static class transfer_Values {
@@ -58,13 +59,15 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.35;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
     public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
     public static double hoodPos = 0.5;
     public static double autonFollowerX=135,autonFollowerY=6.5,autonHeading = 180,autonTurret=0;
+    public static Pose blueGoal = new Pose(12.5,137.3);
+    public static Pose redGoal = new Pose(131.5,137.3);
     public enum Team {
         RED,
         BLUE

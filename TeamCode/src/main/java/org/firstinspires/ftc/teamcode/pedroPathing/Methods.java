@@ -177,9 +177,9 @@ public class Methods {
 
     public void manualRelocalize(Follower follower){
         if (Values.team==Values.Team.BLUE) {
-            follower.setPose(new Pose(135, 6.5, Math.toRadians(180)));
+            follower.setPose(new Pose(135-23.5, 6.5, Math.toRadians(0)));
         }else{
-            follower.setPose(new Pose(9,6.5,Math.toRadians(0)));
+            follower.setPose(new Pose(9+23.5,6.5,Math.toRadians(180)));
         }
         filteredX=0; 
         Values.turretOverride=0;
@@ -215,14 +215,14 @@ public class Methods {
         double dx, dy, alpha;
 
         if (Values.team == Values.Team.BLUE) {
-            dx = botPose.getX() - 12.5;
-            dy = 137.3 - botPose.getY();
+            dx = botPose.getX() - Values.blueGoal.getX();
+            dy = Values.blueGoal.getY() - botPose.getY();
             alpha = 180
                     - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy, dx));
         } else {
-            dx = botPose.getX() - 131.5;
-            dy = 137.3 - botPose.getY();
+            dx = botPose.getX() - Values.redGoal.getX();
+            dy = Values.redGoal.getY() - botPose.getY();
             alpha = 180
                     - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy, dx));
@@ -245,20 +245,24 @@ public class Methods {
 
     public double limelightCorrection(Limelight3A ll, double dist) {
         LLResult result = ll.getLatestResult();
+        if (!result.isValid() || result.getStaleness()>500){
+            Values.tx=0;
+            return 0;
+        }else {
+            double offsetAmt = 0;
 
-        double offsetAmt = 0;
+            if (dist > 120) {
+                offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
+            }
 
-        if (dist > 120) {
-            offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
+            double tx = result.getTx() - offsetAmt;
+
+            Values.tx = tx;
+
+            if (Math.abs(tx) < 2) return tx;
+
+            return tx;
         }
-
-        double tx = result.getTx() - offsetAmt;
-
-        Values.tx = tx;
-
-        if (Math.abs(tx) < 2) return tx;
-
-        return tx;
 
 
 

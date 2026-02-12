@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDFController;
+import com.pedropathing.control.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.MathFunctions;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -34,7 +35,9 @@ public class Teleop extends OpMode {
     private double limiterOpenTime = 0;
  //TODO: add flywheel idle, turret no auto aim
 
-
+    double targetHeading = Math.toRadians(180); // Radians
+    PIDFController controller = new com.pedropathing.control.PIDFController(follower.constants.coefficientsHeadingPIDF);
+    boolean headingLock = false;
 
     Values.Team lastTeam;
 
@@ -76,10 +79,20 @@ public class Teleop extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        controller.setCoefficients(follower.constants.coefficientsHeadingPIDF);
+        controller.updateError(getHeadingError());
+
+        if (headingLock){
+            follower.setTeleOpDrive(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                    controller.run()
+            );
+        }
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x/2,
+                -gamepad1.right_stick_x,
                 true // Robot Centric
         );
         //UPDATE VARS
@@ -108,6 +121,9 @@ public class Teleop extends OpMode {
         if (gamepad1.bWasPressed()){
             methods.manualRelocalize(follower);
         }
+        if (gamepad1.xWasPressed()){
+            Values.tx=0;
+        }
 
         if (Values.team != lastTeam) {
             hardware.ll.pipelineSwitch(Values.team == Values.Team.RED ? 1 : 2);
@@ -115,11 +131,16 @@ public class Teleop extends OpMode {
         }
 
         if (gamepad1.leftStickButtonWasPressed()){
+            hardware.ll.start();
             if (Values.team==Values.Team.RED){
                 Values.team = Values.Team.BLUE;
             }else{
                 Values.team=Values.Team.RED;
-            }
+                }
+        }
+
+        if (gamepad1.rightStickButtonWasPressed()){
+            headingLock = !headingLock;
         }
         if (gamepad1.dpadUpWasPressed()){
             Values.flywheel_Values.flywheelTarget+=30;
@@ -146,7 +167,7 @@ public class Teleop extends OpMode {
 
         switch(Values.mode) {
             case INTAKING:
-                Values.flywheel_Values.flywheelTarget = Values.flywheel_Values.flywheelIdle;
+                flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelIdle);
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                     hardware.kicker.setPosition(Values.KICKER_DOWN);
@@ -177,7 +198,7 @@ public class Teleop extends OpMode {
 //                if (gamepad1.rightBumperWasPressed()){
 //                methods.limelightCorrection(hardware.ll,dist);
 //                Values.turretPos = methods.AutoAim(follower.getPose(),hardware.ll);
-//              Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,hardware.hood1);
+                flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 hardware.kicker.setPosition(Values.KICKER_DOWN);
@@ -277,36 +298,47 @@ public class Teleop extends OpMode {
 //            }
 
 //        }
+
         methods.limelightCorrection(hardware.ll, dist);
-
-        double targetTurret = methods.AutoAim(pose,hardware.ll);
-
+        if (hardware.ll.getTimeSinceLastUpdate()>0.5){
+            hardware.ll.reloadPipeline();
+            Values.tx=0;
+        }
         double turretEncoder = -hardware.intake.getCurrentPosition();
-
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Turret Target", targetTurret);
-        packet.put("Turret Current", -hardware.intake.getCurrentPosition());
-        packet.put("target vel",Values.flywheel_Values.flywheelTarget);
-        packet.put("curr vel",flywheelVel1);
-        dashboard.sendTelemetryPacket(packet);
-
-        Values.turretOverride += gamepad1.left_trigger*500;
-        Values.turretOverride -= gamepad1.right_trigger*500;
-        Values.turretOverride = Math.min(5000,Math.max(-5000,Values.turretOverride));
-        Values.turretPos = methods.turretPID(turretEncoder, targetTurret+Values.turretOverride);
-        hardware.turret1.setPosition(Values.turretPos);
-        hardware.turret2.setPosition(Values.turretPos);
-        telemetry.addData("turret pos",targetTurret+Values.turretOverride);
+        if (headingLock){
+            Values.turretPos = methods.turretPID(turretEncoder,0);
+        }else {
+            double targetTurret = methods.AutoAim(pose, hardware.ll);
 
 
-        flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.put("Turret Target", targetTurret);
+            packet.put("Turret Current", -hardware.intake.getCurrentPosition());
+            packet.put("target vel", Values.flywheel_Values.flywheelTarget);
+            packet.put("curr vel", flywheelVel1);
+            dashboard.sendTelemetryPacket(packet);
+
+            Values.turretOverride += gamepad1.left_trigger * 500;
+            Values.turretOverride -= gamepad1.right_trigger * 500;
+            Values.turretOverride = Math.min(5000, Math.max(-5000, Values.turretOverride));
+            Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+            hardware.turret1.setPosition(Values.turretPos);
+            hardware.turret2.setPosition(Values.turretPos);
+            telemetry.addData("turret pos",targetTurret+Values.turretOverride);
+        }
+
+        telemetry.addData("heading lock",headingLock);
+
+
+
 
 
 
 //        Values.lastTurret=Values.turretPos;
 
         telemetry.addData("mode",Values.mode);
-        telemetry.addData("ll conencted",hardware.ll.isConnected());
+        telemetry.addData("ll conencted",hardware.ll.getStatus());
+        telemetry.addData("ll running",hardware.ll.isRunning());
         telemetry.addData("tx",Values.tx);
 
         telemetry.addData("team",Values.team);
@@ -322,6 +354,27 @@ public class Teleop extends OpMode {
 
         telemetry.update();
 
+    }
+    public double getHeadingError() {
+        if (follower.getCurrentPath() == null) {
+            return 0;
+        }
+        double dx, dy, alpha;
+        Pose botPose = follower.getPose();
+        if (Values.team == Values.Team.BLUE) {
+            dx = botPose.getX() - Values.blueGoal.getX();
+            dy = Values.blueGoal.getY() - botPose.getY();
+            alpha = 180
+                    - Math.toDegrees(botPose.getHeading())
+                    - Math.toDegrees(Math.atan2(dy, dx));
+        } else {
+            dx = botPose.getX() - Values.redGoal.getX();
+            dy = Values.redGoal.getY() - botPose.getY();
+            alpha = 180
+                    - Math.toDegrees(botPose.getHeading())
+                    - Math.toDegrees(Math.atan2(dy, dx));
+        }
+        return MathFunctions.getTurnDirection(follower.getPose().getHeading(), alpha) * MathFunctions.getSmallestAngleDifference(follower.getPose().getHeading(), alpha);
     }
 
 
