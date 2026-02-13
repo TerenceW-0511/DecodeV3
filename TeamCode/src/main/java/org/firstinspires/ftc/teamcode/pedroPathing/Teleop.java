@@ -214,36 +214,24 @@ public class Teleop extends OpMode {
 //            Values.tx=0;
 //        }
         double turretEncoder = -hardware.intake.getCurrentPosition();
-        if (headingLock){
-            Values.turretPos = methods.turretPID(turretEncoder,0);
-        }else {
-            double targetTurret = methods.AutoAim(pose, hardware.ll);
+
+        double targetTurret = methods.AutoAim(pose, hardware.ll);
 
 
-            TelemetryPacket packet = new TelemetryPacket();
-            packet.put("Turret Target", targetTurret);
-            packet.put("Turret Current", -hardware.intake.getCurrentPosition());
-            packet.put("target vel", Values.flywheel_Values.flywheelTarget);
-            packet.put("curr vel", flywheelVel1);
-            dashboard.sendTelemetryPacket(packet);
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("Turret Target", targetTurret);
+        packet.put("Turret Current", -hardware.intake.getCurrentPosition());
+        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
+        packet.put("curr vel", flywheelVel1);
+        dashboard.sendTelemetryPacket(packet);
 
-            Values.turretOverride += gamepad1.left_trigger * 500;
-            Values.turretOverride -= gamepad1.right_trigger * 500;
-            Values.turretOverride = Math.min(5000, Math.max(-5000, Values.turretOverride));
-            Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
-            hardware.turret1.setPosition(Values.turretPos);
-            hardware.turret2.setPosition(Values.turretPos);
-            telemetry.addData("turret pos",targetTurret+Values.turretOverride);
-        }
-
-        telemetry.addData("heading lock",headingLock);
-
-
-
-
-
-
-//        Values.lastTurret=Values.turretPos;
+        Values.turretOverride += gamepad1.left_trigger * 500;
+        Values.turretOverride -= gamepad1.right_trigger * 500;
+        Values.turretOverride = Math.min(5000, Math.max(-5000, Values.turretOverride));
+        Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+        hardware.turret1.setPosition(Values.turretPos);
+        hardware.turret2.setPosition(Values.turretPos);
+        telemetry.addData("turret pos",targetTurret+Values.turretOverride);
 
         telemetry.addData("mode",Values.mode);
         telemetry.addData("ll conencted",hardware.ll.getStatus());
