@@ -230,7 +230,6 @@ public class AutonSpike12 extends OpMode {
     public void intake(){
         follower.setMaxPower(0.7);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        robot.kicker.setPosition(Values.KICKER_DOWN);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
 //        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
         robot.intake.setPower(1);
@@ -239,7 +238,6 @@ public class AutonSpike12 extends OpMode {
     public void move(){
         follower.setMaxPower(1);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        robot.kicker.setPosition(Values.KICKER_DOWN);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
         robot.intake.setPower(1);
         robot.transfer.setPower(0);
@@ -248,7 +246,6 @@ public class AutonSpike12 extends OpMode {
     public void moveNoIntake(){
         follower.setMaxPower(1);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        robot.kicker.setPosition(Values.KICKER_DOWN);
 //        Values.intake_Values.intakeTarget=0;
 //        Values.transfer_Values.transferTarget=0;
         robot.transfer.setPower(0);

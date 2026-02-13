@@ -38,6 +38,9 @@ public class Methods {
     public static double test = -15;
     private double a= 1207.016500764043,b=11.948747077231218,c=-537.0401495298296,d=-0.02555108984786969,e=387.86974836723056,f=5.963788201386407;
     public double filteredX=0,aprilx = 0;
+    private double lastFly1Power = 999;
+    private double lastFly2Power = 999;
+
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
         double kF, kD, kP,kI;
@@ -240,29 +243,23 @@ public class Methods {
     }
 
 
-
-
-
     public double limelightCorrection(Limelight3A ll, double dist) {
         LLResult result = ll.getLatestResult();
-        if (!result.isValid() || result.getStaleness()>500){
-            Values.tx=0;
-            return 0;
-        }else {
-            double offsetAmt = 0;
 
-            if (dist > 120) {
-                offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
-            }
+        double offsetAmt = 0;
 
-            double tx = result.getTx() - offsetAmt;
+//        if (dist > 120) {
+//            offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
+//        }
 
-            Values.tx = tx;
+        double tx = result.getTx() - offsetAmt;
 
-            if (Math.abs(tx) < 2) return tx;
+        Values.tx = tx;
 
-            return tx;
-        }
+        if (Math.abs(tx) < 2) return tx;
+
+        return tx;
+
 
 
 

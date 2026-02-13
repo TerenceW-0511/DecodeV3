@@ -23,7 +23,7 @@ public class Hardware {
         limiter = hardwareMap.get(Servo.class,"limiter");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
-        kicker = hardwareMap.get(Servo.class,"kick");
+
         led = hardwareMap.get(Servo.class, "led");
         flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

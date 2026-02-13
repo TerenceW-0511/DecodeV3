@@ -14,14 +14,14 @@ public class Values {
 
     public static class flywheel_Values {
         public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0.002;
+        public static double fP = 0.0045;
         public static double fI = 0;
-        public static double fD = 0.00002;
+        public static double fD = 0.00001;
 
-        public static double fF = 0.000376;
+        public static double fF = 0.00038;
 
-        public static double flywheelTarget=1500;
-        public static double flywheelIdle = 1000; //MAX 2300
+        public static double flywheelTarget=1800;
+        public static double flywheelIdle = 1500; //MAX 2300
 
     }
     public static class transfer_Values {
@@ -60,7 +60,6 @@ public class Values {
 
     public static final double TURRET_RIGHT = 0;
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
-    public static final double KICKER_DOWN = 0.35, KICKER_UP = 0.9;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
