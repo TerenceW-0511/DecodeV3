@@ -38,9 +38,6 @@ public class Teleop extends OpMode {
 
     double targetHeading = Math.toRadians(180); // Radians
     PIDFController controller;
-    boolean headingLock = false;
-
-    // Motor power cache (prevents spam + reduces brownout spikes)
     private double lastFlywheel1Power = 999;
     private double lastFlywheel2Power = 999;
     private double lastIntakePower = 999;
@@ -115,7 +112,7 @@ public class Teleop extends OpMode {
         if (gamepad1.bWasPressed()){
             methods.manualRelocalize(follower);
         }
-        if (gamepad1.dpadRightWasPressed()){
+        if (gamepad1.rightStickButtonWasPressed()){
             Values.tx=0;
             hardware.ll.reloadPipeline();
         }
@@ -134,10 +131,7 @@ public class Teleop extends OpMode {
                 }
         }
 
-        if (gamepad1.rightStickButtonWasPressed()){
-            headingLock = !headingLock;
-            controller.reset();
-        }
+
         if (gamepad1.dpadUpWasPressed()){
             Values.flywheel_Values.flywheelTarget+=30;
         }else if (gamepad1.dpadDownWasPressed()){
