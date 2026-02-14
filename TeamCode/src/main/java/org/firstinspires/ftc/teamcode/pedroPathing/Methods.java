@@ -25,7 +25,7 @@ public class Methods {
     private double lastTime;
     private double lastTarget=0;
     public static final double rpmAdj = 20;
-    public static final double k=0;
+    public static double k=0;
     private double lastLLError = 0;
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
@@ -36,10 +36,15 @@ public class Methods {
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
     public static double test = -15;
-    private double a= 1207.016500764043,b=11.948747077231218,c=-537.0401495298296,d=-0.02555108984786969,e=387.86974836723056,f=5.963788201386407;
+    public static double hoodBase = 0.5;
+    private double a= 1942.737009564922,b=-3.7582044840271314,c=-1674.333205592891,d=0.03961799982168701,e=890.04879977254,f=10.180294779377727;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
+    private double lastFlywheelTarget = 0;
+    private double lastFlywheelError = 0;
+    private double lastFlywheelTime = System.nanoTime() / 1e9;
+
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
@@ -107,10 +112,10 @@ public class Methods {
 
 
     public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
-
-        Values.flywheel_Values.flywheelPIDController.setPIDF(Values.flywheel_Values.fP,Values.flywheel_Values.fI,Values.flywheel_Values.fD,Values.flywheel_Values.fF);
+//
+//        pidf.setPIDF(fP,fI,fD,fF);
         double curr = (m1.getVelocity()+m2.getVelocity())/2;
-        double power = Values.flywheel_Values.flywheelPIDController.calculate(curr,target);
+        double power = Values.flywheel_Values.fV*target + Values.flywheel_Values.fS +Values.flywheel_Values.flywheelPIDController.calculate(curr,target);
         m1.setPower(power);
         m2.setPower(power);
         return curr;
@@ -179,6 +184,7 @@ public class Methods {
 
 
     public void manualRelocalize(Follower follower){
+
         if (Values.team==Values.Team.BLUE) {
             follower.setPose(new Pose(135-23.5, 6.5, Math.toRadians(0)));
         }else{
@@ -186,6 +192,7 @@ public class Methods {
         }
         filteredX=0; 
         Values.turretOverride=0;
+        Values.tx=0;
         Values.llOverride=0;
     }
     public String limelightRelocalize(Limelight3A ll, Follower follower,Servo turret){
@@ -230,6 +237,8 @@ public class Methods {
                     - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy, dx));
         }
+        LLResult result= ll.getLatestResult();
+        Values.tx = result.getTx();
         filteredX+=Values.tx*test;
         double target =filteredX+alpha * 1725/18;
 
@@ -245,6 +254,12 @@ public class Methods {
 
     public double limelightCorrection(Limelight3A ll, double dist) {
         LLResult result = ll.getLatestResult();
+
+        if (!ll.isConnected() || !result.isValid()) {
+            return Values.tx; // or set to 0 if you want
+        }
+
+        Values.tx = result.getTx();
 
         double offsetAmt = 0;
 
@@ -286,7 +301,7 @@ public class Methods {
 //                + kd * derivative;
 //
 //        if (Math.abs(error) > 0.5) {
-//            Values.llOverride = output;
+//            Values.Override = output;
 //            output = Math.max(-maxSpeed, Math.min(maxSpeed, output));
 //        } else {
 //            integral = 0;
@@ -355,10 +370,11 @@ public class Methods {
     }
 
     public double hoodControl(double dist,DcMotorEx flywheel1,DcMotorEx flywheel2){
-        double rpmError = Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2.;
+        double rpmError = Math.abs(Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2);
 
         double hoodComp = k * rpmError;
-        return hoodNominal(dist) + hoodComp;
+        double hood = hoodBase + hoodComp;
+        return Math.max(1,Math.min(0,hood));
     }
 
     //x = distance, y = hood

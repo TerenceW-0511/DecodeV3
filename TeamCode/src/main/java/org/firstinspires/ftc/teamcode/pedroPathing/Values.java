@@ -13,12 +13,22 @@ public class Values {
     public static double llOverride = 0;
 
     public static class flywheel_Values {
-        public static PIDFController flywheelPIDController = new PIDFController(0, 0, 0, 0);
-        public static double fP = 0.0045;
+//        public static double fP = 0.0045;
+//        public static double fI = 0;
+//        public static double fD = 0.00001;
+//
+//        public static double fF = 0.00038;
+        public static double fP = 0.003;
         public static double fI = 0;
-        public static double fD = 0.00001;
+        public static double fD = 0.0000001;
+        public static double fF = 0;
+        public static double fV = 0.00036;
+        public static double fS = 0.14;
+        public static PIDFController flywheelPIDController = new PIDFController(fP, fI, fD, fF);
 
-        public static double fF = 0.00038;
+        public static double kV = 0;
+        public static double kS = 0;
+
 
         public static double flywheelTarget=1800;
         public static double flywheelIdle = 1500; //MAX 2300
@@ -59,12 +69,12 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.45;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0;
     public static double hoodPos = 0.5;
-    public static double autonFollowerX=135,autonFollowerY=6.5,autonHeading = 180,autonTurret=0;
+    public static double autonFollowerX=9,autonFollowerY=6.5,autonHeading = 0,autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose redGoal = new Pose(131.5,137.3);
     public enum Team {
@@ -80,10 +90,7 @@ public class Values {
     public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
             //distance, hood
             Map.ofEntries(
-                    Map.entry(35.2,0.46),
-                    Map.entry(60.9,0.24),
-                    Map.entry(84.7,0.12),
-                    Map.entry(108.5,0.0)
+
             )
     );
 

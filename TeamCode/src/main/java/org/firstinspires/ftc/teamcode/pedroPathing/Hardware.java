@@ -39,7 +39,7 @@ public class Hardware {
 
         intake.setDirection(DcMotorEx.Direction.REVERSE);
         intake.setPower(0);
-        transfer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        transfer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         transfer.setDirection(DcMotorEx.Direction.REVERSE);

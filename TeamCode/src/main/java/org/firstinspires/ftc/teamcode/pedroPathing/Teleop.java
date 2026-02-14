@@ -43,7 +43,6 @@ public class Teleop extends OpMode {
     private double lastIntakePower = 999;
     private double lastTransferPower = 999;
 
-
     Values.Team lastTeam;
 
 
@@ -83,7 +82,7 @@ public class Teleop extends OpMode {
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
                 -gamepad1.left_stick_x,
-                -gamepad1.right_stick_x,
+                -gamepad1.right_stick_x*3/4,
                 true // Robot Centric
         );
 
@@ -110,6 +109,7 @@ public class Teleop extends OpMode {
 
 
         if (gamepad1.bWasPressed()){
+            Values.tx=0;
             methods.manualRelocalize(follower);
         }
         if (gamepad1.rightStickButtonWasPressed()){
@@ -124,6 +124,7 @@ public class Teleop extends OpMode {
 
         if (gamepad1.leftStickButtonWasPressed()){
             hardware.ll.start();
+            hardware.ll.reloadPipeline();
             if (Values.team==Values.Team.RED){
                 Values.team = Values.Team.BLUE;
             }else{
@@ -132,17 +133,18 @@ public class Teleop extends OpMode {
         }
 
 
-        if (gamepad1.dpadUpWasPressed()){
-            Values.flywheel_Values.flywheelTarget+=30;
-        }else if (gamepad1.dpadDownWasPressed()){
-            Values.flywheel_Values.flywheelTarget-=30;
-        }
+//        if (gamepad1.dpadUpWasPressed()){
+//            Values.flywheel_Values.flywheelTarget+=30;
+//        }else if (gamepad1.dpadDownWasPressed()){
+//            Values.flywheel_Values.flywheelTarget-=30;
+//        }
 
-        if (gamepad1.aWasPressed()){
-            Values.hoodPos += 0.02;
-        }else if (gamepad1.yWasPressed()){
-            Values.hoodPos -=0.02;
-        }
+//        if (gamepad1.aWasPressed()){
+//            Values.hoodPos += 0.02;
+//        }else if (gamepad1.yWasPressed()){
+//            Values.hoodPos -=0.02;
+//        }
+        Values.hoodPos = methods.hoodControl(dist,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 
 
@@ -150,7 +152,6 @@ public class Teleop extends OpMode {
 
         switch(Values.mode) {
             case INTAKING:
-                flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelIdle);
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                 }
@@ -160,17 +161,17 @@ public class Teleop extends OpMode {
                 }
                 if (gamepad1.left_bumper) {
                     setPowerIfChanged(hardware.intake, 1, "intake");
-                    transferPID.velocity_PID(hardware.transfer,Values.transfer_Values.transferIntake,"transfer");
-
+                    hardware.transfer.setPower(.5);
                 } else {
 
-                    setPowerIfChanged(hardware.intake, 0, "intake");
-                    setPowerIfChanged(hardware.transfer, 0, "transfer");
+                    setPowerIfChanged(hardware.intake,  0, "intake");
+                    hardware.transfer.setPower(0);
 
                 }
                 break;
             case SHOOTING:
-                flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+
+
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 if (rpmError > 80){
@@ -200,9 +201,10 @@ public class Teleop extends OpMode {
 
                 break;
         }
+        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1);
 
-        methods.limelightCorrection(hardware.ll, dist);
-
+//        methods.limelightCorrection(hardware.ll, dist);
+        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
 //        if (hardware.ll.getTimeSinceLastUpdate()>500){
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
@@ -230,6 +232,9 @@ public class Teleop extends OpMode {
         telemetry.addData("mode",Values.mode);
         telemetry.addData("ll conencted",hardware.ll.getStatus());
         telemetry.addData("ll running",hardware.ll.isRunning());
+        telemetry.addData("LL last update ms",
+                hardware.ll.getTimeSinceLastUpdate());
+
         telemetry.addData("tx",Values.tx);
 
         telemetry.addData("team",Values.team);
@@ -297,6 +302,7 @@ public class Teleop extends OpMode {
             }
         }
     }
+
 
 
 
