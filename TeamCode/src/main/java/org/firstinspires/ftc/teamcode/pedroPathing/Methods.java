@@ -185,7 +185,7 @@ public class Methods {
 
     public void manualRelocalize(Follower follower){
 
-        if (Values.team==Values.Team.BLUE) {
+        if (Values.team==Values.Team.RED) {
             follower.setPose(new Pose(135-23.5, 6.5, Math.toRadians(0)));
         }else{
             follower.setPose(new Pose(9+23.5,6.5,Math.toRadians(180)));
@@ -238,6 +238,10 @@ public class Methods {
                     - Math.toDegrees(Math.atan2(dy, dx));
         }
         LLResult result= ll.getLatestResult();
+        double dist = getDist(botPose);
+        if (dist > 120) {
+            offsetAmt = (Values.team == Values.Team.RED) ? 0.8 : -0.8;
+        }
         Values.tx = result.getTx();
         filteredX+=Values.tx*test;
         double target =filteredX+alpha * 1725/18;
@@ -248,6 +252,21 @@ public class Methods {
         wrapped-=17000;
         return wrapped;
 
+
+    }
+
+    public double limelightOffset(Pose botPose){
+        double x = botPose.getX();
+        double y = botPose.getY();
+        if (Values.team == Values.Team.BLUE) {
+            double alpha = Math.toDegrees(Math.atan2(x - Values.blueTag.getX(), Values.blueTag.getY() - y));
+            double lambda = Math.toDegrees(Math.atan2(Values.blueGoal.getY() - y, x - Values.blueGoal.getX()));
+            return 90-alpha-lambda;
+        }else{
+            double alpha = Math.toDegrees(Math.atan2(Values.redTag.getX()-x,Values.redTag.getY()-y));
+            double lambda = Math.toDegrees(Math.atan2(Values.redGoal.getY()-y,Values.redGoal.getX()-x));
+            return 90-alpha-lambda;
+        }
 
     }
 
@@ -263,9 +282,9 @@ public class Methods {
 
         double offsetAmt = 0;
 
-//        if (dist > 120) {
-//            offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
-//        }
+        if (dist > 120) {
+            offsetAmt = (Values.team == Values.Team.RED) ? 0.5 : -0.5;
+        }
 
         double tx = result.getTx() - offsetAmt;
 
@@ -342,46 +361,20 @@ public class Methods {
     }
 
 
-    public static double turretAutoAimConversion(double angle){
-        if (angle <= Values.turretDegreeToServoLUT.firstKey()) {
-            Values.turretDeadSpot=true;
-            return Values.turretDegreeToServoLUT.firstEntry().getValue();
-        }
-        if (angle >= Values.turretDegreeToServoLUT.lastKey()) {
-            Values.turretDeadSpot=true;
-            return Values.turretDegreeToServoLUT.lastEntry().getValue();
-        }
-        Values.turretDeadSpot=false;
-        Map.Entry<Double, Double> lower = Values.turretDegreeToServoLUT.floorEntry(angle);
-        Map.Entry<Double, Double> upper = Values.turretDegreeToServoLUT.ceilingEntry(angle);
-        if (lower == null || upper == null) {
-            return Values.turretDegreeToServoLUT.lastEntry().getValue();
-        }
-        if (lower.getKey().equals(upper.getKey())) {
-            return lower.getValue();
-        }
-        double x0 = lower.getKey();
-        double y0 = lower.getValue();
-        double x1 = upper.getKey();
-        double y1 = upper.getValue();
 
-        double t = (angle - x0) / (x1 - x0);
-        return y0 + t * (y1 - y0);
-    }
 
-    public double hoodControl(double dist,DcMotorEx flywheel1,DcMotorEx flywheel2){
+    public double hoodControl(Follower follower,DcMotorEx flywheel1,DcMotorEx flywheel2){
+//        double targetVel = flywheelControl(follower,1);
+
         double rpmError = Math.abs(Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2);
-
-        double hoodComp = k * rpmError;
-        double hood = hoodBase + hoodComp;
-        return Math.max(1,Math.min(0,hood));
+        return hoodBase + rpmError*k;
     }
 
     //x = distance, y = hood
     //flywheel = 2024.460854150586-5.521875372212847x-2088.3394044791553y+0.04960697997872554x^2+1095.182079053327y^2+14.997680959492307xy
-    public double flywheelControl(Follower follower, Servo hood){
+    public double flywheelControl(Follower follower, double hoodPos){
         double x = getDist(follower.getPose());
-        double y = hood.getPosition();
+        double y = hoodPos;
         return a
                 + b * x
                 + c * y

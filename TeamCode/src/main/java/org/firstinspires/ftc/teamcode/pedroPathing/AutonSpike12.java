@@ -9,6 +9,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -194,13 +195,13 @@ public class AutonSpike12 extends OpMode {
         double dist = methods.getDist(pose);
         double flywheelVel1 = robot.flywheel1.getVelocity();
         double flywheelVel2 = robot.flywheel2.getVelocity();
-        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
+        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1.getPosition());
         flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
 
 //        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
 //        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        Values.hoodPos = methods.hoodControl(dist,robot.flywheel1,robot.flywheel2);
+        Values.hoodPos = methods.hoodControl(follower,robot.flywheel1,robot.flywheel2);
         robot.hood1.setPosition(Values.hoodPos);
         methods.limelightCorrection(robot.ll,dist);
         double targetTurret = methods.AutoAim(follower.getPose(),robot.ll);
@@ -228,7 +229,7 @@ public class AutonSpike12 extends OpMode {
     }
 
     public void intake(){
-        follower.setMaxPower(0.7);
+        //follower.setMaxPower(0.7);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
 //        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
@@ -236,7 +237,7 @@ public class AutonSpike12 extends OpMode {
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferIntake,"transfer");
     }
     public void move(){
-        follower.setMaxPower(1);
+        //follower.setMaxPower(1);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
 //        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
         robot.intake.setPower(1);
@@ -244,7 +245,7 @@ public class AutonSpike12 extends OpMode {
 //        Values.transfer_Values.transferTarget=0;
     }
     public void moveNoIntake(){
-        follower.setMaxPower(1);
+        //follower.setMaxPower(1);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
 //        Values.intake_Values.intakeTarget=0;
 //        Values.transfer_Values.transferTarget=0;
@@ -620,15 +621,15 @@ public class AutonSpike12 extends OpMode {
 
         }
         if (pathState==5) {
-            follower.setMaxPower(0.7);
+            //follower.setMaxPower(0.7);
             if (pathTimer.getElapsedTimeSeconds() > 4) {
                 nextPath();
             }
         }
 //        if (follower.getDistanceRemaining()<10){
-//            follower.setMaxPower(0.8);
+//            //follower.setMaxPower(0.8);
 //        }else{
-//            follower.setMaxPower(1);
+//            //follower.setMaxPower(1);
 //        }
 
         boolean headingGood =

@@ -133,18 +133,18 @@ public class Teleop extends OpMode {
         }
 
 
-//        if (gamepad1.dpadUpWasPressed()){
-//            Values.flywheel_Values.flywheelTarget+=30;
-//        }else if (gamepad1.dpadDownWasPressed()){
-//            Values.flywheel_Values.flywheelTarget-=30;
-//        }
+        if (gamepad1.dpadUpWasPressed()){
+            Values.flywheel_Values.flywheelTarget+=30;
+        }else if (gamepad1.dpadDownWasPressed()){
+            Values.flywheel_Values.flywheelTarget-=30;
+        }
 
-//        if (gamepad1.aWasPressed()){
-//            Values.hoodPos += 0.02;
-//        }else if (gamepad1.yWasPressed()){
-//            Values.hoodPos -=0.02;
-//        }
-        Values.hoodPos = methods.hoodControl(dist,hardware.flywheel1,hardware.flywheel2);
+        if (gamepad1.aWasPressed()){
+            Values.hoodPos += 0.02;
+        }else if (gamepad1.yWasPressed()){
+            Values.hoodPos -=0.02;
+        }
+//        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 
 
@@ -201,7 +201,7 @@ public class Teleop extends OpMode {
 
                 break;
         }
-        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1);
+//        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
 
 //        methods.limelightCorrection(hardware.ll, dist);
         flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
