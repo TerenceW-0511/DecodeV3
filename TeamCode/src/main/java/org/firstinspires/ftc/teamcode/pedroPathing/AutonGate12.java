@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 @Disabled
-@Autonomous(name = "Auton 12 Gate", group = "Auto")
+@Autonomous(name = "Auton 12 Gate", group = "Old")
 public class AutonGate12 extends OpMode {
 
     private Hardware robot;

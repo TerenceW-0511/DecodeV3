@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Close Coop", group = "Examples")
+@Autonomous(name = "Close Coop", group = "Blue")
 public class autoCoop extends OpMode {
 
     private Follower follower;
