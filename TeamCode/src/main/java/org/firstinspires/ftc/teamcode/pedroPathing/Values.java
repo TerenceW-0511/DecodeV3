@@ -72,11 +72,13 @@ public class Values {
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.45;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
-    public static double tx = 0;
+    public static double tx = 0, llOffset = 0;
     public static double hoodPos = 0.5;
     public static double autonFollowerX=9,autonFollowerY=6.5,autonHeading = 0,autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
+    public static Pose blueTag = new Pose(19.4,133.8);
     public static Pose redGoal = new Pose(131.5,137.3);
+    public static Pose redTag = new Pose(124.6,133.8);
     public enum Team {
         RED,
         BLUE
@@ -88,30 +90,13 @@ public class Values {
 
     }
     public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
-            //distance, hood
+            //distance, hood, k
             Map.ofEntries(
-
+               // 88.8, 1,-0.0015,2010
             )
     );
 
 
-    public static final TreeMap<Double, Double> turretDegreeToServoLUT = new TreeMap<>(
-            Map.ofEntries(
-//                    Map.entry(-171.0,0.0),
-                    Map.entry(-150.5559498,0.0633),
-                    Map.entry(-139.4296703,0.0954),
-                    Map.entry(-90.0,0.2324),
-                    Map.entry(-42.9324695,0.3672),
-                    Map.entry(-38.7041722,0.401),
-                    Map.entry(0.0,0.5),
-                    Map.entry(38.7041722,0.6102),
-                    Map.entry(90.0,0.7417),
-                    Map.entry(139.4296703,0.9127),
-                    Map.entry(150.5559498,0.9467)
-//                    Map.entry(172.0,1.0)
-
-            )
-    );
 //
 //    public static final TreeMap<Double, Double> llLUT = new TreeMap<>(
 //            Map.ofEntries(

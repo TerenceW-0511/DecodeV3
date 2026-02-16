@@ -7,8 +7,9 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+@Disabled
 @Autonomous(name = "Auton 12 Gate", group = "Auto")
 public class AutonGate12 extends OpMode {
 
@@ -166,11 +167,11 @@ public class AutonGate12 extends OpMode {
     public void loop() {
         follower.update();
         autonomousPathUpdate();
-        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
+        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1.getPosition());
 //        flywheelPID.flywheelFF(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
         intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
         transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
+        robot.hood1.setPosition(methods.hoodControl(follower,robot.flywheel1,robot.flywheel2));
         robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
         robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
 
