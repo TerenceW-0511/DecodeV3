@@ -19,7 +19,7 @@ public class AutonFar9 extends OpMode {
     private final Pose GrabPlayerZone = new Pose(10.325581395348829, 8.46511627906977, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
     private final Pose ScorePlayerZone = new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose GrabLastChain = new Pose(21.46511627906974, 37.27906976744186, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose ControlToGrabLastChain = new Pose(10.3, 8.5); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose ControlToGrabLastChain = new Pose(55.1, 37.8); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
     private final Pose ScoreLastChain = new Pose(49.3953488372093, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
@@ -42,31 +42,33 @@ public class AutonFar9 extends OpMode {
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         ScorePlayer = follower.pathBuilder()
                 .addPath(new BezierLine(GrabPlayerZone, ScorePlayerZone))
-                .setLinearHeadingInterpolation(GrabPlayerZone.getHeading(), ScorePlayerZone.getHeading())
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         GrabLast = follower.pathBuilder()
                 .addPath(new BezierCurve(ScorePlayerZone, ControlToGrabLastChain,GrabLastChain))
-                .setLinearHeadingInterpolation(ScorePlayerZone.getHeading(), GrabLastChain.getHeading())
+                .setTangentHeadingInterpolation()
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         ScoreLast = follower.pathBuilder()
                 .addPath(new BezierLine(GrabLastChain, ScoreLastChain))
-                .setLinearHeadingInterpolation(GrabLastChain.getHeading(), ScoreLastChain.getHeading())
+                .setConstantHeadingInterpolation(ScoreLastChain.getHeading())
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         GrabPlayer2 = follower.pathBuilder()
                 .addPath(new BezierLine(ScoreLastChain, GrabPlayerZone2))
-                .setLinearHeadingInterpolation(ScoreLastChain.getHeading(), GrabPlayerZone2.getHeading())
+                .setTangentHeadingInterpolation()
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         Scoreplayer2 = follower.pathBuilder()
                 .addPath(new BezierLine(GrabPlayerZone2, ScorePlayerZone2))
-                .setLinearHeadingInterpolation(GrabPlayerZone2.getHeading(), ScorePlayerZone2.getHeading())
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
     }
 
