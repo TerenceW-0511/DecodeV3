@@ -1,397 +1,211 @@
-package org.firstinspires.ftc.teamcode.pedroPathing;
-//we are skibidi, we are rizzlers
+package org.firstinspires.ftc.teamcode.pedroPathing; // make sure this aligns with class location
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-@Autonomous(name = "Auton Far 9", group = "Auto")
+import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+@Autonomous(name = "Example Auto", group = "Examples")
 public class AutonFar9 extends OpMode {
-
-    private Hardware robot;
     private Follower follower;
-    private Methods intakePID,transferPID,flywheelPID,methods;
-    private boolean pathStarted = false;
+    private Timer pathTimer, actionTimer, opmodeTimer;
+    private int pathState;
 
 
+    private final Pose startPose = new Pose(57.88372093023256, 8.46511627906977, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose GrabPlayerZone = new Pose(10.325581395348829, 8.46511627906977, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose ScorePlayerZone = new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose GrabLastChain = new Pose(21.46511627906974, 37.27906976744186, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose ControlToGrabLastChain = new Pose(10.3, 8.5); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
-    // PATH CHAINS
-// BLUE
-    public PathChain scorePreloadBlue;
-    public PathChain grabBottomChainBlue;
-    public PathChain scoreBottomChainBlue;
-    public PathChain grabLoadedChainBlue;
-    public PathChain scoreLoadedChainBlue;
-    public PathChain leaveBlue;
+    private final Pose ScoreLastChain = new Pose(49.3953488372093, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
-    // RED
-    public PathChain scorePreloadRed;
-    public PathChain grabBottomChainRed;
-    public PathChain scoreBottomChainRed;
-    public PathChain grabLoadedChainRed;
-    public PathChain scoreLoadedChainRed;
-    public PathChain leaveRed;
-    // FINAL SELECTED CHAINS
-    private PathChain scorePreload;
-    private PathChain grabBottomChain, scoreBottomChain;
-    private PathChain grabLoadedChain, scoreLoadedChain;
-    private PathChain leave;
+    private final Pose GrabPlayerZone2 = new Pose(10.3, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
+    private final Pose ScorePlayerZone2 = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+//    private Path scorePreload;
+    private Path grabPlayer;
+    private PathChain ScorePlayer, GrabLast, ScoreLast, GrabPlayer2, Scoreplayer2;
 
-    private int pathState, actionState;
-    private Timer pathTimer, actionTimer;
+    public void buildPaths() {
+//        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
+//        scorePreload = new Path(new BezierLine(startPose, GrabPlayerZone));
+//        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), GrabPlayerZone.getHeading());
+        grabPlayer = new Path(new BezierLine(startPose, GrabPlayerZone));
+        grabPlayer.setLinearHeadingInterpolation(startPose.getHeading(), GrabPlayerZone.getHeading());
+    /* Here is an example for Constant Interpolation
+    scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
-    public static Pose startingPose;
+        /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        ScorePlayer = follower.pathBuilder()
+                .addPath(new BezierLine(GrabPlayerZone, ScorePlayerZone))
+                .setLinearHeadingInterpolation(GrabPlayerZone.getHeading(), ScorePlayerZone.getHeading())
+                .build();
 
-    // BLUE POSES+
-    public static Pose startingPoseBlue = new Pose(55.2,8.8,Math.toRadians(270));
-    public static Pose scorePreloadPoseBlue = new Pose(56,17.1,Math.toRadians(180));
-    public static Pose toBottomBlue = new Pose(12.9,35.2,Math.toRadians(180));
-    public static Pose controlToBottomBlue = new Pose(59.3,39.2);
-    public static Pose scoreBottomBlue = new Pose(58.9,20.1,Math.toRadians(180));
-    public static Pose toLoadedBlue = new Pose(13.4,10.2,Math.toRadians(180));
-    public static Pose controlLoadedBlue = new Pose(57.1,8.9);
-    public static Pose scoreLoadedBlue = new Pose(50.5,10.2,Math.toRadians(180));
-    public static Pose leavePoseBlue = new Pose(35.2,10.2,Math.toRadians(180));
+        /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        GrabLast = follower.pathBuilder()
+                .addPath(new BezierCurve(ScorePlayerZone, ControlToGrabLastChain,GrabLastChain))
+                .setLinearHeadingInterpolation(ScorePlayerZone.getHeading(), GrabLastChain.getHeading())
+                .build();
 
+        /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        ScoreLast = follower.pathBuilder()
+                .addPath(new BezierLine(GrabLastChain, ScoreLastChain))
+                .setLinearHeadingInterpolation(GrabLastChain.getHeading(), ScoreLastChain.getHeading())
+                .build();
 
+        /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        GrabPlayer2 = follower.pathBuilder()
+                .addPath(new BezierLine(ScoreLastChain, GrabPlayerZone2))
+                .setLinearHeadingInterpolation(ScoreLastChain.getHeading(), GrabPlayerZone2.getHeading())
+                .build();
 
-    // RED POSES
-    public static Pose startingPoseRed = mirrorPose(startingPoseBlue);
-    public static Pose scorePreloadPoseRed = mirrorPose(scorePreloadPoseBlue);
-    public static Pose toBottomRed = mirrorPose(toBottomBlue);
-    public static Pose controlToBottomRed = mirrorPoint(controlToBottomBlue);
-    public static Pose scoreBottomRed = mirrorPose(scoreBottomBlue);
-    public static Pose toLoadedRed = mirrorPose(toLoadedBlue);
-    public static Pose controlLoadedRed = mirrorPoint(controlLoadedBlue);
-    public static Pose scoreLoadedRed = mirrorPose(scoreLoadedBlue);
-    public static Pose leavePoseRed = mirrorPose(leavePoseBlue);
-
-
-    private boolean isRed = true;
-
-
-
-
-
-    @Override
-    public void init() {
-        follower = Constants.createFollower(hardwareMap);
-        follower.update();
-
-        pathTimer = new Timer();
-        actionTimer = new Timer();
-
-        robot = new Hardware(hardwareMap);
-        intakePID = new Methods();
-        transferPID = new Methods();
-        flywheelPID = new Methods();
-        methods = new Methods();
+        /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
+        Scoreplayer2 = follower.pathBuilder()
+                .addPath(new BezierLine(GrabPlayerZone2, ScorePlayerZone2))
+                .setLinearHeadingInterpolation(GrabPlayerZone2.getHeading(), ScorePlayerZone2.getHeading())
+                .build();
     }
 
-    @Override
-    public void init_loop() {
-
-        if (gamepad1.aWasPressed()) {
-            Values.team = Values.Team.BLUE;
-            startingPose = startingPoseBlue;
-        } else if (gamepad1.bWasPressed()) {
-            Values.team = Values.Team.RED;
-            startingPose = startingPoseRed;
-        }
-
-        if (startingPose == null) {
-            Values.team = Values.Team.RED;
-            startingPose = startingPoseRed;
-        }
-        Values.turretOverride -= gamepad1.left_trigger/300;
-        Values.turretOverride += gamepad1.right_trigger/300;
-        robot.turret1.setPosition(Values.turretPos+Values.turretOverride);
-        robot.turret2.setPosition(Values.turretPos+Values.turretOverride);
-
-        telemetry.addData("Team", Values.team);
-        telemetry.addData("Starting Pose", startingPose);
-        telemetry.addData("target",follower.getCurrentPath());
-        telemetry.update();
-    }
-
-    @Override
-    public void start() {
-
-        isRed = (Values.team == Values.Team.RED);
-
-        buildPaths();
-
-        follower.setStartingPose(startingPose);
-
-        scorePreload     = isRed ? scorePreloadRed     : scorePreloadBlue;
-        grabBottomChain  = isRed ? grabBottomChainRed  : grabBottomChainBlue;
-        scoreBottomChain = isRed ? scoreBottomChainRed : scoreBottomChainBlue;
-        grabLoadedChain  = isRed ? grabLoadedChainRed  : grabLoadedChainBlue;
-        scoreLoadedChain = isRed ? scoreLoadedChainRed : scoreLoadedChainBlue;
-        leave            = isRed ? leaveRed            : leaveBlue;
-
-
-        setPathState(0);
-    }
-
-    @Override
-    public void loop() {
-        follower.update();
-        autonomousPathUpdate();
-        Values.flywheel_Values.flywheelTarget=methods.flywheelControl(follower,robot.hood1);
-//        flywheelPID.flywheelFF(robot.flywheel1, robot.flywheel2,Values.flywheel_Values.flywheelTarget);
-        intakePID.velocity_PID(robot.intake,Values.intake_Values.intakeTarget,"intake");
-        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
-        robot.hood1.setPosition(methods.hoodControl(methods.getDist(follower.getPose()),robot.flywheel1,robot.flywheel2));
-        robot.turret1.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
-        robot.turret2.setPosition(methods.AutoAim(follower.getPose(),robot.ll));
-
-        Values.autonFollowerX = follower.getPose().getX();
-        Values.autonFollowerY = follower.getPose().getY();
-
-        telemetry.addData("Path State", pathState);
-        telemetry.addData("drive error",follower.getDriveError());
-        telemetry.addData("heading error",follower.getHeadingError());
-        telemetry.addData("angular velocity",follower.getAngularVelocity());
-        telemetry.addData("velocity",follower.getVelocity().getMagnitude());
-
-        telemetry.update();
-    }
-
-    public void intake(){
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-//        Values.transfer_Values.transferTarget=Values.transfer_Values.transferIntake;
-        robot.intake.setPower(1);
-        robot.transfer.setPower(.7);
-    }
-    public void move(){
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeHold*2;
-        robot.intake.setPower(0);
-        robot.transfer.setPower(1);
-//        Values.transfer_Values.transferTarget=0;
-    }
-    public void moveNoIntake(){
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-//        Values.intake_Values.intakeTarget=0;
-//        Values.transfer_Values.transferTarget=0;
-        robot.transfer.setPower(0);
-        robot.intake.setPower(0);
-    }
-    public boolean shoot(){
-        robot.limiter.setPosition(Values.LIMITER_OPEN);
-//        Values.intake_Values.intakeTarget=Values.intake_Values.intakeIntaking;
-//        Values.transfer_Values.transferTarget=Values.transfer_Values.transferUp;
-        robot.intake.setPower(1);
-        robot.transfer.setPower(1);
-        if (pathTimer.getElapsedTimeSeconds()>1.1){
-            return pathTimer.getElapsedTimeSeconds() > 1.4;
-        }
-        return false;
-    }
-
-
-    private void buildPaths() {
-
-        // =======================
-        // BLUE PATHS
-        // =======================
-
-        scorePreloadBlue = follower.pathBuilder()
-                .addPath(new BezierLine(startingPoseBlue, scorePreloadPoseBlue))
-                .setLinearHeadingInterpolation(
-                        startingPoseBlue.getHeading(),
-                        scorePreloadPoseBlue.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-        grabBottomChainBlue = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        scorePreloadPoseBlue,
-                        controlToBottomBlue,
-                        toBottomBlue))
-                .setConstantHeadingInterpolation(toBottomBlue.getHeading())
-                .setNoDeceleration()
-                .setHeadingConstraint(0.3)
-                .build();
-
-        scoreBottomChainBlue = follower.pathBuilder()
-                .addPath(new BezierLine(toBottomBlue, scoreBottomBlue))
-                .setConstantHeadingInterpolation(scoreBottomBlue.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-        grabLoadedChainBlue = follower.pathBuilder()
-                .addPath(new BezierCurve(scoreBottomBlue,controlLoadedBlue,toLoadedBlue))
-                .setConstantHeadingInterpolation(toLoadedBlue.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-        scoreLoadedChainBlue = follower.pathBuilder()
-                .addPath(new BezierCurve(toLoadedBlue,scoreLoadedBlue))
-                .setConstantHeadingInterpolation(scoreLoadedBlue.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-
-        leaveBlue = follower.pathBuilder()
-                .addPath(new BezierLine(scoreLoadedBlue, leavePoseBlue))
-                .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.3)
-                .build();
-
-        // =======================
-        // RED PATHS
-        // =======================
-
-        scorePreloadRed = follower.pathBuilder()
-                .addPath(new BezierLine(startingPoseRed, scorePreloadPoseRed))
-                .setLinearHeadingInterpolation(
-                        startingPoseRed.getHeading(),
-                        scorePreloadPoseRed.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-        grabBottomChainRed = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        scorePreloadPoseRed,
-                        controlToBottomRed,
-                        toBottomRed))
-                .setConstantHeadingInterpolation(toBottomRed.getHeading())
-                .setNoDeceleration()
-                .setHeadingConstraint(0.3)
-                .build();
-
-        scoreBottomChainRed = follower.pathBuilder()
-                .addPath(new BezierLine(toBottomRed, scoreBottomRed))
-                .setConstantHeadingInterpolation(scoreBottomRed.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-        grabLoadedChainRed = follower.pathBuilder()
-                .addPath(new BezierCurve(scoreBottomRed,controlLoadedRed,toLoadedRed))
-                .setConstantHeadingInterpolation(toLoadedRed.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-        scoreLoadedChainRed = follower.pathBuilder()
-                .addPath(new BezierCurve(toLoadedRed,scoreLoadedRed))
-                .setConstantHeadingInterpolation(scoreLoadedRed.getHeading())
-                .setHeadingConstraint(0.3)
-                .build();
-
-
-        leaveRed = follower.pathBuilder()
-                .addPath(new BezierLine(scoreLoadedRed, leavePoseRed))
-                .setTangentHeadingInterpolation()
-                .setHeadingConstraint(0.3)
-                .build();
-
-    }
-
-
-    private void autonomousPathUpdate() {
+    public void autonomousPathUpdate() {
         switch (pathState) {
-
             case 0:
-                move();
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    nextPath();
-                }
-                break;
-
+                setPathState(1);
             case 1:
-                move();
-                runPath(scorePreload);
+                follower.followPath(grabPlayer);
+                setPathState(2);
                 break;
-
             case 2:
-            case 7:
-            case 11:
-            case 16:
-                if (Math.abs(Values.flywheel_Values.flywheelTarget-robot.flywheel1.getVelocity())<50 && follower.getAngularVelocity()<.5 && follower.getVelocity().getMagnitude()<1) {
-                    nextPath();
+
+            /* You could check for
+            - Follower State: "if(!follower.isBusy()) {}"
+            - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
+            - Robot Position: "if(follower.getPose().getX() > 36) {}"
+            */
+
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Preload */
+
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
+                    follower.followPath(ScorePlayer,true);
+                    setPathState(2);
                 }
                 break;
             case 3:
-            case 8:
-            case 12:
-            case 17:
-                if (shoot()){
-                    nextPath();
-                }break;
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                if(!follower.isBusy()) {
+                    /* Grab Sample */
 
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(GrabLast,true);
+                    setPathState(3);
+                }
+                break;
+            case 4:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
 
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
+                    follower.followPath(ScoreLast,true);
+                    setPathState(4);
+                }
+                break;
+            case 5:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
+                if(!follower.isBusy()) {
+                    /* Grab Sample */
 
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                    follower.followPath(GrabPlayer2,true);
+                    setPathState(5);
+                }
+                break;
+            case 6:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Score Sample */
 
-            default:
-                move();
+                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
+                    follower.followPath(Scoreplayer2,true);
+                    setPathState(6);
+                }
+                break;
+            case 7:
+                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                if(!follower.isBusy()) {
+                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
+                    setPathState(-1);
+                }
                 break;
         }
     }
 
-
-    private void nextPath() {
-        pathState++;
+    /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
+    public void setPathState(int pState) {
+        pathState = pState;
         pathTimer.resetTimer();
-        pathStarted=false;
     }
 
-    private void setPathState(int p) {
-        pathState = p;
-        pathTimer.resetTimer();
-        actionState = 0;
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
+    @Override
+    public void loop() {
+
+        // These loop the movements of the robot, these must be called continuously in order to work
+        follower.update();
+        autonomousPathUpdate();
+
+        // Feedback to Driver Hub for debugging
+        telemetry.addData("path state", pathState);
+        telemetry.addData("x", follower.getPose().getX());
+        telemetry.addData("y", follower.getPose().getY());
+        telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.update();
     }
 
-    public static Pose mirrorPose(Pose p) {
-        return new Pose(
-                144 - p.getX(),
-                p.getY(),
-                Math.PI - p.getHeading()
-        );
-    }
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
+    @Override
+    public void init() {
+        pathTimer = new Timer();
+        opmodeTimer = new Timer();
+        opmodeTimer.resetTimer();
 
-    public static Pose mirrorPoint(Pose p) {
-        return new Pose(
-                144 - p.getX(),
-                p.getY()
-        );
-    }
-    private void runPath(PathChain path) {
 
-        if (!pathStarted) {
-            follower.followPath(path,true);
-            pathStarted = true;
-            pathTimer.resetTimer();
-
-        }
-        if (pathState==5){
-            follower.setMaxPower(0.6);
-            if (pathTimer.getElapsedTimeSeconds()>2){
-                nextPath();
-            }
-        }else{
-            follower.setMaxPower(1);
-        }
-//        if (follower.getDistanceRemaining()<10){
-//            follower.setMaxPower(0.8);
-//        }else{
-//            follower.setMaxPower(1);
-//        }
-
-        boolean headingGood =
-                Math.abs(follower.getHeadingError()) <follower.getCurrentPath().getPathEndHeadingConstraint();
-        if (follower.atParametricEnd() && headingGood || follower.isRobotStuck() || pathTimer.getElapsedTimeSeconds()>7 || !follower.isBusy()) {
-            pathStarted = false;
-            pathTimer.resetTimer();
-            nextPath();
-        }
+        follower = Constants.createFollower(hardwareMap);
+        buildPaths();
+        follower.setStartingPose(startPose);
 
     }
 
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
+    @Override
+    public void init_loop() {
+    }
 
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
+    @Override
+    public void start() {
+        opmodeTimer.resetTimer();
+        setPathState(0);
+    }
+
+    /**
+     * We do not use this because everything should automatically disable
+     **/
+    @Override
+    public void stop() {
+    }
 }
