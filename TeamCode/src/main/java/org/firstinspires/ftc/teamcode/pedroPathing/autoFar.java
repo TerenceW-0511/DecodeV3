@@ -93,8 +93,8 @@ public class autoFar extends OpMode {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(ScorePlayer,true);
-                    setPathState(2);
+                    follower.followPath(ScorePlayer);
+                    setPathState(3);
                 }
                 break;
             case 3:
@@ -103,8 +103,8 @@ public class autoFar extends OpMode {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(GrabLast,true);
-                    setPathState(3);
+                    follower.followPath(GrabLast);
+                    setPathState(4);
                 }
                 break;
             case 4:
@@ -113,31 +113,33 @@ public class autoFar extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(ScoreLast,true);
-                    setPathState(4);
+                    follower.followPath(ScoreLast);
+                    setPathState(5);
                 }
                 break;
             case 5:
+            case 7:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
                 if(!follower.isBusy()) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(GrabPlayer2,true);
-                    setPathState(5);
+                    follower.followPath(GrabPlayer2);
+                    nextPath();
                 }
                 break;
             case 6:
+            case 8:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(Scoreplayer2,true);
-                    setPathState(6);
+                    follower.followPath(Scoreplayer2);
+                    nextPath();
                 }
                 break;
-            case 7:
+            case 9:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
@@ -203,7 +205,10 @@ public class autoFar extends OpMode {
         opmodeTimer.resetTimer();
         setPathState(0);
     }
-
+    public void nextPath(){
+        pathState += 1;
+        pathTimer.resetTimer();
+    }
     /**
      * We do not use this because everything should automatically disable
      **/
