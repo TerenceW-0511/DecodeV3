@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Close 15", group = "Blue")
+@Autonomous(name = "Gate", group = "Blue")
 public class autoGate extends OpMode {
 
     private Follower follower;
@@ -20,7 +20,7 @@ public class autoGate extends OpMode {
     private Methods intakePID,transferPID,flywheelPID,methods;
 
     private int pathState;
-    private final Pose startPose = new Pose(15.5, 115, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose startPose = new Pose(15.5, 113.5, Math.toRadians(180)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49, 115, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
     private final Pose pickup1Pose = new Pose(12.7, 59, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -70,7 +70,7 @@ public class autoGate extends OpMode {
         tapGate = follower.pathBuilder()
                 .addPath(new BezierLine(scorePickup1Pose,tapGatePose))
                 .setTangentHeadingInterpolation()
-                .setNoDeceleration()
+//                .setNoDeceleration()
                 .build();
 
         tunnel = follower.pathBuilder()
@@ -160,7 +160,11 @@ public class autoGate extends OpMode {
                 }break;
             case 4:
             case 7:
+                if (follower.getPathCompletion()>0.8){
+                    follower.setMaxPower(.5);
+                }
                 if (!follower.isBusy()){
+                    follower.setMaxPower(1);
                     follower.followPath(tunnel);
                     nextPath();
                 }break;

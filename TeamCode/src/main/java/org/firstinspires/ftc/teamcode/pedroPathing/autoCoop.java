@@ -20,7 +20,7 @@ public class autoCoop extends OpMode {
     private Methods intakePID,transferPID,flywheelPID,methods;
 
     private int pathState;
-    private final Pose startPose = new Pose(15.5, 115, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose startPose = new Pose(15.5, 113.5, Math.toRadians(180)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49, 115, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
     private final Pose pickup1Pose = new Pose(17.9, 84.3, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
