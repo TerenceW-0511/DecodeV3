@@ -37,7 +37,7 @@ public class Methods {
     private long prevTime = System.nanoTime();
     public static double test = -15;
     public static double hoodBase = 0.5;
-    private double a= 1942.737009564922,b=-3.7582044840271314,c=-1674.333205592891,d=0.03961799982168701,e=890.04879977254,f=10.180294779377727;
+    private double a= 2547.485479219496,b=-16.574639704849446,c=-2298.619991010838,d=0.09221292146389004,e=1100.5878413277512,f=15.548316614463243;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
@@ -242,7 +242,7 @@ public class Methods {
         if (dist > 120) {
             offsetAmt = (Values.team == Values.Team.RED) ? 0.8 : -0.8;
         }
-        Values.tx = result.getTx();
+        Values.tx = result.getTx()-offsetAmt;
         filteredX+=Values.tx*test;
         double target =filteredX+alpha * 1725/18;
 
@@ -251,8 +251,6 @@ public class Methods {
         if (wrapped<0) wrapped+=34000;
         wrapped-=17000;
         return wrapped;
-
-
     }
 
     public double limelightOffset(Pose botPose){

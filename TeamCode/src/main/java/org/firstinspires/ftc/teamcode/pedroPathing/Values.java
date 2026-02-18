@@ -74,7 +74,7 @@ public class Values {
     public static boolean turretDeadSpot = false;
     public static double tx = 0, llOffset = 0;
     public static double hoodPos = 0.5;
-    public static double autonFollowerX=9,autonFollowerY=6.5,autonHeading = 0,autonTurret=0;
+    public static double autonFollowerX=9,autonFollowerY=8,autonHeading = 0,autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose blueTag = new Pose(19.4,133.8);
     public static Pose redGoal = new Pose(131.5,137.3);
@@ -92,7 +92,9 @@ public class Values {
     public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
             //distance, hood, k
             Map.ofEntries(
-               // 88.8, 1,-0.0015,2010
+
+                    Map.entry(26.7,1.0),
+                    Map.entry(32.4,0.86)
             )
     );
 

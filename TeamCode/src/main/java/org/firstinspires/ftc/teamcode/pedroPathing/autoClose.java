@@ -23,26 +23,26 @@ public class autoClose extends OpMode {
     private final Pose startPose = new Pose(15.5, 113.5, Math.toRadians(180)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49, 115, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
-    private final Pose pickup1Pose = new Pose(17.9, 84.3, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose pickup1Pose = new Pose(17.3, 84.3, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup1 = new Pose(55.8,87.4);
 
     private final Pose scorePickup1Pose = new Pose(50,84.3,Math.toRadians(180));
 
-    private final Pose pickup2Pose = new Pose(10.9, 59.1, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2Pose = new Pose(6, 59.1, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup2 = new Pose(46.5,60.7);
 
-    private final Pose openGatePose = new Pose(17.7,69.7,Math.toRadians(180));
+    private final Pose openGatePose = new Pose(14.5,69.7,Math.toRadians(180));
     private final Pose controlGate = new Pose(29.2,65.2);
 
-    private final Pose scorePickup2Pose = new Pose(60,69.7,Math.toRadians(180));
+    private final Pose scorePickup2Pose = new Pose(55,69.7,Math.toRadians(180));
 
-    private final Pose pickup3Pose = new Pose(12.8, 35.5, Math.toRadians(225)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose pickup3Pose = new Pose(6, 35.5, Math.toRadians(225)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup3 = new Pose(48.5,35.2);
 
-    private final Pose scorePickup3Pose = new Pose(58.4,76.6,Math.toRadians(225));
+    private final Pose scorePickup3Pose = new Pose(55,76.6,Math.toRadians(225));
 
-    private final Pose toLoadingPose = new Pose(12.8,35.5,Math.toRadians(225));
-    private final Pose pickup4Pose = new Pose(7,9,Math.toRadians(270));
+    private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
+    private final Pose pickup4Pose = new Pose(0,8,Math.toRadians(270));
     private final Pose controlPickup4 = new Pose(4.6,28.5);
 
     private final Pose scorePickup4Pose = new Pose(55.6,113.9,Math.toRadians(180));
@@ -101,14 +101,13 @@ public class autoClose extends OpMode {
         toPickup4 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePickup3Pose,toLoadingPose))
                 .setConstantHeadingInterpolation(toLoadingPose.getHeading())
-                .setNoDeceleration()
                 .build();
         grabPickup4 = follower.pathBuilder()
                 .addPath(new BezierCurve(toLoadingPose,controlPickup4,pickup4Pose))
                 .setConstantHeadingInterpolation(pickup4Pose.getHeading())
                 .build();
         scorePickup4 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup4Pose,controlPickup4,scorePickup4Pose))
+                .addPath(new BezierCurve(pickup4Pose,controlScore4Pose,scorePickup4Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -125,9 +124,19 @@ public class autoClose extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
-                setPathState(1);
+                setPathState(98);
                 break;
+            case 98:
+                move();
+                if (!follower.isBusy()){
+                    if (outtake(2.5)) {
+                        setPathState(1);
+                    }
+                }
+                break;
+
             case 1:
+                move();
                 if (!follower.isBusy()){
                     follower.followPath(grabPickup1);
                     setPathState(2);
@@ -158,7 +167,7 @@ public class autoClose extends OpMode {
             case 3:
                 move();
                 if (!follower.isBusy()){
-                    if (outtake()) {
+                    if (outtake(3)) {
                         setPathState(99);
                     }
                 }
@@ -178,38 +187,69 @@ public class autoClose extends OpMode {
                 }
                 break;
             case 5:
-
-                if (!follower.isBusy()){
+                move();
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>2){
                     follower.followPath(scorePickup2);
-                    setPathState(6);
+                    setPathState(100);
                 }
                 break;
+            case 100:
+                move();
+                if (!follower.isBusy()){
+                    if (outtake(3)) {
+                        setPathState(6);
+                    }
+                }break;
             case 6:
+                move();
                 if (!follower.isBusy()){
                     follower.followPath(grabPickup3);
                     setPathState(7);
                 }
                 break;
             case 7:
+                if (follower.getPathCompletion()>0.7){
+                    intake();
+                }
                 if (!follower.isBusy()){
                     follower.followPath(scorePickup3);
-                    setPathState(8);
+                    setPathState(101);
+                }break;
+            case 101:
+                move();
+                if (!follower.isBusy()){
+                    if (outtake(3)) {
+                        setPathState(8);
+                    }
                 }break;
             case 8:
+                move();
                 if (!follower.isBusy()){
                     follower.followPath(toPickup4);
                     setPathState(9);
                 }break;
             case 9:
+                if (follower.getPathCompletion()>0.8){
+                    intake();
+                }
                 if (!follower.isBusy()){
                     follower.followPath(grabPickup4);
                     setPathState(10);
                 }break;
             case 10:
+                intake();
                 if (!follower.isBusy()){
                     follower.followPath(scorePickup4);
-                    setPathState(11);
+                    setPathState(102);
                 }break;
+            case 102:
+                move();
+                if (!follower.isBusy()){
+                    if (outtake(3)) {
+                        setPathState(103);
+                    }
+                }break;
+
 
 
 
@@ -219,23 +259,28 @@ public class autoClose extends OpMode {
 
 
     public void intake(){
-        follower.setMaxPower(0.6);
+        follower.setMaxPower(0.4);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.intake.setPower(1);
-        robot.transfer.setPower(.5);
+        robot.transfer.setPower(.8);
 
     }
 
     public void move(){
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
         follower.setMaxPower(1);
         robot.intake.setPower(0);
         robot.transfer.setPower(0);
     }
-    public boolean outtake(){
-        robot.limiter.setPosition(Values.LIMITER_OPEN);
-        robot.intake.setPower(-1);
-        robot.transfer.setPower(-0.5);
-        if (pathTimer.getElapsedTimeSeconds()>2){
+    public boolean outtake(double time){
+        ;
+        double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
+        double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
+        if (pathTimer.getElapsedTimeSeconds()>0.2) {
+            robot.intake.setPower(1);
+            robot.transfer.setPower(1);
+        }
+        if (pathTimer.getElapsedTimeSeconds()>time){
             return true;
         }
         return false;
@@ -262,6 +307,18 @@ public class autoClose extends OpMode {
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();
         Values.autonHeading = Math.toDegrees(follower.getHeading());
+
+        robot.hood1.setPosition(0.5);
+
+        double turretEncoder = -robot.intake.getCurrentPosition();
+
+        double targetTurret = methods.AutoAim(follower.getPose(), robot.ll);
+        Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+        robot.turret1.setPosition(Values.turretPos);
+        robot.turret2.setPosition(Values.turretPos);
+
+        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,robot.hood1.getPosition());
+        flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2, Values.flywheel_Values.flywheelTarget);
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
@@ -300,11 +357,12 @@ public class autoClose extends OpMode {
     @Override
     public void init_loop() {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
-//        double targetTurret = methods.AutoAim(follower.getPose(),robot.ll);
-//        double turretEncoder = -robot.intake.getCurrentPosition();
-//        Values.turretPos = methods.turretPID(turretEncoder, targetTurret+Values.turretOverride);
-//        robot.turret1.setPosition(Values.turretPos);
-//        robot.turret2.setPosition(Values.turretPos);
+        double turretEncoder = -robot.intake.getCurrentPosition();
+
+        double targetTurret = methods.AutoAim(follower.getPose(), robot.ll);
+        Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+        robot.turret1.setPosition(Values.turretPos);
+        robot.turret2.setPosition(Values.turretPos);
     }
 
     /**

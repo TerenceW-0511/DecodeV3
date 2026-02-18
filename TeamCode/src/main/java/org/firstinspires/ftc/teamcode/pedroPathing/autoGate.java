@@ -28,7 +28,7 @@ public class autoGate extends OpMode {
 
     private final Pose scorePickup1Pose = new Pose(50,81.3,Math.toRadians(180));
 
-    private final Pose tapGatePose = new Pose(17.3,70.7,Math.toRadians(180));
+    private final Pose tapGatePose = new Pose(16,70.7,Math.toRadians(180));
     private final Pose tunnelPose = new Pose(12.3,56,Math.toRadians(120));
     private final Pose controlTunnel = new Pose(18.9,57.8);
 
@@ -163,7 +163,7 @@ public class autoGate extends OpMode {
                 if (follower.getPathCompletion()>0.8){
                     follower.setMaxPower(.5);
                 }
-                if (!follower.isBusy()){
+                if (!follower.isBusy() ){
                     follower.setMaxPower(1);
                     follower.followPath(tunnel);
                     nextPath();

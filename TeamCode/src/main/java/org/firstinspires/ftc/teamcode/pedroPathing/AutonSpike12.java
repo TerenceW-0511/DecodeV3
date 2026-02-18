@@ -203,7 +203,7 @@ public class AutonSpike12 extends OpMode {
 //        transferPID.velocity_PID(robot.transfer,Values.transfer_Values.transferTarget,"transfer");
         Values.hoodPos = methods.hoodControl(follower,robot.flywheel1,robot.flywheel2);
         robot.hood1.setPosition(Values.hoodPos);
-        methods.limelightCorrection(robot.ll,dist);
+//        methods.limelightCorrection(robot.ll,dist);
         double targetTurret = methods.AutoAim(follower.getPose(),robot.ll);
         double turretEncoder = -robot.intake.getCurrentPosition();
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret+Values.turretOverride);

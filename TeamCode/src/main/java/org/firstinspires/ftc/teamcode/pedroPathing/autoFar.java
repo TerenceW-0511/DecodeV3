@@ -164,6 +164,10 @@ public class autoFar extends OpMode {
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathUpdate();
+        Values.autonFollowerX = follower.getPose().getX();
+        Values.autonFollowerY = follower.getPose().getY();
+        Values.autonHeading = Math.toDegrees(follower.getHeading());
+
 
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
