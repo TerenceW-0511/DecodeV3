@@ -34,7 +34,7 @@ public class autoClose extends OpMode {
     private final Pose openGatePose = new Pose(14.5,69.7,Math.toRadians(180));
     private final Pose controlGate = new Pose(29.2,65.2);
 
-    private final Pose scorePickup2Pose = new Pose(55,69.7,Math.toRadians(180));
+    private final Pose scorePickup2Pose = new Pose(60.2,77.2,Math.toRadians(180));
 
     private final Pose pickup3Pose = new Pose(6, 35.5, Math.toRadians(225)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup3 = new Pose(48.5,35.2);
@@ -42,8 +42,8 @@ public class autoClose extends OpMode {
     private final Pose scorePickup3Pose = new Pose(55,76.6,Math.toRadians(225));
 
     private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
-    private final Pose pickup4Pose = new Pose(0,8,Math.toRadians(270));
-    private final Pose controlPickup4 = new Pose(4.6,28.5);
+    private final Pose pickup4Pose = new Pose(9,34.1,Math.toRadians(270));
+    private final Pose controlPickup4 = new Pose(54.5,31.9);
 
     private final Pose scorePickup4Pose = new Pose(55.6,113.9,Math.toRadians(180));
     private final Pose controlScore4Pose = new Pose(6.9,64.9);
@@ -60,6 +60,7 @@ public class autoClose extends OpMode {
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierCurve(scorePose,controlPickup1, pickup1Pose))
                 .setTangentHeadingInterpolation()
+                .setNoDeceleration()
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -83,7 +84,8 @@ public class autoClose extends OpMode {
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(openGatePose, scorePickup2Pose))
-                .setConstantHeadingInterpolation(scorePickup2Pose.getHeading())
+                .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -98,13 +100,13 @@ public class autoClose extends OpMode {
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePickup3Pose.getHeading())
                 .build();
 
-        toPickup4 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePickup3Pose,toLoadingPose))
-                .setConstantHeadingInterpolation(toLoadingPose.getHeading())
-                .build();
+//        toPickup4 = follower.pathBuilder()
+//                .addPath(new BezierLine(scorePickup3Pose,toLoadingPose))
+//                .setConstantHeadingInterpolation(toLoadingPose.getHeading())
+//                .build();
         grabPickup4 = follower.pathBuilder()
-                .addPath(new BezierCurve(toLoadingPose,controlPickup4,pickup4Pose))
-                .setConstantHeadingInterpolation(pickup4Pose.getHeading())
+                .addPath(new BezierCurve(scorePickup3Pose,controlPickup4,pickup4Pose))
+                .setTangentHeadingInterpolation()
                 .build();
         scorePickup4 = follower.pathBuilder()
                 .addPath(new BezierCurve(pickup4Pose,controlScore4Pose,scorePickup4Pose))
@@ -165,7 +167,7 @@ public class autoClose extends OpMode {
                 }
                 break;
             case 3:
-                move();
+                if (follower.getPathCompletion()>0.1) move();
                 if (!follower.isBusy()){
                     if (outtake(3)) {
                         setPathState(99);
@@ -187,7 +189,7 @@ public class autoClose extends OpMode {
                 }
                 break;
             case 5:
-                move();
+                if (follower.getPathCompletion()>0.1) move();
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>2){
                     follower.followPath(scorePickup2);
                     setPathState(100);
@@ -216,10 +218,10 @@ public class autoClose extends OpMode {
                     setPathState(101);
                 }break;
             case 101:
-                move();
+                if (follower.getPathCompletion()>0.1) move();
                 if (!follower.isBusy()){
                     if (outtake(3)) {
-                        setPathState(8);
+                        setPathState(9);
                     }
                 }break;
             case 8:
@@ -237,13 +239,13 @@ public class autoClose extends OpMode {
                     setPathState(10);
                 }break;
             case 10:
-                intake();
+
                 if (!follower.isBusy()){
                     follower.followPath(scorePickup4);
                     setPathState(102);
                 }break;
             case 102:
-                move();
+                if (follower.getPathCompletion()>0.1) move();
                 if (!follower.isBusy()){
                     if (outtake(3)) {
                         setPathState(103);

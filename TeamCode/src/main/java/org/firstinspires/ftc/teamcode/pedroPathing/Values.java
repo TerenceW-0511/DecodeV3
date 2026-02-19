@@ -94,6 +94,7 @@ public class Values {
             Map.ofEntries(
 
                     Map.entry(26.7,1.0),
+                    Map.entry(29.1,1.0),
                     Map.entry(32.4,0.86)
             )
     );

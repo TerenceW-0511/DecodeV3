@@ -37,7 +37,7 @@ public class Methods {
     private long prevTime = System.nanoTime();
     public static double test = -15;
     public static double hoodBase = 0.5;
-    private double a= 2547.485479219496,b=-16.574639704849446,c=-2298.619991010838,d=0.09221292146389004,e=1100.5878413277512,f=15.548316614463243;
+    private double a= 2558.3597233948644,b=-16.387017585894974,c=-2356.4076710655913,d=0.08890184449457195,e=1117.6724685437139,f=16.196925315213786;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
@@ -185,7 +185,7 @@ public class Methods {
 
     public void manualRelocalize(Follower follower){
 
-        if (Values.team==Values.Team.RED) {
+        if (Values.team==Values.Team.BLUE) {
             follower.setPose(new Pose(135-23.5, 6.5, Math.toRadians(0)));
         }else{
             follower.setPose(new Pose(9+23.5,6.5,Math.toRadians(180)));
@@ -240,9 +240,13 @@ public class Methods {
         LLResult result= ll.getLatestResult();
         double dist = getDist(botPose);
         if (dist > 120) {
-            offsetAmt = (Values.team == Values.Team.RED) ? 0.8 : -0.8;
+            offsetAmt = (Values.team == Values.Team.RED) ? -3 : 3;
         }
-        Values.tx = result.getTx()-offsetAmt;
+        if (!result.isValid()){
+            Values.tx=0;
+        }else {
+            Values.tx = result.getTx() - offsetAmt;
+        }
         filteredX+=Values.tx*test;
         double target =filteredX+alpha * 1725/18;
 
@@ -365,7 +369,11 @@ public class Methods {
 //        double targetVel = flywheelControl(follower,1);
 
         double rpmError = Math.abs(Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2);
-        return hoodBase + rpmError*k;
+        if (getDist(follower.getPose())>120) {
+            return hoodBase + rpmError * k;
+        }else{
+            return hoodBase;
+        }
     }
 
     //x = distance, y = hood

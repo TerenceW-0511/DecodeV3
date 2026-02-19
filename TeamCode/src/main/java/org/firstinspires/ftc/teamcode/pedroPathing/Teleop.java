@@ -138,9 +138,9 @@ public class Teleop extends OpMode {
 
 
 //        if (gamepad1.dpadUpWasPressed()){
-//            Values.flywheel_Values.flywheelTarget+=30;
+//            Values.flywheel_Values.flywheelTarget+=20;
 //        }else if (gamepad1.dpadDownWasPressed()){
-//            Values.flywheel_Values.flywheelTarget-=30;
+//            Values.flywheel_Values.flywheelTarget-=20;
 //        }
 
         if (gamepad1.aWasPressed()){
@@ -160,14 +160,16 @@ public class Teleop extends OpMode {
                     Values.init=false;
                 }
                 hardware.led.setPosition(0.333); //orange=
-                if (timer.getElapsedTimeSeconds()>0.1) {
-                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
-                }
-                if (gamepad1.left_bumper) {
-                    setPowerIfChanged(hardware.intake, 1, "intake");
-                    hardware.transfer.setPower(.8);
-                } else {
+//                if (timer.getElapsedTimeSeconds()>0.1) {
+//                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+//                }
+                hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+                if (gamepad1.left_bumper && timer.getElapsedTimeSeconds()>0.5) {
 
+                    setPowerIfChanged(hardware.intake, 1, "intake");
+                    hardware.transfer.setPower(.6);
+                } else {
+//                    hardware.limiter.setPosition(Values.LIMITER_OPEN);
                     setPowerIfChanged(hardware.intake,  0, "intake");
                     hardware.transfer.setPower(0);
 
@@ -186,7 +188,7 @@ public class Teleop extends OpMode {
 
 
                 boolean atSpeed = rpmError < 70;
-                if (atSpeed && timer.getElapsedTimeSeconds() > 0.1) {
+                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     hardware.transfer.setPower(1);
 
