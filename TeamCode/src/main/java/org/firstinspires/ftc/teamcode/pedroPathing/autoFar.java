@@ -20,19 +20,19 @@ public class autoFar extends OpMode {
 
 
     private final Pose startPose = new Pose(57.5, 6.7, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose GrabPlayerZone = new Pose(10.325581395348829, 8.46511627906977, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose GrabPlayerZone = new Pose(10.325581395348829, 7, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
     private final Pose regrabPlayer = new Pose(10.4,12,Math.toRadians(180));
     private final Pose controlRetry = new Pose(24.6,9.3);
     private final Pose ScorePlayerZone = new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose GrabLastChain = new Pose(17.069767441860442, 37.06976744186046, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose GrabLastChain = new Pose(10, 37.06976744186046, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose ControlToGrabLastChain = new Pose(55.06976744186045, 37.77906976744185); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
     private final Pose ScoreLastChain = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
-    private final Pose GrabPlayerZone2 = new Pose(10.3, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose regrabPlayer2 = new Pose(10,14,Math.toRadians(180));
-    private final Pose controlRetry2 = new Pose(25,10.9);
+    private final Pose GrabPlayerZone2 = new Pose(10.3, 13, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+//    private final Pose regrabPlayer2 = new Pose(10,14,Math.toRadians(180));
+//    private final Pose controlRetry2 = new Pose(25,10.9);
     private final Pose ScorePlayerZone2 = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose leave = new Pose(37.1,8.5);
 
@@ -81,10 +81,10 @@ public class autoFar extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
 
-        Retry2 = follower.pathBuilder()
-                .addPath(new BezierCurve(GrabPlayerZone2,controlRetry2,regrabPlayer2))
-                .setConstantHeadingInterpolation(regrabPlayer2.getHeading())
-                .build();
+//        Retry2 = follower.pathBuilder()
+//                .addPath(new BezierCurve(GrabPlayerZone2,controlRetry2,regrabPlayer2))
+//                .setConstantHeadingInterpolation(regrabPlayer2.getHeading())
+//                .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         Scoreplayer2 = follower.pathBuilder()
@@ -102,7 +102,7 @@ public class autoFar extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                if (outtake(1,4)){
+                if (outtake(1,2.5)){
                     setPathState(1);
                 }
                 break;
@@ -128,7 +128,7 @@ public class autoFar extends OpMode {
             case 4:
                 move(true);
                 if (!follower.isBusy()) {
-                    if (outtake(2, 4)) {
+                    if (outtake(1, 2.5)) {
                         setPathState(5);
                     }
                 }break;
@@ -149,7 +149,7 @@ public class autoFar extends OpMode {
             case 7:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2,4)){
+                    if (outtake(1,2.5)){
                         setPathState(8);
                     }
                 }break;
@@ -167,21 +167,22 @@ public class autoFar extends OpMode {
                     intake();
                 }
                 if (!follower.isBusy()) {
-                    follower.followPath(Retry2);
+                    follower.followPath(Scoreplayer2);
                     nextPath();
                 }break;
             case 10:
             case 14:
-                intake();
-                if (!follower.isBusy()) {
-                    follower.followPath(Scoreplayer2);
-                    nextPath();
-                }
+//                intake();
+//                if (!follower.isBusy()) {
+//                    follower.followPath(Scoreplayer2);
+//                    nextPath();
+//                }
+                nextPath();
             case 11:
             case 15:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2,4)){
+                    if (outtake(1,2.5)){
                         nextPath();
                     }
                 }break;
@@ -214,21 +215,42 @@ public class autoFar extends OpMode {
     }
 
     public void move(boolean intake){
-        if (follower.getPathCompletion()>0.7){
-            robot.limiter.setPosition(Values.LIMITER_OPEN);
-        }
+//        if (follower.getPathCompletion()>0.7){
+//            robot.limiter.setPosition(Values.LIMITER_OPEN);
+//        }
         follower.setMaxPower(1);
-        if (follower.getPathCompletion()<0.2 && intake){
-            robot.limiter.setPosition(Values.LIMITER_CLOSE);
-            robot.intake.setPower(1);
-            robot.transfer.setPower(0.8);
+//        if (follower.getPathCompletion()<0.2 && intake){
+//            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+//            robot.intake.setPower(1);
+//            robot.transfer.setPower(0.8);
+//        }else{
+//
+//            robot.intake.setPower(0);
+//            robot.transfer.setPower(0);
+//        }
+
+        if (intake){
+            if (follower.getPathCompletion()>0.7){
+                robot.limiter.setPosition(Values.LIMITER_OPEN);
+            }else{
+                robot.limiter.setPosition(Values.LIMITER_CLOSE);
+            }
+            if (follower.getPathCompletion()<.2){
+                robot.intake.setPower(1);
+                robot.transfer.setPower(0.8);
+            }else{
+                robot.intake.setPower(0);
+                robot.transfer.setPower(0);
+            }
         }else{
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
             robot.intake.setPower(0);
             robot.transfer.setPower(0);
+
         }
     }
     public boolean outtake(double wait,double time){
-        ;
+
         double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
         double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
         if (pathTimer.getElapsedTimeSeconds()>wait && rpmError<70) {
@@ -315,10 +337,10 @@ public class autoFar extends OpMode {
      **/
     @Override
     public void init_loop() {
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
         double turretEncoder = -robot.intake.getCurrentPosition();
-
-        Values.turretPos = methods.turretPID(turretEncoder, -6000);
+        robot.hood1.setPosition(0);
+        Values.turretPos = methods.turretPID(turretEncoder, -7000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
     }
@@ -330,6 +352,7 @@ public class autoFar extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        robot.ll.pipelineSwitch(2);
         robot.ll.start();
         setPathState(0);
     }

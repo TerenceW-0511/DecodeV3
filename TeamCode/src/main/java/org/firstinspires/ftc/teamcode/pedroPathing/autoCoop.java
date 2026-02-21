@@ -360,7 +360,7 @@ public class autoCoop extends OpMode {
     public void init_loop() {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
-
+        robot.hood1.setPosition(1);
         Values.turretPos = methods.turretPID(turretEncoder, -8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
@@ -373,6 +373,7 @@ public class autoCoop extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        robot.ll.pipelineSwitch(2);
         robot.ll.start();
         setPathState(0);
     }

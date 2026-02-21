@@ -194,7 +194,7 @@ public class Teleop extends OpMode {
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     hardware.transfer.setPower(1);
 
-                }else if (dist>120){
+                }else if (dist>110){
                     setPowerIfChanged(hardware.intake,0,"intake");
                     hardware.transfer.setPower(0);
                 }

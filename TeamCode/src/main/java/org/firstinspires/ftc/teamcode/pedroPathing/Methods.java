@@ -251,7 +251,7 @@ public class Methods {
         LLResult result= ll.getLatestResult();
         double dist = getDist(botPose);
         if (dist > 120) {
-            offsetAmt = (Values.team == Values.Team.RED) ? -3 : 3;
+            offsetAmt = (Values.team == Values.Team.RED) ? -1 : 3;
         }else{
             offsetAmt = 0;
         }

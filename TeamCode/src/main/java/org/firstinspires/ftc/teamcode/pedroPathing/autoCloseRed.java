@@ -132,7 +132,7 @@ public class autoCloseRed extends OpMode {
             case 98:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2,2)) {
+                    if (outtake(0.5,2)) {
                         setPathState(1);
                     }
                 }
@@ -170,7 +170,7 @@ public class autoCloseRed extends OpMode {
             case 3:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2,2)) {
+                    if (outtake(0.5,2)) {
                         setPathState(99);
                     }
                 }
@@ -197,9 +197,9 @@ public class autoCloseRed extends OpMode {
                 }
                 break;
             case 100:
-                move(false);
+                move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2,2.5)) {
+                    if (outtake(0.5,2)) {
                         setPathState(6);
                     }
                 }break;
@@ -221,7 +221,7 @@ public class autoCloseRed extends OpMode {
             case 101:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(2.5,3)) {
+                    if (outtake(0.5,2)) {
                         setPathState(9);
                     }
                 }break;
@@ -248,7 +248,7 @@ public class autoCloseRed extends OpMode {
             case 102:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(3.5,3)) {
+                    if (outtake(0.5,2)) {
                         setPathState(103);
                     }
                 }break;
@@ -277,17 +277,38 @@ public class autoCloseRed extends OpMode {
     }
 
     public void move(boolean intake){
-        if (follower.getPathCompletion()>0.7){
-            robot.limiter.setPosition(Values.LIMITER_OPEN);
-        }
+//        if (follower.getPathCompletion()>0.7){
+//            robot.limiter.setPosition(Values.LIMITER_OPEN);
+//        }
         follower.setMaxPower(1);
-        if (follower.getPathCompletion()<0.2 && intake){
-            robot.limiter.setPosition(Values.LIMITER_CLOSE);
-            robot.intake.setPower(1);
-            robot.transfer.setPower(0.8);
+//        if (follower.getPathCompletion()<0.2 && intake){
+//            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+//            robot.intake.setPower(1);
+//            robot.transfer.setPower(0.8);
+//        }else{
+//
+//            robot.intake.setPower(0);
+//            robot.transfer.setPower(0);
+//        }
+
+        if (intake){
+            if (follower.getPathCompletion()>0.7){
+                robot.limiter.setPosition(Values.LIMITER_OPEN);
+            }else{
+                robot.limiter.setPosition(Values.LIMITER_CLOSE);
+            }
+            if (follower.getPathCompletion()<.2){
+                robot.intake.setPower(1);
+                robot.transfer.setPower(0.8);
+            }else{
+                robot.intake.setPower(0);
+                robot.transfer.setPower(0);
+            }
         }else{
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
             robot.intake.setPower(0);
             robot.transfer.setPower(0);
+
         }
     }
     public boolean outtake(double wait,double time){
@@ -374,7 +395,7 @@ public class autoCloseRed extends OpMode {
     public void init_loop() {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
-
+        robot.hood1.setPosition(1);
         Values.turretPos = methods.turretPID(turretEncoder, 8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
@@ -391,6 +412,7 @@ public class autoCloseRed extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        robot.ll.pipelineSwitch(1);
         robot.ll.start();
         setPathState(0);
     }
