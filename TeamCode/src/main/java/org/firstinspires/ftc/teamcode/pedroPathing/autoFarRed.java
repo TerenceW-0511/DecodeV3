@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -7,11 +8,11 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name = "Example Auto", group = "Blue")
-public class autoFar extends OpMode {
+public class autoFarRed extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
@@ -30,6 +31,18 @@ public class autoFar extends OpMode {
     private final Pose GrabPlayerZone2 = new Pose(10.3, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
     private final Pose ScorePlayerZone2 = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+
+    private final Pose startPoseRed = mirrorPose(startPose);// Start Pose of our robot.
+    private final Pose GrabPlayerZoneRed = mirrorPose(GrabPlayerZone); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose ScorePlayerZoneRed = mirrorPose(ScorePlayerZone); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose GrabLastChainRed = mirrorPose(GrabLastChain); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose ControlToGrabLastChainRed = mirrorPoint(ControlToGrabLastChain); // Lowest (Third Set) of Artifacts from the Spike Mark.
+
+    private final Pose ScoreLastChainRed = mirrorPose(ScoreLastChain); // Lowest (Third Set) of Artifacts from the Spike Mark.
+
+    private final Pose GrabPlayerZone2Red = mirrorPose(GrabPlayerZone2); // Lowest (Third Set) of Artifacts from the Spike Mark.
+
+    private final Pose ScorePlayerZone2Red = mirrorPose(ScorePlayerZone2); // Lowest (Third Set) of Artifacts from the Spike Mark.
 //    private Path scorePreload;
     private Path grabPlayer;
     private PathChain ScorePlayer, GrabLast, ScoreLast, GrabPlayer2, Scoreplayer2;
@@ -45,32 +58,32 @@ public class autoFar extends OpMode {
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         ScorePlayer = follower.pathBuilder()
-                .addPath(new BezierLine(GrabPlayerZone, ScorePlayerZone))
+                .addPath(new BezierLine(GrabPlayerZoneRed, ScorePlayerZoneRed))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         GrabLast = follower.pathBuilder()
-                .addPath(new BezierCurve(ScorePlayerZone, ControlToGrabLastChain,GrabLastChain))
+                .addPath(new BezierCurve(ScorePlayerZoneRed, ControlToGrabLastChainRed,GrabLastChainRed))
                 .setTangentHeadingInterpolation()
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         ScoreLast = follower.pathBuilder()
-                .addPath(new BezierLine(GrabLastChain, ScoreLastChain))
-                .setConstantHeadingInterpolation(ScoreLastChain.getHeading())
+                .addPath(new BezierLine(GrabLastChainRed, ScoreLastChainRed))
+                .setConstantHeadingInterpolation(ScoreLastChainRed.getHeading())
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         GrabPlayer2 = follower.pathBuilder()
-                .addPath(new BezierLine(ScoreLastChain, GrabPlayerZone2))
+                .addPath(new BezierLine(ScoreLastChainRed, GrabPlayerZone2Red))
                 .setTangentHeadingInterpolation()
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         Scoreplayer2 = follower.pathBuilder()
-                .addPath(new BezierLine(GrabPlayerZone2, ScorePlayerZone2))
+                .addPath(new BezierLine(GrabPlayerZone2Red, ScorePlayerZone2Red))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -264,10 +277,24 @@ public class autoFar extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(startPoseRed);
+        Values.team = Values.Team.RED;
 
     }
+    public static Pose mirrorPose(Pose p) {
+        return new Pose(
+                144 - p.getX(),
+                p.getY(),
+                Math.PI - p.getHeading()
+        );
+    }
 
+    public static Pose mirrorPoint(Pose p) {
+        return new Pose(
+                144 - p.getX(),
+                p.getY()
+        );
+    }
     /**
      * This method is called continuously after Init while waiting for "play".
      **/
@@ -276,7 +303,7 @@ public class autoFar extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        Values.turretPos = methods.turretPID(turretEncoder, -8000);
+        Values.turretPos = methods.turretPID(turretEncoder, -4000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
     }
