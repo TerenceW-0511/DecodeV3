@@ -208,14 +208,14 @@ public class autoGate extends OpMode {
 
 
     public void intake(){
-        follower.setMaxPower(0.6);
+        follower.setMaxPower(0.4);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.intake.setPower(1);
-        robot.transfer.setPower(.5);
-
+        robot.transfer.setPower(.8);
     }
 
     public void move(){
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
         follower.setMaxPower(1);
         robot.intake.setPower(0);
         robot.transfer.setPower(0);
