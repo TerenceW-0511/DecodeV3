@@ -36,8 +36,6 @@ public class Teleop extends OpMode {
     private double limiterOpenTime = 0;
  //TODO: add flywheel idle, turret no auto aim
 
-    double targetHeading = Math.toRadians(180); // Radians
-    PIDFController controller;
     private double lastFlywheel1Power = 999;
     private double lastFlywheel2Power = 999;
     private double lastIntakePower = 999;
@@ -60,7 +58,6 @@ public class Teleop extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,Values.autonHeading));
         follower.update();
-        controller = new com.pedropathing.control.PIDFController(follower.constants.coefficientsHeadingPIDF);
     }
     @Override
     public void init_loop(){
@@ -90,6 +87,8 @@ public class Teleop extends OpMode {
                 true // Robot Centric
         );
 
+
+
         //UPDATE VARS
         Pose pose = follower.getPose();
         double dist = methods.getDist(pose);
@@ -104,6 +103,7 @@ public class Teleop extends OpMode {
 
         }
         if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes. INTAKING){
+            hardware.ll.reloadPipeline();
             Values.init=true;
             Values.mode = Values.Modes.SHOOTING;
             timer.resetTimer();
@@ -117,8 +117,8 @@ public class Teleop extends OpMode {
             methods.manualRelocalize(follower);
         }
         if (gamepad1.rightStickButtonWasPressed()){
-            Values.tx=0;
-            hardware.ll.reloadPipeline();
+            hardware.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            hardware.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         if (Values.team != lastTeam) {
@@ -143,12 +143,12 @@ public class Teleop extends OpMode {
 //            Values.flywheel_Values.flywheelTarget-=20;
 //        }
 
-        if (gamepad1.aWasPressed()){
-            Values.hoodPos += 0.02;
-        }else if (gamepad1.yWasPressed()){
-            Values.hoodPos -=0.02;
-        }
-//        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+//        if (gamepad1.aWasPressed()){
+//            Values.hoodPos += 0.02;
+//        }else if (gamepad1.yWasPressed()){
+//            Values.hoodPos -=0.02;
+//        }
+        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 
 
@@ -186,7 +186,9 @@ public class Teleop extends OpMode {
                     hardware.led.setPosition(0.444); //green
                 }
 
-
+//                if (dist>120 && gamepad1.atRest()){
+//                    follower.holdPoint(follower.getPose(),true);
+//                }
                 boolean atSpeed = rpmError < 70;
                 if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
                     setPowerIfChanged(hardware.intake, 1, "intake");
@@ -232,9 +234,7 @@ public class Teleop extends OpMode {
         telemetry.addData("turret pos",targetTurret+Values.turretOverride);
 
         telemetry.addData("mode",Values.mode);
-        telemetry.addData("ll conencted",hardware.ll.getStatus());
         telemetry.addData("ll running",hardware.ll.isRunning());
-        telemetry.addData("LL last update ms", hardware.ll.getTimeSinceLastUpdate());
 
         telemetry.addData("tx",Values.tx);
 
@@ -252,24 +252,6 @@ public class Teleop extends OpMode {
 
         telemetry.update();
 
-    }
-    public double getHeadingError() {
-        double dx, dy, alpha;
-        Pose botPose = follower.getPose();
-        if (Values.team == Values.Team.BLUE) {
-            dx = botPose.getX() - Values.blueGoal.getX();
-            dy = Values.blueGoal.getY() - botPose.getY();
-            alpha = 180
-                    - Math.toDegrees(botPose.getHeading())
-                    - Math.toDegrees(Math.atan2(dy, dx));
-        } else {
-            dx = botPose.getX() - Values.redGoal.getX();
-            dy = Values.redGoal.getY() - botPose.getY();
-            alpha = 180
-                    - Math.toDegrees(botPose.getHeading())
-                    - Math.toDegrees(Math.atan2(dy, dx));
-        }
-        return MathFunctions.getTurnDirection(follower.getPose().getHeading(), alpha) * MathFunctions.getSmallestAngleDifference(follower.getPose().getHeading(), alpha);
     }
     private void setPowerIfChanged(DcMotorEx motor, double newPower, String motorName) {
         double lastPower;
@@ -303,8 +285,5 @@ public class Teleop extends OpMode {
             }
         }
     }
-
-
-
 
 }

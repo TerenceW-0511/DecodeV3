@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.controller.PIDFController;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -25,7 +26,7 @@ public class Methods {
     private double lastTime;
     private double lastTarget=0;
     public static final double rpmAdj = 20;
-    public static double k=0;
+    public static double k=-0.00015;
     private double lastLLError = 0;
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
@@ -220,7 +221,15 @@ public class Methods {
     public static double toInches(double meters){
         return meters*39.3701;
     }
-
+    public static Pose sotm(Follower follower){
+        Vector velocity = follower.getVelocity();
+        Pose curr = follower.getPose();
+        Pose predicted = new Pose(
+                curr.getX() + velocity.getXComponent(),
+                curr.getY()+ velocity.getYComponent()
+        );
+        return predicted;
+    }
     public double AutoAim(Pose botPose, Limelight3A ll) {
         double dx, dy, alpha;
 
@@ -241,6 +250,8 @@ public class Methods {
         double dist = getDist(botPose);
         if (dist > 120) {
             offsetAmt = (Values.team == Values.Team.RED) ? -3 : 3;
+        }else{
+            offsetAmt = 0;
         }
         if (!result.isValid()){
             Values.tx=0;
@@ -363,16 +374,15 @@ public class Methods {
     }
 
 
-
-
     public double hoodControl(Follower follower,DcMotorEx flywheel1,DcMotorEx flywheel2){
 //        double targetVel = flywheelControl(follower,1);
 
         double rpmError = Math.abs(Values.flywheel_Values.flywheelTarget - (flywheel1.getVelocity()+flywheel2.getVelocity())/2);
-        if (getDist(follower.getPose())>120) {
-            return hoodBase + rpmError * k;
+        double dist = getDist(follower.getPose());
+        if (dist>120) {
+            return hoodNominal(dist) + rpmError * k;
         }else{
-            return hoodBase;
+            return hoodNominal(dist);
         }
     }
 

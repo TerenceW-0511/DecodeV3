@@ -69,7 +69,7 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.45;
+    public static final double LIMITER_OPEN=0.9,LIMITER_CLOSE=0.35;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0, llOffset = 0;
@@ -95,7 +95,13 @@ public class Values {
 
                     Map.entry(26.7,1.0),
                     Map.entry(29.1,1.0),
-                    Map.entry(32.4,0.86)
+                    Map.entry(57.0,0.64),
+                    Map.entry(60.8,0.48),
+                    Map.entry(96.0,0.48),
+                    Map.entry(120.0,0.48),
+                    Map.entry(134.75,0.2),
+                    Map.entry(157.8,0.0)
+
             )
     );
 
