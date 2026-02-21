@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
+@Disabled
 @Autonomous(name = "Auton 12 Spike", group = "Old")
 public class AutonSpike12 extends OpMode {
 
