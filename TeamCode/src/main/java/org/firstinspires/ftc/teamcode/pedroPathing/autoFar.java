@@ -19,20 +19,26 @@ public class autoFar extends OpMode {
     private Hardware robot;
 
 
-    private final Pose startPose = new Pose(57.88372093023256, 8.46511627906977, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose startPose = new Pose(57.5, 6.7, Math.toRadians(180)); // Start Pose of our robot.
     private final Pose GrabPlayerZone = new Pose(10.325581395348829, 8.46511627906977, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+
+    private final Pose regrabPlayer = new Pose(10.4,12,Math.toRadians(180));
+    private final Pose controlRetry = new Pose(24.6,9.3);
     private final Pose ScorePlayerZone = new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose GrabLastChain = new Pose(17.069767441860442, 37.06976744186046, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose ControlToGrabLastChain = new Pose(55.06976744186045, 37.77906976744185); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
-    private final Pose ScoreLastChain = new Pose(49.3953488372093, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose ScoreLastChain = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
 
     private final Pose GrabPlayerZone2 = new Pose(10.3, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-
+    private final Pose regrabPlayer2 = new Pose(10,14,Math.toRadians(180));
+    private final Pose controlRetry2 = new Pose(25,10.9);
     private final Pose ScorePlayerZone2 = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-//    private Path scorePreload;
+    private final Pose leave = new Pose(37.1,8.5);
+
+    //    private Path scorePreload;
     private Path grabPlayer;
-    private PathChain ScorePlayer, GrabLast, ScoreLast, GrabPlayer2, Scoreplayer2;
+    private PathChain Retry,ScorePlayer, GrabLast, ScoreLast, GrabPlayer2,Retry2, Scoreplayer2,Leave;
 
     public void buildPaths() {
 //        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
@@ -43,12 +49,19 @@ public class autoFar extends OpMode {
     /* Here is an example for Constant Interpolation
     scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
+        Retry = follower.pathBuilder()
+                .addPath(new BezierCurve(GrabPlayerZone,controlRetry,regrabPlayer))
+                .setConstantHeadingInterpolation(regrabPlayer.getHeading())
+                .build();
+
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         ScorePlayer = follower.pathBuilder()
-                .addPath(new BezierLine(GrabPlayerZone, ScorePlayerZone))
+                .addPath(new BezierLine(regrabPlayer, ScorePlayerZone))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
+
+
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         GrabLast = follower.pathBuilder()
@@ -68,111 +81,121 @@ public class autoFar extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
 
+        Retry2 = follower.pathBuilder()
+                .addPath(new BezierCurve(GrabPlayerZone2,controlRetry2,regrabPlayer2))
+                .setConstantHeadingInterpolation(regrabPlayer2.getHeading())
+                .build();
+
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         Scoreplayer2 = follower.pathBuilder()
                 .addPath(new BezierLine(GrabPlayerZone2, ScorePlayerZone2))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
+
+        Leave =  follower.pathBuilder()
+                .addPath(new BezierLine(ScorePlayerZone2,leave))
+                .setTangentHeadingInterpolation()
+                .build();
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                if (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity() /2 >= Values.flywheel_Values.flywheelTarget && outtake(3)) {
-                        setPathState(1);
+                if (outtake(1,4)){
+                    setPathState(1);
                 }
                 break;
             case 1:
-                move();
                 follower.followPath(grabPlayer);
-                setPathState(69);
-                break;
-            case 69:
-                if (follower.getPathCompletion()>5) {
-                    intake();
-                    setPathState(2);
-                }
+                setPathState(2);
                 break;
             case 2:
-
-            /* You could check for
-            - Follower State: "if(!follower.isBusy()) {}"
-            - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-            - Robot Position: "if(follower.getPose().getX() > 36) {}"
-            */
-                if(!follower.isBusy()) {
-                    follower.followPath(ScorePlayer);
-                    setPathState(37);
+                if (follower.getPathCompletion()>0.5){
+                    intake();
                 }
-                break;
-            case 37:
-                if (outtake(3)){
+                if (!follower.isBusy()){
+                    follower.followPath(Retry);
                     setPathState(3);
                 }
+                break;
             case 3:
-                move();
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(!follower.isBusy()) {
-                    follower.followPath(GrabLast);
-                    setPathState(44);
-                }
-                break;
-            case 44:
-                if (follower.getPathCompletion()>5){
-                    intake();
+                intake();
+                if (!follower.isBusy()) {
+                    follower.followPath(ScorePlayer);
                     setPathState(4);
-                }
+                }break;
             case 4:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    follower.followPath(ScoreLast);
-                    setPathState(58);
-                }
-            case 58:
-                if (outtake(3)){
-                    setPathState(5);
-                }
-                break;
-            case 9:
+                move(true);
+                if (!follower.isBusy()) {
+                    if (outtake(2, 4)) {
+                        setPathState(5);
+                    }
+                }break;
             case 5:
-                move();
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
-                if(!follower.isBusy()) {
-                    /* Grab Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
+                move(false);
+                if (!follower.isBusy()){
+                    follower.followPath(GrabLast);
+                    setPathState(6);
+                }break;
+            case 6:
+                if (follower.getPathCompletion()>0.5){
+                    intake();
+                }
+                if (!follower.isBusy()){
+                    follower.followPath(ScoreLast);
+                    setPathState(7);
+                }break;
+            case 7:
+                move(true);
+                if (!follower.isBusy()){
+                    if (outtake(2,4)){
+                        setPathState(8);
+                    }
+                }break;
+            case 8:
+            case 12:
+                move(false);
+                if (!follower.isBusy()){
                     follower.followPath(GrabPlayer2);
                     nextPath();
                 }
                 break;
-            case 10:
-            case 6:
-                if (follower.getPathCompletion()>.5){
+            case 9:
+            case 13:
+                if (follower.getPathCompletion()>0.5) {
                     intake();
-                    nextPath();
                 }
-            case 11:
-            case 7:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Score Sample */
+                if (!follower.isBusy()) {
+                    follower.followPath(Retry2);
+                    nextPath();
+                }break;
+            case 10:
+            case 14:
+                intake();
+                if (!follower.isBusy()) {
                     follower.followPath(Scoreplayer2);
                     nextPath();
                 }
-                break;
-            case 12:
-            case 8:
-                if (outtake(3)){
-                    nextPath();}
-                break;
-            case 13:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-                    setPathState(-1);
+            case 11:
+            case 15:
+                move(true);
+                if (!follower.isBusy()){
+                    if (outtake(2,4)){
+                        nextPath();
+                    }
+                }break;
+            case 16:
+                move(false);
+                if (!follower.isBusy()){
+                    follower.followPath(Leave);
+                    setPathState(17);
                 }
-                break;
+
+
+
+
+
         }
     }
     public void intake(){
@@ -183,33 +206,51 @@ public class autoFar extends OpMode {
 
     }
 
-    public void move(){
-        robot.limiter.setPosition(Values.LIMITER_OPEN);
+    public void gate(){
         follower.setMaxPower(1);
-        robot.intake.setPower(0);
-        robot.transfer.setPower(0);
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        robot.intake.setPower(1);
+        robot.transfer.setPower(.8);
     }
-    public boolean outtake(double time){
+
+    public void move(boolean intake){
+        if (follower.getPathCompletion()>0.7){
+            robot.limiter.setPosition(Values.LIMITER_OPEN);
+        }
+        follower.setMaxPower(1);
+        if (follower.getPathCompletion()<0.2 && intake){
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+            robot.intake.setPower(1);
+            robot.transfer.setPower(0.8);
+        }else{
+            robot.intake.setPower(0);
+            robot.transfer.setPower(0);
+        }
+    }
+    public boolean outtake(double wait,double time){
+        ;
         double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
         double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
-        if (pathTimer.getElapsedTimeSeconds()>0.2) {
+        if (pathTimer.getElapsedTimeSeconds()>wait && rpmError<70) {
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
+        }else{
+            robot.intake.setPower(0);
+            robot.transfer.setPower(0);
         }
-        if (pathTimer.getElapsedTimeSeconds()>time){
-            return true;
-        }
-        return false;
+        return pathTimer.getElapsedTimeSeconds() > time+1;
     }
-    /** These change the states of the paths and actions. It will also reset the timers of the individual switches **/
+
+    /**
+     * These change the states of the paths and actions. It will also reset the timers of the individual switches
+     **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
     }
-
     public void nextPath(){
+        pathState += 1;
         pathTimer.resetTimer();
-        pathState+=1;
     }
 
     /**
@@ -224,9 +265,10 @@ public class autoFar extends OpMode {
 
         Values.autonFollowerX = follower.getPose().getX();
         Values.autonFollowerY = follower.getPose().getY();
-        Values.autonHeading = Math.toDegrees(follower.getHeading());
+        Values.autonHeading = follower.getHeading();
 
-        robot.hood1.setPosition(0.5);
+        Values.hoodPos = methods.hoodControl(follower,robot.flywheel1,robot.flywheel2);
+        robot.hood1.setPosition(Values.hoodPos);
 
         double turretEncoder = -robot.intake.getCurrentPosition();
 
@@ -243,8 +285,6 @@ public class autoFar extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.addData("avg velo", robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity() / 2);
-        telemetry.addData("target velo", Values.flywheel_Values.flywheelTarget);
         telemetry.update();
     }
 
@@ -260,14 +300,13 @@ public class autoFar extends OpMode {
         robot = new Hardware(hardwareMap);
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakePID = new Methods();
-        transferPID = new Methods();
         flywheelPID = new Methods();
         methods = new Methods();
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setStartingPose(startPose);
+        Values.team = Values.Team.BLUE;
 
     }
 
@@ -279,8 +318,7 @@ public class autoFar extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        double targetTurret = methods.AutoAim(follower.getPose(), robot.ll);
-        Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+        Values.turretPos = methods.turretPID(turretEncoder, -4000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
     }
@@ -292,6 +330,7 @@ public class autoFar extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        robot.ll.start();
         setPathState(0);
     }
 

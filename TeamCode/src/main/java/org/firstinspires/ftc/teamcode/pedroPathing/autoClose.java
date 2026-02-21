@@ -42,12 +42,11 @@ public class autoClose extends OpMode {
     private final Pose scorePickup3Pose = new Pose(50,85,Math.toRadians(225));
 
     private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
-    private final Pose pickup4Pose = new Pose(9,34.1,Math.toRadians(270));
-    private final Pose controlPickup4 = new Pose(54.5,31.9);
+    private final Pose pickup4Pose = new Pose(9,50,Math.toRadians(270));
+    private final Pose controlPickup4 = new Pose(36.4,50.5);
 
-    private final Pose scorePickup4Pose = new Pose(52.1,116.6,Math.toRadians(180));
-    private final Pose controlScore4Pose = new Pose(6.9,64.9);
-    private final Pose controlscore4Pose2 = new Pose(52,80.4);
+    private final Pose scorePickup4Pose = new Pose(51,117.6,Math.toRadians(180));
+    private final Pose controlScore4Pose = new Pose(38.8,76.6);
     private Path scorePreload;
 
     private PathChain grabPickup1, scorePickup1, grabPickup2, openGate,scorePickup2, grabPickup3, scorePickup3,toPickup4,grabPickup4,scorePickup4;
@@ -110,7 +109,7 @@ public class autoClose extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
         scorePickup4 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup4Pose,controlScore4Pose,controlscore4Pose2,scorePickup4Pose))
+                .addPath(new BezierCurve(pickup4Pose,controlScore4Pose,scorePickup4Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -126,6 +125,7 @@ public class autoClose extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+
                 follower.followPath(scorePreload);
                 setPathState(98);
                 break;

@@ -349,6 +349,7 @@ public class autoCoop extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
         follower.setStartingPose(startPose);
+        Values.team = Values.Team.BLUE;
 
     }
 
