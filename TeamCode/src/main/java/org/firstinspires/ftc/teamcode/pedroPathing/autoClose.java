@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Close 15", group = "Blue")
+@Autonomous(name = "Close 15 Blue", group = "Blue")
 public class autoClose extends OpMode {
 
     private Follower follower;

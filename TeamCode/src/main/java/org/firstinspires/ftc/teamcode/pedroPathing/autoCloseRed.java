@@ -8,10 +8,10 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Close 15", group = "Blue")
+@Autonomous(name = "Close 15 Red", group = "Red")
 public class autoCloseRed extends OpMode {
 
     private Follower follower;
@@ -20,114 +20,84 @@ public class autoCloseRed extends OpMode {
     private Methods intakePID,transferPID,flywheelPID,methods;
 
     private int pathState;
-    private final Pose startPose = new Pose(15.5, 113.5, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose scorePose = new Pose(49, 115, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
+    private final Pose startPose = mirrorPose(new Pose(15.5, 113.5, Math.toRadians(180))); // Start Pose of our robot.
+    private final Pose scorePose = mirrorPose(new Pose(49, 115, Math.toRadians(180))); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
-    private final Pose pickup1Pose = new Pose(17.3, 84.3, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup1 = new Pose(49.5,87.8);
+    private final Pose pickup1Pose = mirrorPose(new Pose(17.3, 84.3, Math.toRadians(180))); // Highest (First Set) of Artifacts from the Spike Mark.
+    private final Pose controlPickup1 = mirrorPoint(new Pose(49.5,87.8));
 
-    private final Pose scorePickup1Pose = new Pose(50,84.3,Math.toRadians(180));
+    private final Pose scorePickup1Pose = mirrorPose(new Pose(50,84.3,Math.toRadians(180)));
 
-    private final Pose pickup2Pose = new Pose(6, 59.1, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup2 = new Pose(46.5,60.7);
+    private final Pose pickup2Pose = mirrorPose(new Pose(6, 59.1, Math.toRadians(180))); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose controlPickup2 = mirrorPoint(new Pose(46.5,60.7));
 
-    private final Pose openGatePose = new Pose(14,71,Math.toRadians(180));
-    private final Pose controlGate = new Pose(29.2,65.2);
+    private final Pose openGatePose = mirrorPose(new Pose(14,71,Math.toRadians(180)));
+    private final Pose controlGate = mirrorPoint(new Pose(29.2,65.2));
 
-    private final Pose scorePickup2Pose = new Pose(50.2,85,Math.toRadians(180));
+    private final Pose scorePickup2Pose = mirrorPose(new Pose(50.2,85,Math.toRadians(180)));
 
-    private final Pose pickup3Pose = new Pose(6, 35.5, Math.toRadians(225)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup3 = new Pose(48.5,35.2);
+    private final Pose pickup3Pose = mirrorPose(new Pose(6, 35.5, Math.toRadians(225))); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose controlPickup3 = mirrorPoint(new Pose(48.5,35.2));
 
-    private final Pose scorePickup3Pose = new Pose(50,85,Math.toRadians(225));
+    private final Pose scorePickup3Pose = mirrorPose(new Pose(50,85,Math.toRadians(225)));
 
     private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
-    private final Pose pickup4Pose = new Pose(9,34.1,Math.toRadians(270));
-    private final Pose controlPickup4 = new Pose(54.5,31.9);
+    private final Pose pickup4Pose = mirrorPose(new Pose(9,50,Math.toRadians(270)));
+    private final Pose controlPickup4 = mirrorPoint(new Pose(36.4,50.5));
 
-    private final Pose scorePickup4Pose = new Pose(52.1,116.6,Math.toRadians(180));
-    private final Pose controlScore4Pose = new Pose(6.9,64.9);
-    private final Pose controlscore4Pose2 = new Pose(52,80.4);
-
-    private final Pose startPoseRed = mirrorPose(startPose); // Start Pose of our robot.
-    private final Pose scorePoseRed = mirrorPose(scorePose); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-
-    private final Pose pickup1PoseRed = mirrorPose(pickup1Pose); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup1Red = mirrorPoint(controlPickup1);
-
-    private final Pose scorePickup1PoseRed = mirrorPose(scorePickup1Pose);
-
-    private final Pose pickup2PoseRed = mirrorPose(pickup2Pose); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup2Red = mirrorPoint(controlPickup2);
-
-    private final Pose openGatePoseRed = mirrorPose(openGatePose);
-    private final Pose controlGateRed = mirrorPoint(controlGate);
-
-    private final Pose scorePickup2PoseRed = mirrorPose(scorePickup2Pose);
-
-    private final Pose pickup3PoseRed = mirrorPose(pickup3Pose); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose controlPickup3Red = mirrorPoint(controlPickup3);
-
-    private final Pose scorePickup3PoseRed = mirrorPose(scorePickup3Pose);
-
-    private final Pose toLoadingPoseRed = mirrorPose(toLoadingPose);
-    private final Pose pickup4PoseRed = mirrorPose(pickup4Pose);
-    private final Pose controlPickup4Red = mirrorPoint(controlPickup4);
-
-    private final Pose scorePickup4PoseRed = mirrorPose(scorePickup4Pose);
-    private final Pose controlScore4PoseRed = mirrorPoint(controlScore4Pose);
-    private final Pose controlscore4Pose2Red = mirrorPoint(controlscore4Pose2);
+    private final Pose scorePickup4Pose = mirrorPose(new Pose(51,117.6,Math.toRadians(180)));
+    private final Pose controlScore4Pose = mirrorPoint(new Pose(38.8,76.6));
     private Path scorePreload;
 
     private PathChain grabPickup1, scorePickup1, grabPickup2, openGate,scorePickup2, grabPickup3, scorePickup3,toPickup4,grabPickup4,scorePickup4;
 
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload = new Path(new BezierLine(startPoseRed, scorePoseRed));
-        scorePreload.setConstantHeadingInterpolation(scorePoseRed.getHeading());
+        scorePreload = new Path(new BezierLine(startPose, scorePose));
+        scorePreload.setConstantHeadingInterpolation(scorePose.getHeading());
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePoseRed,controlPickup1Red, pickup1PoseRed))
+                .addPath(new BezierCurve(scorePose,controlPickup1, pickup1Pose))
                 .setTangentHeadingInterpolation()
                 .setNoDeceleration()
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup1PoseRed, scorePickup1PoseRed))
-                .setConstantHeadingInterpolation(scorePickup1PoseRed.getHeading())
+                .addPath(new BezierLine(pickup1Pose, scorePickup1Pose))
+                .setConstantHeadingInterpolation(scorePickup1Pose.getHeading())
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePickup1PoseRed,controlPickup2Red, pickup2PoseRed))
+                .addPath(new BezierCurve(scorePickup1Pose,controlPickup2, pickup2Pose))
                 .setTangentHeadingInterpolation()
                 .build();
 
         openGate = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup2PoseRed,controlGateRed, openGatePoseRed))
-                .setConstantHeadingInterpolation(openGatePoseRed.getHeading())
+                .addPath(new BezierCurve(pickup2Pose,controlGate, openGatePose))
+                .setConstantHeadingInterpolation(openGatePose.getHeading())
                 .build();
 
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup2 = follower.pathBuilder()
-                .addPath(new BezierLine(openGatePoseRed, scorePickup2PoseRed))
+                .addPath(new BezierLine(openGatePose, scorePickup2Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePickup2PoseRed, controlPickup3Red,pickup3PoseRed))
+                .addPath(new BezierCurve(scorePickup2Pose, controlPickup3,pickup3Pose))
                 .setTangentHeadingInterpolation()
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(pickup3PoseRed, scorePickup3PoseRed))
-                .setLinearHeadingInterpolation(pickup3PoseRed.getHeading(), scorePickup3PoseRed.getHeading())
+                .addPath(new BezierLine(pickup3Pose, scorePickup3Pose))
+                .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePickup3Pose.getHeading())
                 .build();
 
 //        toPickup4 = follower.pathBuilder()
@@ -135,11 +105,11 @@ public class autoCloseRed extends OpMode {
 //                .setConstantHeadingInterpolation(toLoadingPose.getHeading())
 //                .build();
         grabPickup4 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePickup3PoseRed,controlPickup4Red,pickup4PoseRed))
+                .addPath(new BezierCurve(scorePickup3Pose,controlPickup4,pickup4Pose))
                 .setTangentHeadingInterpolation()
                 .build();
         scorePickup4 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup4PoseRed,controlScore4PoseRed,controlscore4Pose2Red,scorePickup4PoseRed))
+                .addPath(new BezierCurve(pickup4Pose,controlScore4Pose,scorePickup4Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -155,6 +125,7 @@ public class autoCloseRed extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+
                 follower.followPath(scorePreload);
                 setPathState(98);
                 break;
@@ -390,25 +361,10 @@ public class autoCloseRed extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
         buildPaths();
-        follower.setStartingPose(startPoseRed);
+        follower.setStartingPose(startPose);
 
         Values.team = Values.Team.RED;
 
-    }
-
-    public static Pose mirrorPose(Pose p) {
-        return new Pose(
-                144 - p.getX(),
-                p.getY(),
-                Math.PI - p.getHeading()
-        );
-    }
-
-    public static Pose mirrorPoint(Pose p) {
-        return new Pose(
-                144 - p.getX(),
-                p.getY()
-        );
     }
 
     /**
@@ -419,7 +375,7 @@ public class autoCloseRed extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        Values.turretPos = methods.turretPID(turretEncoder, -4000);
+        Values.turretPos = methods.turretPID(turretEncoder, 8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
 
@@ -444,5 +400,20 @@ public class autoCloseRed extends OpMode {
      **/
     @Override
     public void stop() {
+    }
+
+    public static Pose mirrorPose(Pose p) {
+        return new Pose(
+                144 - p.getX(),
+                p.getY(),
+                Math.PI - p.getHeading()
+        );
+    }
+
+    public static Pose mirrorPoint(Pose p) {
+        return new Pose(
+                144 - p.getX(),
+                p.getY()
+        );
     }
 }
