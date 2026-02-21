@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Example Auto", group = "Blue")
+@Autonomous(name = "Far Auto Blue", group = "Blue")
 public class autoFar extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -318,7 +318,7 @@ public class autoFar extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        Values.turretPos = methods.turretPID(turretEncoder, -4000);
+        Values.turretPos = methods.turretPID(turretEncoder, -8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
     }
