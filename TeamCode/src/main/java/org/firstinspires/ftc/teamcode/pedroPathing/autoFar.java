@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Far Auto Blue", group = "Blue")
+@Autonomous(name = "Far Blue", group = "Blue")
 public class autoFar extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;

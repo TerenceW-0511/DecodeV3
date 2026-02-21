@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Far Auto Red", group = "Red")
+@Autonomous(name = "Far Red", group = "Red")
 public class autoFarRed extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -24,7 +24,7 @@ public class autoFarRed extends OpMode {
     private final Pose GrabPlayerZone = mirrorPose( new Pose(10.325581395348829, 8.46511627906977, Math.toRadians(180))); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
     private final Pose regrabPlayer = mirrorPose(new Pose(10.4,12,Math.toRadians(180)));
-    private final Pose controlRetry = mirrorPose(new Pose(24.6,9.3));
+    private final Pose controlRetry = mirrorPoint(new Pose(24.6,9.3));
     private final Pose ScorePlayerZone = mirrorPose(new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180))); // Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose GrabLastChain = mirrorPose(new Pose(17.069767441860442, 37.06976744186046, Math.toRadians(180))); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose ControlToGrabLastChain = mirrorPoint(new Pose(55.06976744186045, 37.77906976744185)); // Lowest (Third Set) of Artifacts from the Spike Mark.
