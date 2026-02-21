@@ -318,7 +318,7 @@ public class autoFar extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        Values.turretPos = methods.turretPID(turretEncoder, -8000);
+        Values.turretPos = methods.turretPID(turretEncoder, -6000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
     }
