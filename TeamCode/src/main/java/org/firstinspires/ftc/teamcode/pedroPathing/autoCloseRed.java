@@ -20,7 +20,7 @@ public class autoCloseRed extends OpMode {
     private Methods intakePID,transferPID,flywheelPID,methods;
 
     private int pathState;
-    private final Pose startPose = mirrorPose(new Pose(15.5, 113.5, Math.toRadians(180))); // Start Pose of our robot.
+    private final Pose startPose = mirrorPose(new Pose(15.5, 115, Math.toRadians(180))); // Start Pose of our robot.
     private final Pose scorePose = mirrorPose(new Pose(49, 115, Math.toRadians(180))); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
 
     private final Pose pickup1Pose = mirrorPose(new Pose(17.3, 84.3, Math.toRadians(180))); // Highest (First Set) of Artifacts from the Spike Mark.
@@ -28,10 +28,10 @@ public class autoCloseRed extends OpMode {
 
     private final Pose scorePickup1Pose = mirrorPose(new Pose(50,84.3,Math.toRadians(180)));
 
-    private final Pose pickup2Pose = mirrorPose(new Pose(6, 59.1, Math.toRadians(180))); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2Pose = mirrorPose(new Pose(6, 58, Math.toRadians(180))); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup2 = mirrorPoint(new Pose(46.5,60.7));
 
-    private final Pose openGatePose = mirrorPose(new Pose(14,71,Math.toRadians(180)));
+    private final Pose openGatePose = mirrorPose(new Pose(12,72,Math.toRadians(180)));
     private final Pose controlGate = mirrorPoint(new Pose(29.2,65.2));
 
     private final Pose scorePickup2Pose = mirrorPose(new Pose(50.2,85,Math.toRadians(180)));

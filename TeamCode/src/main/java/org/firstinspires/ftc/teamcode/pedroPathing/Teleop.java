@@ -163,7 +163,10 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-                hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+                if (timer.getElapsedTimeSeconds()>0.4){
+                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+                }
+
                 if (gamepad1.left_bumper && timer.getElapsedTimeSeconds()>0.5) {
 
                     setPowerIfChanged(hardware.intake, 1, "intake");

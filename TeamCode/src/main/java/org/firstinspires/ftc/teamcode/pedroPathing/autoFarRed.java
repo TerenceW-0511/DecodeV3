@@ -39,7 +39,7 @@ public class autoFarRed extends OpMode {
 
     //    private Path scorePreload;
     private Path grabPlayer;
-    private PathChain Retry,ScorePlayer, GrabLast, ScoreLast, GrabPlayer2,Retry2, Scoreplayer2,Leave;
+    private PathChain Retry,ScorePlayer, GrabLast, ScoreLast, GrabPlayer2,Retry2, Scoreplayer2,GrabTunnel3,ScoreTunnel3,Leave;
 
     public void buildPaths() {
 //        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
@@ -82,6 +82,17 @@ public class autoFarRed extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
 
+        GrabTunnel3 = follower.pathBuilder()
+                .addPath(new BezierCurve(ScorePlayerZone2,ControlToGrabLastChain,GrabLastChain))
+                .setTangentHeadingInterpolation()
+                .build();
+
+        ScoreTunnel3 = follower.pathBuilder()
+                .addPath(new BezierLine(GrabLastChain,ScorePlayerZone2))
+                .setConstantHeadingInterpolation(ScorePlayerZone2.getHeading())
+                .build();
+
+
 //        Retry2 = follower.pathBuilder()
 //                .addPath(new BezierCurve(GrabPlayerZone2,controlRetry2,regrabPlayer2))
 //                .setConstantHeadingInterpolation(regrabPlayer2.getHeading())
@@ -100,7 +111,7 @@ public class autoFarRed extends OpMode {
                 .build();
     }
 
-    public void autonomousPathUpdate(    ) {
+    public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
                 if (outtake(1,2.5)){
@@ -155,7 +166,6 @@ public class autoFarRed extends OpMode {
                     }
                 }break;
             case 8:
-            case 12:
                 move(false);
                 if (!follower.isBusy()){
                     follower.followPath(GrabPlayer2);
@@ -163,7 +173,6 @@ public class autoFarRed extends OpMode {
                 }
                 break;
             case 9:
-            case 13:
                 if (follower.getPathCompletion()>0.5) {
                     intake();
                 }
@@ -178,7 +187,7 @@ public class autoFarRed extends OpMode {
 //                    follower.followPath(Scoreplayer2);
 //                    nextPath();
 //                }
-                 nextPath();
+                nextPath();
             case 11:
             case 15:
                 move(true);
@@ -186,6 +195,21 @@ public class autoFarRed extends OpMode {
                     if (outtake(1,2.5)){
                         nextPath();
                     }
+                }break;
+            case 12:
+                move(false);
+                if (!follower.isBusy()){
+                    follower.followPath(GrabTunnel3);
+                    nextPath();
+                }
+                break;
+            case 13:
+                if (follower.getPathCompletion()>0.5) {
+                    intake();
+                }
+                if (!follower.isBusy()) {
+                    follower.followPath(ScoreTunnel3);
+                    nextPath();
                 }break;
             case 16:
                 move(false);
