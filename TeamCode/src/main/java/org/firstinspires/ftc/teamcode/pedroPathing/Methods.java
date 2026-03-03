@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
@@ -223,15 +224,11 @@ public class Methods {
     public static double toInches(double meters){
         return meters*39.3701;
     }
-    public static Pose sotm(Follower follower){
-        Vector velocity = follower.getVelocity();
-        Pose curr = follower.getPose();
-        Pose predicted = new Pose(
-                curr.getX() + velocity.getXComponent(),
-                curr.getY()+ velocity.getYComponent()
-        );
-        return predicted;
+
+    public void sotm(Follower f){
+        
     }
+
     public double AutoAim(Pose botPose, Limelight3A ll) {
         double dx, dy, alpha;
 
