@@ -320,7 +320,7 @@ public class autoFarRed extends OpMode {
 
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        double targetTurret = methods.AutoAim(follower.getPose(), robot.ll);
+        double targetTurret = methods.AutoAim(follower, robot.ll);
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);

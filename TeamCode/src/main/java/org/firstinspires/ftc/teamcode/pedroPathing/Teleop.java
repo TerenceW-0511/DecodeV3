@@ -218,7 +218,7 @@ public class Teleop extends OpMode {
 //        }
         double turretEncoder = -hardware.intake.getCurrentPosition();
 
-        double targetTurret = methods.AutoAim(pose, hardware.ll);
+        double targetTurret = methods.AutoAim(follower, hardware.ll);
 
 
         TelemetryPacket packet = new TelemetryPacket();

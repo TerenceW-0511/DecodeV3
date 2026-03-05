@@ -40,6 +40,7 @@ public class Methods {
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
     public static double test = -15;
+    public static double weight = 1;
     public static double hoodBase = 0.5;
     private double a= 2558.3597233948644,b=-16.387017585894974,c=-2356.4076710655913,d=0.08890184449457195,e=1117.6724685437139,f=16.196925315213786;
     public double filteredX=0,aprilx = 0;
@@ -225,26 +226,28 @@ public class Methods {
         return meters*39.3701;
     }
 
-    public void sotm(Follower f){
-        
+    public static Pose sotm(Follower f,Pose target){
+        Vector vel = f.getVelocity();
+        Pose predicted = new Pose(
+                target.getX()-vel.getXComponent()*weight,target.getY()-vel.getYComponent()*weight
+        );
+        return predicted;
     }
 
-    public double AutoAim(Pose botPose, Limelight3A ll) {
-        double dx, dy, alpha;
-
-        if (Values.team == Values.Team.BLUE) {
-            dx = botPose.getX() - Values.blueGoal.getX();
-            dy = Values.blueGoal.getY() - botPose.getY();
-            alpha = 180
-                    - Math.toDegrees(botPose.getHeading())
-                    - Math.toDegrees(Math.atan2(dy, dx));
-        } else {
-            dx = botPose.getX() - Values.redGoal.getX();
-            dy = Values.redGoal.getY() - botPose.getY();
-            alpha = 180
-                    - Math.toDegrees(botPose.getHeading())
-                    - Math.toDegrees(Math.atan2(dy, dx));
+    public double AutoAim(Follower f, Limelight3A ll){
+        Pose botPose = f.getPose();
+        Pose targetPose;
+        if (Values.team==Values.Team.BLUE){
+            targetPose = Values.blueGoal;
+        }else{
+            targetPose = Values.redGoal;
         }
+        targetPose = sotm(f,targetPose);
+        double dx = botPose.getX()-targetPose.getX();
+        double dy = targetPose.getY()-botPose.getY();
+        double alpha = 180
+                    - Math.toDegrees(botPose.getHeading())
+                    - Math.toDegrees(Math.atan2(dy,dx));
         LLResult result= ll.getLatestResult();
         double dist = getDist(botPose);
         if (dist > 120) {
@@ -266,6 +269,45 @@ public class Methods {
         wrapped-=17000;
         return wrapped;
     }
+
+
+//    public double AutoAim(Pose botPose, Limelight3A ll) {
+//        double dx, dy, alpha;
+//
+//        if (Values.team == Values.Team.BLUE) {
+//            dx = botPose.getX() - Values.blueGoal.getX();
+//            dy = Values.blueGoal.getY() - botPose.getY();
+//            alpha = 180
+//                    - Math.toDegrees(botPose.getHeading())
+//                    - Math.toDegrees(Math.atan2(dy, dx));
+//        } else {
+//            dx = botPose.getX() - Values.redGoal.getX();
+//            dy = Values.redGoal.getY() - botPose.getY();
+//            alpha = 180
+//                    - Math.toDegrees(botPose.getHeading())
+//                    - Math.toDegrees(Math.atan2(dy, dx));
+//        }
+//        LLResult result= ll.getLatestResult();
+//        double dist = getDist(botPose);
+//        if (dist > 120) {
+//            offsetAmt = (Values.team == Values.Team.RED) ? -1 : 3;
+//        }else{
+//            offsetAmt = 0;
+//        }
+//        if (!result.isValid()){
+//            Values.tx=0;
+//        }else {
+//            Values.tx = result.getTx() - offsetAmt;
+//        }
+//        filteredX+=Values.tx*test;
+//        double target =filteredX+alpha * 1725/18;
+//
+//
+//        double wrapped = (target+17000)%34000;
+//        if (wrapped<0) wrapped+=34000;
+//        wrapped-=17000;
+//        return wrapped;
+//    }
 
     public double limelightOffset(Pose botPose){
         double x = botPose.getX();
