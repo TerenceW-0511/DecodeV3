@@ -263,7 +263,7 @@ public class AutonSpike12 extends OpMode {
         double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
 
         double turretEncoder = -robot.intake.getCurrentPosition();
-        double targetTurret = methods.AutoAim(follower.getPose(), robot.ll) + Values.turretOverride;
+        double targetTurret = methods.AutoAim(follower, robot.ll) + Values.turretOverride;
         double turretError = Math.abs(targetTurret - turretEncoder);
 
         boolean turretStable = turretError < 200;

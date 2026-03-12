@@ -226,11 +226,21 @@ public class Methods {
         return meters*39.3701;
     }
 
+    public static boolean inZone(Pose pose){
+        double x = pose.getX();
+        double y = pose.getY();
+        boolean close = (y<=144) && (y>=x) && (y>=-x+144);
+        boolean far = (y>=0) && (y<=x-48) && (y<-x+96);
+        return close||far;
+    }
+
     public static Pose sotm(Follower f,Pose target){
         Vector vel = f.getVelocity();
         Pose predicted = new Pose(
-                target.getX()-vel.getXComponent()*weight,target.getY()-vel.getYComponent()*weight
+                target.getX()-vel.getXComponent()*weight,
+                target.getY()-vel.getYComponent()*weight
         );
+
         return predicted;
     }
 
@@ -243,6 +253,7 @@ public class Methods {
             targetPose = Values.redGoal;
         }
         targetPose = sotm(f,targetPose);
+        Values.predicted = targetPose;
         double dx = botPose.getX()-targetPose.getX();
         double dy = targetPose.getY()-botPose.getY();
         double alpha = 180
@@ -309,20 +320,20 @@ public class Methods {
 //        return wrapped;
 //    }
 
-    public double limelightOffset(Pose botPose){
-        double x = botPose.getX();
-        double y = botPose.getY();
-        if (Values.team == Values.Team.BLUE) {
-            double alpha = Math.toDegrees(Math.atan2(x - Values.blueTag.getX(), Values.blueTag.getY() - y));
-            double lambda = Math.toDegrees(Math.atan2(Values.blueGoal.getY() - y, x - Values.blueGoal.getX()));
-            return 90-alpha-lambda;
-        }else{
-            double alpha = Math.toDegrees(Math.atan2(Values.redTag.getX()-x,Values.redTag.getY()-y));
-            double lambda = Math.toDegrees(Math.atan2(Values.redGoal.getY()-y,Values.redGoal.getX()-x));
-            return 90-alpha-lambda;
-        }
-
-    }
+//    public double limelightOffset(Pose botPose){
+//        double x = botPose.getX();
+//        double y = botPose.getY();
+//        if (Values.team == Values.Team.BLUE) {
+//            double alpha = Math.toDegrees(Math.atan2(x - Values.blueTag.getX(), Values.blueTag.getY() - y));
+//            double lambda = Math.toDegrees(Math.atan2(Values.blueGoal.getY() - y, x - Values.blueGoal.getX()));
+//            return 90-alpha-lambda;
+//        }else{
+//            double alpha = Math.toDegrees(Math.atan2(Values.redTag.getX()-x,Values.redTag.getY()-y));
+//            double lambda = Math.toDegrees(Math.atan2(Values.redGoal.getY()-y,Values.redGoal.getX()-x));
+//            return 90-alpha-lambda;
+//        }
+//
+//    }
 
 
     public double limelightCorrection(Limelight3A ll, double dist) {
