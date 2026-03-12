@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 
 import java.util.Map;
 import java.util.TreeMap;
-
+@Config
+@Configurable
 public class Values {
     public static Modes mode = Modes.INTAKING;
     public static Team team = Team.BLUE;
@@ -78,6 +81,7 @@ public class Values {
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose redGoal = new Pose(131.5,137.3);
     public static Pose predicted = new Pose(0,0);
+    public static double rDecay = 0, mDecay = 0,aMax = 0;
     public enum Team {
         RED,
         BLUE

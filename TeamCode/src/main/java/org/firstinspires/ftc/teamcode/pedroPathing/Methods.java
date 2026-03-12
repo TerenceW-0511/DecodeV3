@@ -237,13 +237,13 @@ public class Methods {
     public static Pose sotm(Follower f,Pose target){
         Vector vel = f.getVelocity();
         Pose predicted = new Pose(
-                target.getX()-vel.getXComponent()*weight,
+                target.getX()-vel.getXComponent()*weight, //tune weight
                 target.getY()-vel.getYComponent()*weight
         );
 
         return predicted;
     }
-
+    public double moveScale = 1;
     public double AutoAim(Follower f, Limelight3A ll){
         Pose botPose = f.getPose();
         Pose targetPose;
@@ -271,7 +271,12 @@ public class Methods {
         }else {
             Values.tx = result.getTx() - offsetAmt;
         }
-        filteredX+=Values.tx*test;
+        double rDecay = Values.rDecay;
+        double mDecay = Values.mDecay;
+        filteredX+=Values.tx*test*(1-moveScale);
+        filteredX*=(1-rDecay-moveScale*(mDecay-rDecay));
+        filteredX = Math.max(-Values.aMax,Math.min(Values.aMax,filteredX));
+
         double target =filteredX+alpha * 1725/18;
 
 
