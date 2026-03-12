@@ -234,24 +234,18 @@ public class Teleop extends OpMode {
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
         hardware.turret1.setPosition(Values.turretPos);
         hardware.turret2.setPosition(Values.turretPos);
-        telemetry.addData("turret pos",targetTurret+Values.turretOverride);
 
         telemetry.addData("mode",Values.mode);
-        telemetry.addData("ll running",hardware.ll.isRunning());
-
+        telemetry.addData("vel",follower.getVelocity().getMagnitude());
+        telemetry.addData("predicted",Values.predicted);
         telemetry.addData("tx",Values.tx);
-
+        
         telemetry.addData("team",Values.team);
         telemetry.addData("pose",pose);
         telemetry.addData("heading",Math.toDegrees(follower.getHeading())*1.0006);
         telemetry.addData("dist",dist);
         telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
         telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",flywheelVel1,flywheelVel2));
-        telemetry.addData("flywheel power",String.format("1: %f,2: %f",hardware.flywheel1.getPower(),hardware.flywheel2.getPower()));
-        telemetry.addData("flywheel current", String.format("1: %f, 2: %f", hardware.flywheel1.getCurrent(CurrentUnit.MILLIAMPS),hardware.flywheel2.getCurrent(CurrentUnit.MILLIAMPS)));
-        telemetry.addData("hood pos",Values.hoodPos);
-        telemetry.addData("turret position",turretEncoder);
-        telemetry.addData("turret override",Values.turretOverride);
 
         telemetry.update();
 
