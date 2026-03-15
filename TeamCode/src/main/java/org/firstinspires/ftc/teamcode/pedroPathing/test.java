@@ -24,8 +24,9 @@ public class test extends LinearOpMode {
 
         // Set the channel as an input
         breakBeam.setMode(DigitalChannel.Mode.INPUT);
-        breakBeam.setMode(DigitalChannel.Mode.OUTPUT);
-
+        breakBeam.setState(false);
+        breakBeam2.setMode(DigitalChannel.Mode.INPUT);
+        breakBeam2.setState(false);
         // Wait for the driver to press PLAY
         waitForStart();
 
@@ -40,16 +41,15 @@ public class test extends LinearOpMode {
                 telemetry.addLine("No object detected");
             }
 
-            telemetry.addData("Raw (HIGH/LOW)", stateHigh);
             boolean stateHigh2 = breakBeam2.getState();
             boolean detected2 = stateHigh2;
 
-            if (detected) {
-                telemetry.addLine("Object detected!");
+            if (detected2) {
+                telemetry.addLine("No Object detected!");
             } else {
-                telemetry.addLine("No object detected");
+                telemetry.addLine("Object detected!");
             }
-
+            telemetry.addData("Raw (HIGH/LOW)", stateHigh);
             telemetry.addData("Raw (HIGH/LOW)", stateHigh2);
             telemetry.update();
         }
