@@ -181,9 +181,9 @@ public class Methods {
 
     public double getDist(Pose pose){
         if (Values.team==Values.Team.BLUE){
-            return Math.hypot((pose.getX()-12.5),(pose.getY()-137.3));
+            return pose.distanceFrom(Values.blueGoal);
         }else{
-            return Math.hypot((pose.getX()-131.5),(pose.getY()-137.5));
+            return pose.distanceFrom(Values.redGoal);
         }
     }
 
@@ -252,7 +252,7 @@ public class Methods {
         }else{
             targetPose = Values.redGoal;
         }
-        targetPose = sotm(f,targetPose);
+//        targetPose = sotm(f,targetPose);
         Values.predicted = targetPose;
         double dx = botPose.getX()-targetPose.getX();
         double dy = targetPose.getY()-botPose.getY();
@@ -271,12 +271,12 @@ public class Methods {
         }else {
             Values.tx = result.getTx() - offsetAmt;
         }
-        double rDecay = Values.rDecay;
-        double mDecay = Values.mDecay;
-        filteredX+=Values.tx*test*(1-moveScale);
-        filteredX*=(1-rDecay-moveScale*(mDecay-rDecay));
-        filteredX = Math.max(-Values.aMax,Math.min(Values.aMax,filteredX));
-
+//        double rDecay = Values.rDecay;
+//        double mDecay = Values.mDecay;
+//        filteredX+=Values.tx*test*(1-moveScale);
+//        filteredX*=(1-rDecay-moveScale*(mDecay-rDecay));
+//        filteredX = Math.max(-Values.aMax,Math.min(Values.aMax,filteredX));
+        filteredX += test*Values.tx;
         double target =filteredX+alpha * 1725/18;
 
 

@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 public class Hardware {
     public Limelight3A ll;
     public DcMotorEx intake, transfer, flywheel1, flywheel2;
@@ -31,10 +32,11 @@ public class Hardware {
         limiter = hardwareMap.get(Servo.class,"limiter");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
-        breakBeamIntake = hardwareMap.get(DigitalChannel.class,"breakBeam1");
-        breakBeamIntake2 = hardwareMap.get(DigitalChannel.class,"breakBeam2");
-        breakBeamOutake = hardwareMap.get(DigitalChannel.class, "breakBeam3");
-        breakBeamOutake2 = hardwareMap.get(DigitalChannel.class, "breakBeam4");
+        breakBeamIntake = hardwareMap.get(DigitalChannel.class,"breakBeam3");
+        breakBeamIntake2 = hardwareMap.get(DigitalChannel.class,"breakBeam4");
+        breakBeamOutake = hardwareMap.get(DigitalChannel.class, "breakBeam");
+        breakBeamOutake2 = hardwareMap.get(DigitalChannel.class, "breakBeam2");
+
 
         breakBeamIntake.setMode(DigitalChannel.Mode.INPUT);
         breakBeamIntake.setState(false);
@@ -56,10 +58,9 @@ public class Hardware {
         flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
         flywheel2.setPower(0);
         intake.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-
         intake.setDirection(DcMotorEx.Direction.REVERSE);
         intake.setPower(0);
-        transfer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        transfer.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         transfer.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         transfer.setDirection(DcMotorEx.Direction.REVERSE);
