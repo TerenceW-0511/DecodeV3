@@ -10,6 +10,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -24,12 +25,17 @@ import java.math.RoundingMode;
 
 @Config
 public class Methods {
+    private Hardware hardware;
+
     private boolean firstLoop = true;
     private double lastPos;
     private double lastTime;
     private double lastTarget=0;
     public static final double rpmAdj = 20;
     public static double k=-0.00015;
+    int count = 0;
+
+    boolean last = false;
     private double lastLLError = 0;
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
@@ -456,7 +462,30 @@ public class Methods {
                 + f * x * y
                 ;
     }
+    public boolean getBeamRaw(DigitalChannel breakBeam1,DigitalChannel breakBeam2){
+        if (breakBeam1.getState() || breakBeam2.getState()) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 
+    public int countBalls() {
+        boolean currentintake = getBeamRaw(hardware.breakBeam,hardware.breakBeam2);
+        boolean currentoutake = getBeamRaw(hardware.breakBeam3,hardware.breakBeam4);
+        switch(Values.mode){
+            case INTAKING:
+                if (currentintake && !last){
+                    count++;
+                } break;
+            case SHOOTING:
+                if (!currentoutake && last){
+                    count--;
+                } break;
+        }
+        last = currentintake;
+        return count;
+    }
 }
 /// turret servo angle LUT
 /// ll: relocalization
