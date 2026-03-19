@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.control.PIDFController;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
@@ -43,8 +43,21 @@ public class Teleop extends OpMode {
 
     Values.Team lastTeam;
 
+    PIDFController pidf = new PIDFController(0,0,0,0);
+    public static double v,s,p,i,d,f;
+    public static double target=0;
 
 
+
+    public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
+//
+        pidf.setPIDF(p,i,d,f);
+        double curr = (m1.getVelocity()+m2.getVelocity())/2;
+        double power = v*target + s +pidf.calculate(curr,target);
+        m1.setPower(power);
+        m2.setPower(power);
+        return curr;
+    }
 
     public void init(){
         hardware = new Hardware(hardwareMap);
@@ -137,18 +150,18 @@ public class Teleop extends OpMode {
         }
 
 
-//        if (gamepad1.dpadUpWasPressed()){
-//            Values.flywheel_Values.flywheelTarget+=20;
-//        }else if (gamepad1.dpadDownWasPressed()){
-//            Values.flywheel_Values.flywheelTarget-=20;
-//        }
+        if (gamepad1.dpadUpWasPressed()){
+            Values.flywheel_Values.flywheelTarget+=20;
+        }else if (gamepad1.dpadDownWasPressed()){
+            Values.flywheel_Values.flywheelTarget-=20;
+        }
 
-//        if (gamepad1.aWasPressed()){
-//            Values.hoodPos += 0.02;
-//        }else if (gamepad1.yWasPressed()){
-//            Values.hoodPos -=0.02;
-//        }
-        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+        if (gamepad1.aWasPressed()){
+            Values.hoodPos += 0.02;
+        }else if (gamepad1.yWasPressed()){
+            Values.hoodPos -=0.02;
+        }
+//        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 
 
@@ -171,11 +184,13 @@ public class Teleop extends OpMode {
 
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     hardware.transfer.setPower(.6);
+                } else if (gamepad1.dpad_left && timer.getElapsedTimeSeconds()>0.5){
+                    setPowerIfChanged(hardware.intake, 1, "intake");
+                    hardware.transfer.setPower(0);
                 } else {
 //                    hardware.limiter.setPosition(Values.LIMITER_OPEN);
                     setPowerIfChanged(hardware.intake,  0, "intake");
                     hardware.transfer.setPower(0);
-
                 }
                 break;
             case SHOOTING:
@@ -208,14 +223,17 @@ public class Teleop extends OpMode {
 
                 break;
         }
-        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+//        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
 
 //        methods.limelightCorrection(hardware.ll, dist);
-        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+//        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
 //        if (hardware.ll.getTimeSinceLastUpdate()>500){
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
 //        }
+        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
+
+
         double turretEncoder = -hardware.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, hardware.ll);
@@ -224,13 +242,13 @@ public class Teleop extends OpMode {
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("Turret Target", targetTurret);
         packet.put("Turret Current", -hardware.intake.getCurrentPosition());
-        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
+        packet.put("target vel", target);
         packet.put("curr vel", flywheelVel1);
         dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;
         Values.turretOverride -= gamepad1.right_trigger * 500;
-        Values.turretOverride = Math.min(5000, Math.max(-5000, Values.turretOverride));
+        Values.turretOverride = Math.min(10000, Math.max(-10000, Values.turretOverride));
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
         hardware.turret1.setPosition(Values.turretPos);
         hardware.turret2.setPosition(Values.turretPos);
@@ -244,6 +262,7 @@ public class Teleop extends OpMode {
         telemetry.addData("pose",pose);
         telemetry.addData("heading",Math.toDegrees(follower.getHeading())*1.0006);
         telemetry.addData("dist",dist);
+        telemetry.addData("hood",Values.hoodPos);
         telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
         telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",flywheelVel1,flywheelVel2));
 

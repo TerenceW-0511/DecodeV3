@@ -21,12 +21,12 @@ public class Values {
 //        public static double fD = 0.00001;
 //
 //        public static double fF = 0.00038;
-        public static double fP = 0.003;
+        public static double fP = 0.0045;
         public static double fI = 0;
         public static double fD = 0.0000001;
         public static double fF = 0;
-        public static double fV = 0.00036;
-        public static double fS = 0.14;
+        public static double fV = 0.000364;
+        public static double fS = 0.04;
         public static PIDFController flywheelPIDController = new PIDFController(fP, fI, fD, fF);
 
         public static double kV = 0;
