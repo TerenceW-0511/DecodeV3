@@ -35,7 +35,9 @@ public class Methods {
     public static double k=-0.00015;
     int count = 0;
 
-    boolean last = false;
+    boolean last1 = false;
+
+    boolean last2 = false;
     private double lastLLError = 0;
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
@@ -463,27 +465,46 @@ public class Methods {
                 ;
     }
     public boolean getBeamRaw(DigitalChannel breakBeam1,DigitalChannel breakBeam2){
-        if (breakBeam1.getState() || breakBeam2.getState()) {
+        if (!breakBeam1.getState() || breakBeam2.getState()) {
             return true;
         }else{
             return false;
         }
     }
 
-    public int countBalls() {
+    private boolean intakeLock = false;
+    private boolean outtakeLock = false;
+
+    public int countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
         boolean currentintake = getBeamRaw(hardware.breakBeam,hardware.breakBeam2);
         boolean currentoutake = getBeamRaw(hardware.breakBeam3,hardware.breakBeam4);
         switch(Values.mode){
             case INTAKING:
-                if (currentintake && !last){
+                if (currentintake && !last1){
                     count++;
-                } break;
+                    intakeLock = true;
+                }
+                if (!currentintake){
+                    intakeLock = false;
+                }
+                break;
             case SHOOTING:
-                if (!currentoutake && last){
+
+                if (currentoutake && !last2){
                     count--;
-                } break;
+                    outtakeLock = true;
+                }
+                if (!currentoutake){
+                    outtakeLock = false;
+                }
+                break;
         }
-        last = currentintake;
+        if (getBeamRaw(breakBeam1, breakBeam2) && getBeamRaw(breakBeam3, breakBeam4) == true){
+            count = 3;
+        }
+        last1 = currentintake;
+        last2 = currentoutake;
+        count = Range.clip(count, 0, 3);
         return count;
     }
 }
