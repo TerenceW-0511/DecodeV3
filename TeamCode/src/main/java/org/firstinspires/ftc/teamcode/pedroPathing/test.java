@@ -1,6 +1,4 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -10,21 +8,26 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 @TeleOp(name = "BreakBeam Test", group = "test")
 public class test extends LinearOpMode {
+    private Methods methods;
 
     private DigitalChannel breakBeam;
     private DigitalChannel breakBeam2;
     private DigitalChannel breakBeam3;
     private DigitalChannel breakBeam4;
     private DcMotorEx intake, transfer;
+
+
     double counter = 0;
     boolean prevBottom = false,prevTop = false;
 
     @Override
     public void runOpMode() {
+        methods = new Methods();
         // Get the digital sensor from the hardware map
         breakBeam = hardwareMap.get(DigitalChannel.class, "breakBeam");
         breakBeam2 = hardwareMap.get(DigitalChannel.class,"breakBeam2");
@@ -77,12 +80,19 @@ public class test extends LinearOpMode {
                 intake.setPower(0);
                 transfer.setPower(0);
             }
-
+            if(gamepad1.a){
+                Values.mode = Values.Modes.SHOOTING;
+            } else if (gamepad1.b) {
+                Values.mode = Values.Modes.INTAKING;
+            }
 
 
             telemetry.addData("states",String.format("1: "+state1+" 2: "+state2+" 3: "+state3+" 4: "+state4));
-            telemetry.addData("counter",counter);
+//            telemetry.addData("counter",counter);
+            telemetry.addData("count",methods.countBalls(breakBeam,breakBeam2,breakBeam3,breakBeam4));
+            telemetry.addData("mode",Values.mode);
             telemetry.update();
         }
     }
 }
+
