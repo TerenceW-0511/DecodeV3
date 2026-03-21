@@ -25,7 +25,7 @@ public class Hardware {
         limiter = hardwareMap.get(Servo.class,"limiter");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
-        breakBeam = hardwareMap.get(DigitalChannel.class,"breakBeam1");
+        breakBeam = hardwareMap.get(DigitalChannel.class,"breakBeam");
         breakBeam2 = hardwareMap.get(DigitalChannel.class,"breakBeam2");
         breakBeam3 = hardwareMap.get(DigitalChannel.class, "breakBeam3");
         breakBeam4 = hardwareMap.get(DigitalChannel.class, "breakBeam4");

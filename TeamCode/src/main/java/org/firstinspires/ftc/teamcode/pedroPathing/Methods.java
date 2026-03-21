@@ -465,7 +465,7 @@ public class Methods {
                 ;
     }
     public boolean getBeamRaw(DigitalChannel breakBeam1,DigitalChannel breakBeam2){
-        if (!breakBeam1.getState() || breakBeam2.getState()) {
+        if (!breakBeam1.getState() || !breakBeam2.getState()) {
             return true;
         }else{
             return false;
@@ -476,35 +476,22 @@ public class Methods {
     private boolean outtakeLock = false;
 
     public int countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
-        boolean currentintake = getBeamRaw(hardware.breakBeam,hardware.breakBeam2);
-        boolean currentoutake = getBeamRaw(hardware.breakBeam3,hardware.breakBeam4);
-        switch(Values.mode){
-            case INTAKING:
-                if (currentintake && !last1){
-                    count++;
-                    intakeLock = true;
-                }
-                if (!currentintake){
-                    intakeLock = false;
-                }
-                break;
-            case SHOOTING:
+        boolean currentintake = getBeamRaw(breakBeam3,breakBeam4);
+        boolean currentoutake = getBeamRaw(breakBeam1,breakBeam2);
+        Values.bottomBlocked=currentintake;
+        Values.topBlocked=currentoutake;
+        if (currentintake && !last1){
+            count++;
+        }
 
-                if (currentoutake && !last2){
-                    count--;
-                    outtakeLock = true;
-                }
-                if (!currentoutake){
-                    outtakeLock = false;
-                }
-                break;
+        if (!currentoutake && last2){
+            count--;
         }
-        if (getBeamRaw(breakBeam1, breakBeam2) && getBeamRaw(breakBeam3, breakBeam4) == true){
-            count = 3;
-        }
+//        if (getBeamRaw(breakBeam1, breakBeam2) && getBeamRaw(breakBeam3, breakBeam4)){
+//            count = 3;
+//        }
         last1 = currentintake;
         last2 = currentoutake;
-        count = Range.clip(count, 0, 3);
         return count;
     }
 }

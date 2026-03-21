@@ -19,7 +19,7 @@ public class test extends LinearOpMode {
     private DigitalChannel breakBeam2;
     private DigitalChannel breakBeam3;
     private DigitalChannel breakBeam4;
-    private DcMotorEx intake, transfer;
+    private DcMotorEx intake, transfer,flywheel1,flywheel2;
 
 
     double counter = 0;
@@ -36,6 +36,8 @@ public class test extends LinearOpMode {
         intake = hardwareMap.get(DcMotorEx.class,"intake");
         transfer = hardwareMap.get(DcMotorEx.class,"transfer");
 
+        flywheel1 = hardwareMap.get(DcMotorEx.class, "flywheel1");
+        flywheel2 = hardwareMap.get(DcMotorEx.class, "flywheel2");
         // Set the channel as an input
         breakBeam.setMode(DigitalChannel.Mode.INPUT);
         breakBeam2.setMode(DigitalChannel.Mode.INPUT);
@@ -50,6 +52,17 @@ public class test extends LinearOpMode {
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         transfer.setDirection(DcMotorEx.Direction.REVERSE);
         transfer.setPower(0);
+        flywheel1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        flywheel1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel1.setDirection(DcMotorEx.Direction.FORWARD);
+        flywheel1.setPower(0);
+        flywheel2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        flywheel2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
+        flywheel2.setPower(0);
+
         // Wait for the driver to press PLAY
         waitForStart();
         // Loop while the OpMode is active
@@ -63,9 +76,9 @@ public class test extends LinearOpMode {
             boolean topBlocked = state1 || state2;
             boolean bottomBlocked = state3 || state4;
 
-            if (bottomBlocked && !prevBottom){
-                counter++;
-            }
+//            if (bottomBlocked && !prevBottom){
+//                counter++;
+//            }
             prevBottom = bottomBlocked;
 
             if (gamepad1.left_bumper) {
@@ -85,7 +98,7 @@ public class test extends LinearOpMode {
             } else if (gamepad1.b) {
                 Values.mode = Values.Modes.INTAKING;
             }
-
+            methods.flywheelFFTele(flywheel1,flywheel2,1500);
 
             telemetry.addData("states",String.format("1: "+state1+" 2: "+state2+" 3: "+state3+" 4: "+state4));
 //            telemetry.addData("counter",counter);
