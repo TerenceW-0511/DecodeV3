@@ -494,6 +494,15 @@ public class Methods {
         last2 = currentoutake;
         return count;
     }
+
+    public String getstates(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4){
+        boolean state3 = !breakBeam1.getState(); //top in
+        boolean state4 = !breakBeam2.getState(); //top out
+        boolean state1 = !breakBeam3.getState(); //bottom
+        boolean state2 = !breakBeam4.getState(); //bottom  down
+
+        return String.format("1: %b 2: %b 3: %b 4: %b",state1,state2,state3,state4);
+    }
 }
 /// turret servo angle LUT
 /// ll: relocalization
