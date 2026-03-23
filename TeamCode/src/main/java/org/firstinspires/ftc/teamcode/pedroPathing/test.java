@@ -62,7 +62,7 @@ public class test extends LinearOpMode {
         flywheel2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         flywheel2.setDirection(DcMotorEx.Direction.REVERSE);
         flywheel2.setPower(0);
-
+        Values.counter=0;
         // Wait for the driver to press PLAY
         waitForStart();
         // Loop while the OpMode is active
@@ -98,11 +98,12 @@ public class test extends LinearOpMode {
             } else if (gamepad1.b) {
                 Values.mode = Values.Modes.INTAKING;
             }
-            methods.flywheelFFTele(flywheel1,flywheel2,1500);
-
+            methods.flywheelFFTele(flywheel1,flywheel2,1000);
+            methods.countBalls(breakBeam,breakBeam2,breakBeam3,breakBeam4);
             telemetry.addData("states",String.format("1: "+state1+" 2: "+state2+" 3: "+state3+" 4: "+state4));
 //            telemetry.addData("counter",counter);
-            telemetry.addData("count",methods.countBalls(breakBeam,breakBeam2,breakBeam3,breakBeam4));
+            telemetry.addData("count",Values.counter);
+            telemetry.addData("frames",Values.frameCount);
             telemetry.addData("mode",Values.mode);
             telemetry.update();
         }

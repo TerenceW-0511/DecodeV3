@@ -119,6 +119,7 @@ public class Teleop extends OpMode {
             hardware.ll.reloadPipeline();
             Values.init=true;
             Values.mode = Values.Modes.SHOOTING;
+            Values.rumble=false;
             timer.resetTimer();
         }
 
@@ -150,21 +151,21 @@ public class Teleop extends OpMode {
         }
 
 
-        if (gamepad1.dpadUpWasPressed()){
-            Values.flywheel_Values.flywheelTarget+=20;
-        }else if (gamepad1.dpadDownWasPressed()){
-            Values.flywheel_Values.flywheelTarget-=20;
-        }
-
-        if (gamepad1.aWasPressed()){
-            Values.hoodPos += 0.02;
-        }else if (gamepad1.yWasPressed()){
-            Values.hoodPos -=0.02;
-        }
-//        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+//        if (gamepad1.dpadUpWasPressed()){
+//            Values.flywheel_Values.flywheelTarget+=20;
+//        }else if (gamepad1.dpadDownWasPressed()){
+//            Values.flywheel_Values.flywheelTarget-=20;
+//        }
+//
+//        if (gamepad1.aWasPressed()){
+//            Values.hoodPos += 0.02;
+//        }else if (gamepad1.yWasPressed()){
+//            Values.hoodPos -=0.02;
+//        }
+        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 
-
+        methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4);
 
 
         switch(Values.mode) {
@@ -172,10 +173,30 @@ public class Teleop extends OpMode {
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                 }
-                hardware.led.setPosition(0.333); //orange=
+//                hardware.led.setPosition(0.333); //orange=
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
+
+                switch (Values.counter){
+                    case 1:
+                        hardware.led.setPosition(0.3);
+                        break;
+                    case 2:
+                        hardware.led.setPosition(0.6);
+                        break;
+                    case 3:
+                        if (!Values.rumble) {
+                            gamepad1.rumble(200);
+
+                        }
+                        Values.rumble=true;
+                        hardware.led.setPosition(0.5);
+                        break;
+                    default:
+                        hardware.led.setPosition(1);
+                        break;
+                }
                 if (timer.getElapsedTimeSeconds()>0.4){
                     hardware.limiter.setPosition(Values.LIMITER_CLOSE);
                 }
@@ -183,11 +204,12 @@ public class Teleop extends OpMode {
                 if (gamepad1.left_bumper && timer.getElapsedTimeSeconds()>0.5) {
 
                     setPowerIfChanged(hardware.intake, 1, "intake");
-                    hardware.transfer.setPower(.6);
-                } else if (gamepad1.dpad_left && timer.getElapsedTimeSeconds()>0.5){
-                    setPowerIfChanged(hardware.intake, 1, "intake");
-                    hardware.transfer.setPower(0);
-                } else {
+                    if (Values.frameCountBlockedTop<10) {
+                        hardware.transfer.setPower(.6);
+                    }else{
+                        hardware.transfer.setPower(0);
+                    }
+                }else {
 //                    hardware.limiter.setPosition(Values.LIMITER_OPEN);
                     setPowerIfChanged(hardware.intake,  0, "intake");
                     hardware.transfer.setPower(0);
@@ -197,6 +219,7 @@ public class Teleop extends OpMode {
 
 
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
+
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 if (rpmError > 80){
                     hardware.led.setPosition(0.722); //purple
@@ -208,14 +231,16 @@ public class Teleop extends OpMode {
 //                    follower.holdPoint(follower.getPose(),true);
 //                }
                 boolean atSpeed = rpmError < 70;
-                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
+//                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
+                if (timer.getElapsedTimeSeconds()>0.15) {
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     hardware.transfer.setPower(1);
-
-                }else if (dist>110){
-                    setPowerIfChanged(hardware.intake,0,"intake");
-                    hardware.transfer.setPower(0);
                 }
+//
+//                }else if (dist>110){
+//                    setPowerIfChanged(hardware.intake,0,"intake");
+//                    hardware.transfer.setPower(0);
+//                }
 
 
 
@@ -223,15 +248,15 @@ public class Teleop extends OpMode {
 
                 break;
         }
-//        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
 
 //        methods.limelightCorrection(hardware.ll, dist);
-//        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
 //        if (hardware.ll.getTimeSinceLastUpdate()>500){
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
 //        }
-        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
+//        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
 
 
         double turretEncoder = -hardware.intake.getCurrentPosition();
@@ -257,7 +282,7 @@ public class Teleop extends OpMode {
         telemetry.addData("vel",follower.getVelocity().getMagnitude());
         telemetry.addData("predicted",Values.predicted);
         telemetry.addData("tx",Values.tx);
-        
+        telemetry.addData("count",Values.counter);
         telemetry.addData("team",Values.team);
         telemetry.addData("pose",pose);
         telemetry.addData("heading",Math.toDegrees(follower.getHeading())*1.0006);

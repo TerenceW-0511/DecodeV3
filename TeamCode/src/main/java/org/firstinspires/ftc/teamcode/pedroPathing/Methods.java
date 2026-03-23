@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
@@ -33,7 +32,7 @@ public class Methods {
     private double lastTarget=0;
     public static final double rpmAdj = 20;
     public static double k=-0.00015;
-    int count = 0;
+
 
     boolean last1 = false;
 
@@ -49,7 +48,7 @@ public class Methods {
     private long prevTime = System.nanoTime();
     public static double test = -15;
     public static double weight = 1;
-    public static double hoodBase = 0.5;
+    public static double hoodBasex = 0.5;
     private double a= 2558.3597233948644,b=-16.387017585894974,c=-2356.4076710655913,d=0.08890184449457195,e=1117.6724685437139,f=16.196925315213786;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
@@ -475,24 +474,45 @@ public class Methods {
     private boolean intakeLock = false;
     private boolean outtakeLock = false;
 
-    public int countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
+    public void countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
+        //states
         boolean currentintake = getBeamRaw(breakBeam3,breakBeam4);
         boolean currentoutake = getBeamRaw(breakBeam1,breakBeam2);
         Values.bottomBlocked=currentintake;
         Values.topBlocked=currentoutake;
-        if (currentintake && !last1){
-            count++;
+        //frame counter
+
+        Values.frameCount++;
+        if (currentintake){
+            Values.frameCountBlocked++;
         }
 
-        if (!currentoutake && last2){
-            count--;
+        if (currentoutake){
+            Values.frameCountBlockedTop++;
+        }else{
+            Values.frameCountBlockedTop=0;
         }
-//        if (getBeamRaw(breakBeam1, breakBeam2) && getBeamRaw(breakBeam3, breakBeam4)){
-//            count = 3;
-//        }
+
+        //increment when enters
+        if (currentintake && !last1){
+            Values.frameCountBlocked=0;
+            Values.counter++;
+        }
+
+        //decrement when leave
+        if (!currentoutake && last2){
+            Values.counter--;
+        }
+        //hard count to 3
+        if (currentintake&& currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
+            Values.counter=3;
+        }
+
+        //clamp
+        Values.counter = Math.min(3,Math.max(Values.counter,0));
+
         last1 = currentintake;
         last2 = currentoutake;
-        return count;
     }
 
     public String getstates(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4){

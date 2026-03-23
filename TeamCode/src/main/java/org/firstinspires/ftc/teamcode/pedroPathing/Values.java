@@ -11,7 +11,7 @@ import java.util.TreeMap;
 public class Values {
     public static Modes mode = Modes.INTAKING;
     public static Team team = Team.BLUE;
-    public static boolean init = true;
+    public static boolean init = true,rumble=false;
     public static double turretOverride = 0;
     public static double llOverride = 0;
 
@@ -72,7 +72,7 @@ public class Values {
     }
 
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.5;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double tx = 0, llOffset = 0;
@@ -82,6 +82,7 @@ public class Values {
     public static Pose redGoal = new Pose(131.5,137.3);
     public static Pose predicted = new Pose(0,0);
     public static boolean topBlocked=false,bottomBlocked=false;
+    public static int counter = 0,frameCountBlocked = 0,frameCount=0,frameCountBlockedTop = 0;
     public static double rDecay = 0, mDecay = 0,aMax = 0;
     public enum Team {
         RED,
@@ -120,6 +121,7 @@ public class Values {
 
         turretPos = 0.5;
         llOverride = 0;
+        Values.counter=0;
     }
     //TODO: retune flywheel pid, do auton turret? should be the only thing that changed
 }
