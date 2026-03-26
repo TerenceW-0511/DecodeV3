@@ -249,13 +249,15 @@ public class Teleop extends OpMode {
                 break;
         }
         Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
-
+        
 //        methods.limelightCorrection(hardware.ll, dist);
-        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+//        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
 //        if (hardware.ll.getTimeSinceLastUpdate()>500){
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
 //        }
+        hardware.flywheel1.setPower(1);
+        hardware.flywheel2.setPower(1);
 //        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
 
 
