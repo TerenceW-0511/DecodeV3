@@ -507,6 +507,11 @@ public class Methods {
         if (currentintake&& currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
         }
+        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
+            Values.counter=2;
+        }
+        //if tree and 2 != tre count = 3
+        //reset cont after shooting
 
         //clamp
         Values.counter = Math.min(3,Math.max(Values.counter,0));

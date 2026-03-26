@@ -113,7 +113,7 @@ public class Teleop extends OpMode {
             Values.init = true;
             Values.mode=Values.Modes.INTAKING;
             timer.resetTimer();
-
+            Values.counter = 0;
         }
         if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes. INTAKING){
             hardware.ll.reloadPipeline();
