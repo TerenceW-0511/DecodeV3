@@ -256,9 +256,9 @@ public class Teleop extends OpMode {
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
 //        }
-        hardware.flywheel1.setPower(1);
-        hardware.flywheel2.setPower(1);
-//        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
+//        hardware.flywheel1.setPower(1);
+//        hardware.flywheel2.setPower(1);
+        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
 
 
         double turretEncoder = -hardware.intake.getCurrentPosition();
