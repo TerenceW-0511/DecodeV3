@@ -25,15 +25,15 @@ public class Values {
         public static double fI = 0;
         public static double fD = 0.0000001;
         public static double fF = 0;
-        public static double fV = 0.000364;
-        public static double fS = 0.04;
+//        public static double fV = 0.000364;
+//        public static double fS = 0.04;
         public static PIDFController flywheelPIDController = new PIDFController(fP, fI, fD, fF);
 
         public static double kV = 0;
         public static double kS = 0;
 
 
-        public static double flywheelTarget=1800;
+        public static double flywheelTarget=1000;
         public static double flywheelIdle = 1500; //MAX 2300
 
     }
@@ -69,8 +69,9 @@ public class Values {
         public static double kD = 0.000005;
         public static final double MAX = 17500, MIN = -17500;// negative is clockwise
         public static double idle = 0.5;
-    }
 
+    }
+    public static boolean ballsdecreased = false;
     public static final double TURRET_RIGHT = 0;
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.5;
     public static double turretPos=0.5,lastTurret = 0.5;
@@ -96,6 +97,20 @@ public class Values {
     }
     public static final TreeMap<Double,Double> hoodLUT = new TreeMap<>(
             //distance, hood, k
+            Map.ofEntries(
+
+                    Map.entry(26.7,1.0),
+                    Map.entry(29.1,1.0),
+                    Map.entry(57.0,0.64),
+                    Map.entry(60.8,0.48),
+                    Map.entry(96.0,0.48),
+                    Map.entry(120.0,0.48),
+                    Map.entry(134.75,0.2),
+                    Map.entry(157.8,0.0)
+
+            )
+    );
+    public static final TreeMap<Double,Double> LUT = new TreeMap<>(
             Map.ofEntries(
 
                     Map.entry(26.7,1.0),

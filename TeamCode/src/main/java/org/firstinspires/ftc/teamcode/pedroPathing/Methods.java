@@ -57,6 +57,45 @@ public class Methods {
     private double lastFlywheelError = 0;
     private double lastFlywheelTime = System.nanoTime() / 1e9;
 
+    public void flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
+        PIDFController controller = Values.flywheel_Values.flywheelPIDController;
+        double fP = Values.flywheel_Values.fP;
+        double fI = Values.flywheel_Values.fI;
+        double fD = Values.flywheel_Values.fD;
+        double fF = Values.flywheel_Values.fF;
+        controller.setPIDF(fP, fI, fD, fF);
+//        String motorType = "intake";
+//        double threshold = 200;
+//        double integral = 0;
+//        double lastError = 0;
+
+        double currentVel = (m1.getVelocity() + m2.getVelocity()) / 2.0;
+//        double error = target - currentVel;
+//
+//        double ff = kv * target
+//                + ks * Math.signum(target);
+//        double power;
+//        double ff = kv * target
+//                + ks * Math.signum(target);
+//        if (Math.abs(error) > threshold) {
+//            power = 1;
+//        }  else{
+//
+//            integral += error;
+//            double derivative = error - lastError;
+//            double p = kp * error;
+//
+//            power = Range.clip(ff + p, -1.0, 1.0);
+//
+//            double i = ki * integral;
+//            double d = kd * derivative;
+//            power = p + i + d;
+        double power = controller.calculate(currentVel, target);
+        m1.setPower(power);
+        m2.setPower(power);
+    }
+
+
 
     public double velocity_PID(DcMotorEx motor, double targetVelocity, String mode) {
         PIDFController controller;
@@ -122,16 +161,6 @@ public class Methods {
 
     }
 
-
-    public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
-//
-//        pidf.setPIDF(fP,fI,fD,fF);
-        double curr = (m1.getVelocity()+m2.getVelocity())/2;
-        double power = Values.flywheel_Values.fV*target + Values.flywheel_Values.fS +Values.flywheel_Values.flywheelPIDController.calculate(curr,target);
-        m1.setPower(power);
-        m2.setPower(power);
-        return curr;
-    }
 //    public double flywheelFF(
 //            DcMotorEx m1,
 //            DcMotorEx m2,

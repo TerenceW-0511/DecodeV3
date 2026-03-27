@@ -46,6 +46,7 @@ public class Teleop extends OpMode {
     PIDFController pidf = new PIDFController(0,0,0,0);
     public static double v,s,p,i,d,f;
     public static double target=0;
+    public static double newtarget = 0;
 
 
 
@@ -58,6 +59,7 @@ public class Teleop extends OpMode {
         m2.setPower(power);
         return curr;
     }
+
 
     public void init(){
         hardware = new Hardware(hardwareMap);
@@ -107,6 +109,7 @@ public class Teleop extends OpMode {
         double dist = methods.getDist(pose);
         double flywheelVel1 = hardware.flywheel1.getVelocity();
         double flywheelVel2 = hardware.flywheel2.getVelocity();
+        double curr = ((flywheelVel1+flywheelVel2)/2);
 
         //MODE SWITCHING
         if (gamepad1.leftBumperWasPressed() && Values.mode== Values.Modes.SHOOTING){
@@ -177,7 +180,7 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-
+                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
                 switch (Values.counter){
                     case 1:
                         hardware.led.setPosition(0.3);
@@ -217,7 +220,6 @@ public class Teleop extends OpMode {
                 break;
             case SHOOTING:
 
-
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
 
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
@@ -230,6 +232,10 @@ public class Teleop extends OpMode {
 //                if (dist>120 && gamepad1.atRest()){
 //                    follower.holdPoint(follower.getPose(),true);
 //                }
+
+                if (Values.flywheel_Values.flywheelTarget > newtarget){
+                    Values.flywheel_Values.flywheelTarget = newtarget;
+                }
                 boolean atSpeed = rpmError < 70;
 //                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
                 if (timer.getElapsedTimeSeconds()>0.15) {
@@ -248,17 +254,21 @@ public class Teleop extends OpMode {
 
                 break;
         }
-        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
-        
+//        double t = 50;
 //        methods.limelightCorrection(hardware.ll, dist);
-//        flywheelPID.flywheelFFTele(hardware.flywheel1, hardware.flywheel2, Values.flywheel_Values.flywheelTarget);
+//        if (Math.abs(curr - target) < t) {
+//            flywheelFFTele(hardware.flywheel1, hardware.flywheel2, target);
+//        } else if((Math.abs(curr - target) > t)) {
+//            hardware.flywheel1.setPower(1);
+//            hardware.flywheel2.setPower(1);
+//        }
 //        if (hardware.ll.getTimeSinceLastUpdate()>500){
 //            hardware.ll.reloadPipeline();
 //            Values.tx=0;
 //        }
-        hardware.flywheel1.setPower(1);
-        hardware.flywheel2.setPower(1);
-//        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,target);
+//        hardware.flywheel1.setPower(1);
+//        hardware.flywheel2.setPower(1);
+        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
 
 
         double turretEncoder = -hardware.intake.getCurrentPosition();
