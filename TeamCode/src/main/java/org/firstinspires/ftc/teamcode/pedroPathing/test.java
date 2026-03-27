@@ -103,7 +103,6 @@ public class test extends LinearOpMode {
             telemetry.addData("states",String.format("1: "+state1+" 2: "+state2+" 3: "+state3+" 4: "+state4));
 //            telemetry.addData("counter",counter);
             telemetry.addData("count",Values.counter);
-            telemetry.addData("frames",Values.frameCount);
             telemetry.addData("mode",Values.mode);
             telemetry.update();
         }

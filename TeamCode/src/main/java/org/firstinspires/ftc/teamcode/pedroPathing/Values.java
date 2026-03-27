@@ -83,7 +83,7 @@ public class Values {
     public static Pose redGoal = new Pose(131.5,137.3);
     public static Pose predicted = new Pose(0,0);
     public static boolean topBlocked=false,bottomBlocked=false;
-    public static int counter = 0,frameCountBlocked = 0,frameCount=0,frameCountBlockedTop = 0;
+    public static int counter = 0,frameCountBlocked = 0,frameCountBlockedTop = 0,frameCountUnblocked=0,frameCountUnblockedTop=0;
     public static double rDecay = 0, mDecay = 0,aMax = 0;
     public enum Team {
         RED,

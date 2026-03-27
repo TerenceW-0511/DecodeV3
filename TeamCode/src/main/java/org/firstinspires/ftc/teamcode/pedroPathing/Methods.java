@@ -511,15 +511,20 @@ public class Methods {
         Values.topBlocked=currentoutake;
         //frame counter
 
-        Values.frameCount++;
         if (currentintake){
             Values.frameCountBlocked++;
+            Values.frameCountUnblocked=0;
+        }else{
+            Values.frameCountBlocked=0;
+            Values.frameCountUnblocked++;
         }
 
         if (currentoutake){
             Values.frameCountBlockedTop++;
+            Values.frameCountUnblockedTop=0;
         }else{
             Values.frameCountBlockedTop=0;
+            Values.frameCountUnblockedTop++;
         }
 
         //increment when enters
@@ -536,8 +541,11 @@ public class Methods {
         if (currentintake&& currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
         }
-        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
-            Values.counter=2;
+//        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
+//            Values.counter=2;
+//        }
+        if (!currentintake && !currentoutake && Values.frameCountUnblocked>10 && Values.frameCountUnblockedTop>10){
+            Values.counter=0;
         }
         //if tree and 2 != tre count = 3
         //reset cont after shooting
