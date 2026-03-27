@@ -25,8 +25,8 @@ public class Values {
         public static double fI = 0;
         public static double fD = 0.0000001;
         public static double fF = 0;
-//        public static double fV = 0.000364;
-//        public static double fS = 0.04;
+        public static double fV = 0.000364;
+        public static double fS = 0.04;
         public static PIDFController flywheelPIDController = new PIDFController(fP, fI, fD, fF);
 
         public static double kV = 0;
@@ -71,7 +71,7 @@ public class Values {
         public static double idle = 0.5;
 
     }
-    public static boolean ballsdecreased = false;
+    public static int oldcounter = 0;
     public static final double TURRET_RIGHT = 0;
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.5;
     public static double turretPos=0.5,lastTurret = 0.5;

@@ -228,14 +228,15 @@ public class Teleop extends OpMode {
                 }else{
                     hardware.led.setPosition(0.444); //green
                 }
-
+                if (Values.oldcounter < Values.counter){
+                    Values.flywheel_Values.flywheelTarget = newtarget;
+                }
+                Values.oldcounter=Values.counter;
 //                if (dist>120 && gamepad1.atRest()){
 //                    follower.holdPoint(follower.getPose(),true);
 //                }
 
-                if (Values.flywheel_Values.flywheelTarget > newtarget){
-                    Values.flywheel_Values.flywheelTarget = newtarget;
-                }
+
                 boolean atSpeed = rpmError < 70;
 //                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
                 if (timer.getElapsedTimeSeconds()>0.15) {
