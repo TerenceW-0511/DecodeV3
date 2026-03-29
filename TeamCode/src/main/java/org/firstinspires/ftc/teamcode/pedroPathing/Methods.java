@@ -526,6 +526,37 @@ public class Methods {
         last1 = currentintake;
         last2 = currentoutake;
     }
+    public static double turretNominal(double dist) {
+
+        if (dist <= Values.turretLUT.firstKey()) return Values.turretLUT.firstEntry().getValue();
+        if (dist >= Values.turretLUT.lastKey())  return Values.turretLUT.lastEntry().getValue();
+
+        Map.Entry<Double, Double> lower = Values.turretLUT.floorEntry(dist);
+        Map.Entry<Double, Double> upper = Values.turretLUT.ceilingEntry(dist);
+
+        if (lower == null || upper == null) {
+            return Values.turretLUT.lastEntry().getValue();
+        }
+
+        if (lower.getKey().equals(upper.getKey())) {
+            return lower.getValue();
+        }
+
+        double x0 = lower.getKey();
+        double y0 = lower.getValue();
+        double x1 = upper.getKey();
+        double y1 = upper.getValue();
+
+        double t = (dist - x0) / (x1 - x0);
+        double newtarget = y0 + t * (y1 - y0);
+        return newtarget;
+    }
+    public void targetcomp (double dist){
+        if (Values.oldcounter < Values.counter){
+            Values.flywheel_Values.flywheelTarget = turretNominal(dist);
+        }
+        Values.oldcounter=Values.counter;
+    }
 
     public String getstates(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4){
         boolean state3 = !breakBeam1.getState(); //top in

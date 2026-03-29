@@ -52,7 +52,7 @@ public class Teleop extends OpMode {
 
     public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
 //
-        pidf.setPIDF(p,i,d,f);
+        pidf.setPIDF(Values.flywheel_Values.fP,Values.flywheel_Values.fI,Values.flywheel_Values.fD,Values.flywheel_Values.fF);
         double curr = (m1.getVelocity()+m2.getVelocity())/2;
         double power = v*target + s +pidf.calculate(curr,target);
         m1.setPower(power);
@@ -282,6 +282,7 @@ public class Teleop extends OpMode {
         packet.put("Turret Current", -hardware.intake.getCurrentPosition());
         packet.put("target vel", target);
         packet.put("curr vel", flywheelVel1);
+        packet.put("curr dist", dist);
         dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;
@@ -293,7 +294,7 @@ public class Teleop extends OpMode {
 
         telemetry.addData("mode",Values.mode);
         telemetry.addData("vel",follower.getVelocity().getMagnitude());
-        telemetry.addData("predicted",Values.predicted);
+//        telemetry.addData("predicted",Values.predicted);
         telemetry.addData("tx",Values.tx);
         telemetry.addData("count",Values.counter);
         telemetry.addData("team",Values.team);

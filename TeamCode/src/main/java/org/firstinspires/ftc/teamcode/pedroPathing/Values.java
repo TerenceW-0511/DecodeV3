@@ -110,17 +110,13 @@ public class Values {
 
             )
     );
-    public static final TreeMap<Double,Double> LUT = new TreeMap<>(
+    public static final TreeMap<Double,Double> turretLUT = new TreeMap<>(
             Map.ofEntries(
+                    Map.entry(42.2705,1700.0),
+                    Map.entry(95.15132439990525,1850.0),
+                    Map.entry(106.96229839415511,1800.0)
 
-                    Map.entry(26.7,1.0),
-                    Map.entry(29.1,1.0),
-                    Map.entry(57.0,0.64),
-                    Map.entry(60.8,0.48),
-                    Map.entry(96.0,0.48),
-                    Map.entry(120.0,0.48),
-                    Map.entry(134.75,0.2),
-                    Map.entry(157.8,0.0)
+
 
             )
     );
