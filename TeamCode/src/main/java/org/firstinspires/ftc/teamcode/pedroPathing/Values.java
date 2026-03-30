@@ -64,9 +64,9 @@ public class Values {
 
     public static class turret_Values {
         public static PIDFController turretPIDController = new PIDFController(0,0,0,0);
-        public static double kP = 0.0002;
+        public static double kP = 0.00019;
         public static double kI = 0.0;
-        public static double kD = 0.000005;
+        public static double kD = 0.000006;
         public static final double MAX = 17500, MIN = -17500;// negative is clockwise
         public static double idle = 0.5;
 
@@ -76,12 +76,12 @@ public class Values {
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.5;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
-    public static double tx = 0, llOffset = 0;
+    public static double offsetAngle=0,txRaw=0,tx = 0, llOffset = 0;
     public static double hoodPos = 0.5;
     public static double autonFollowerX=9,autonFollowerY=8,autonHeading = 0,autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose redGoal = new Pose(131.5,137.3);
-    public static Pose predicted = new Pose(0,0);
+
     public static boolean topBlocked=false,bottomBlocked=false;
     public static int counter = 0,frameCountBlocked = 0,frameCountBlockedTop = 0,frameCountUnblocked=0,frameCountUnblockedTop=0;
     public static double rDecay = 0, mDecay = 0,aMax = 0;
@@ -104,13 +104,12 @@ public class Values {
                     Map.entry(57.0,0.64),
                     Map.entry(60.8,0.48),
                     Map.entry(96.0,0.48),
-                    Map.entry(120.0,0.48),
-                    Map.entry(134.75,0.2),
-                    Map.entry(157.8,0.0)
+                    Map.entry(120.0,0.14),
+                    Map.entry(134.75,0.14)
 
             )
     );
-    public static final TreeMap<Double,Double> turretLUT = new TreeMap<>(
+    public static final TreeMap<Double,Double> rpmLUT = new TreeMap<>(
             Map.ofEntries(
                     Map.entry(42.2705,1700.0),
                     Map.entry(95.15132439990525,1850.0),
@@ -119,6 +118,20 @@ public class Values {
 
 
             )
+    );
+
+    public static final TreeMap<Double,Double> llLUT = new TreeMap<>(
+        Map.ofEntries(
+                Map.entry(-3.33,-6.6),
+                Map.entry(-1.8,-4.0),
+                Map.entry(-0.7,-1.3),
+                Map.entry(0.2,0.4),
+                Map.entry(1.3,1.8),
+                Map.entry(2.3,2.6),
+                Map.entry(3.4,7.8),
+                Map.entry(4.8,8.2),
+                Map.entry(5.3,10.1)
+        )
     );
 
 

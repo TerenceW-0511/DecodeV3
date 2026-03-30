@@ -31,7 +31,7 @@ public class Methods {
     private double lastTime;
     private double lastTarget=0;
     public static final double rpmAdj = 20;
-    public static double k=-0.00015;
+    public static double k=-0;
 
 
     boolean last1 = false;
@@ -41,8 +41,6 @@ public class Methods {
     private long lastLLTime = System.nanoTime();
     public static double yawScalar = 1.0006;
 
-
-    public static double offsetAmt = 0;
     private double integral = 0.0;
     private double prevError = 0.0;
     private long prevTime = System.nanoTime();
@@ -241,6 +239,15 @@ public class Methods {
         return close||far;
     }
 
+    public double llAngle (Pose pose){
+        double x = pose.getX();
+        double y = pose.getY();
+
+        double alpha = Math.toDegrees(Math.atan2(x-19.4,133.8-y));
+        double lemma = Math.toDegrees(Math.atan2(137.3-y,x-12.5));
+        return 90-alpha-lemma;
+    }
+
     public static Pose sotm(Follower f,Pose target){
         Vector vel = f.getVelocity();
         Pose predicted = new Pose(
@@ -260,29 +267,22 @@ public class Methods {
             targetPose = Values.redGoal;
         }
 //        targetPose = sotm(f,targetPose);
-        Values.predicted = targetPose;
         double dx = botPose.getX()-targetPose.getX();
         double dy = targetPose.getY()-botPose.getY();
         double alpha = 180
                     - Math.toDegrees(botPose.getHeading())
                     - Math.toDegrees(Math.atan2(dy,dx));
         LLResult result= ll.getLatestResult();
-        double dist = getDist(botPose);
-        if (dist > 120) {
-            offsetAmt = (Values.team == Values.Team.RED) ? -1 : 3;
-        }else{
-            offsetAmt = 0;
-        }
+        Values.txRaw = result.getTx();
+        Values.tx = result.getTx();
+        double angle = llAngle(botPose);
+        double offsetAmt = LLOffset(angle);
+        offsetAmt *= (Values.team == Values.Team.BLUE) ?1:-1;
         if (!result.isValid()){
             Values.tx=0;
         }else {
             Values.tx = result.getTx() - offsetAmt;
         }
-//        double rDecay = Values.rDecay;
-//        double mDecay = Values.mDecay;
-//        filteredX+=Values.tx*test*(1-moveScale);
-//        filteredX*=(1-rDecay-moveScale*(mDecay-rDecay));
-//        filteredX = Math.max(-Values.aMax,Math.min(Values.aMax,filteredX));
         filteredX += test*Values.tx;
         double target =filteredX+alpha * 1725/18;
 
@@ -406,6 +406,31 @@ public class Methods {
 //
 //        return new double[]{tx, targetOffset, output};
     }
+
+    public double LLOffset(double angle){
+
+        if (angle <= Values.llLUT.firstKey()) return Values.llLUT.firstEntry().getValue();
+        if (angle >= Values.llLUT.lastKey())  return Values.llLUT.lastEntry().getValue();
+
+        Map.Entry<Double, Double> lower = Values.llLUT.floorEntry(angle);
+        Map.Entry<Double, Double> upper = Values.llLUT.ceilingEntry(angle);
+
+        if (lower == null || upper == null) {
+            return Values.llLUT.lastEntry().getValue();
+        }
+
+        if (lower.getKey().equals(upper.getKey())) {
+            return lower.getValue();
+        }
+
+        double x0 = lower.getKey();
+        double y0 = lower.getValue();
+        double x1 = upper.getKey();
+        double y1 = upper.getValue();
+
+        double t = (angle - x0) / (x1 - x0);
+        return y0 + t * (y1 - y0);
+    }
     public static double normalizeDeg(double angle) {
         angle %= 360;
         if (angle >= 180) angle -= 360;
@@ -518,6 +543,11 @@ public class Methods {
         if (!currentintake && !currentoutake && Values.frameCountUnblocked>10 && Values.frameCountUnblockedTop>10){
             Values.counter=0;
         }
+        if (Values.counter==3){
+            if (Values.frameCountUnblocked>10 || Values.frameCountUnblockedTop>10){
+                Values.counter=2;
+            }
+        }
         //if tree and 2 != tre count = 3
         //reset cont after shooting
 
@@ -526,16 +556,16 @@ public class Methods {
         last1 = currentintake;
         last2 = currentoutake;
     }
-    public static double turretNominal(double dist) {
+    public static double rpmComp(double dist) {
 
-        if (dist <= Values.turretLUT.firstKey()) return Values.turretLUT.firstEntry().getValue();
-        if (dist >= Values.turretLUT.lastKey())  return Values.turretLUT.lastEntry().getValue();
+        if (dist <= Values.rpmLUT.firstKey()) return Values.rpmLUT.firstEntry().getValue();
+        if (dist >= Values.rpmLUT.lastKey())  return Values.rpmLUT.lastEntry().getValue();
 
-        Map.Entry<Double, Double> lower = Values.turretLUT.floorEntry(dist);
-        Map.Entry<Double, Double> upper = Values.turretLUT.ceilingEntry(dist);
+        Map.Entry<Double, Double> lower = Values.rpmLUT.floorEntry(dist);
+        Map.Entry<Double, Double> upper = Values.rpmLUT.ceilingEntry(dist);
 
         if (lower == null || upper == null) {
-            return Values.turretLUT.lastEntry().getValue();
+            return Values.rpmLUT.lastEntry().getValue();
         }
 
         if (lower.getKey().equals(upper.getKey())) {
@@ -553,7 +583,7 @@ public class Methods {
     }
     public void targetcomp (double dist){
         if (Values.oldcounter < Values.counter){
-            Values.flywheel_Values.flywheelTarget = turretNominal(dist);
+            Values.flywheel_Values.flywheelTarget = rpmComp(dist);
         }
         Values.oldcounter=Values.counter;
     }

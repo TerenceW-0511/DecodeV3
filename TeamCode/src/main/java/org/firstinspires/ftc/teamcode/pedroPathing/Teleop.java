@@ -44,21 +44,13 @@ public class Teleop extends OpMode {
     Values.Team lastTeam;
 
     PIDFController pidf = new PIDFController(0,0,0,0);
-    public static double v,s,p,i,d,f;
+    public static double p,i,d,f;
     public static double target=0;
     public static double newtarget = 0;
 
 
 
-    public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
-//
-        pidf.setPIDF(Values.flywheel_Values.fP,Values.flywheel_Values.fI,Values.flywheel_Values.fD,Values.flywheel_Values.fF);
-        double curr = (m1.getVelocity()+m2.getVelocity())/2;
-        double power = v*target + s +pidf.calculate(curr,target);
-        m1.setPower(power);
-        m2.setPower(power);
-        return curr;
-    }
+
 
 
     public void init(){
@@ -118,7 +110,7 @@ public class Teleop extends OpMode {
             timer.resetTimer();
             Values.counter = 0;
         }
-        if (gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes. INTAKING){
+        if ((gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes. INTAKING)){
             hardware.ll.reloadPipeline();
             Values.init=true;
             Values.mode = Values.Modes.SHOOTING;
@@ -232,6 +224,9 @@ public class Teleop extends OpMode {
                     Values.flywheel_Values.flywheelTarget = newtarget;
                 }
                 Values.oldcounter=Values.counter;
+                if (Values.counter==0){
+                    Values.mode = Values.Modes.INTAKING;
+                }
 //                if (dist>120 && gamepad1.atRest()){
 //                    follower.holdPoint(follower.getPose(),true);
 //                }
@@ -269,18 +264,18 @@ public class Teleop extends OpMode {
 //        }
 //        hardware.flywheel1.setPower(1);
 //        hardware.flywheel2.setPower(1);
-        flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+        flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
 
 
         double turretEncoder = -hardware.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, hardware.ll);
-
+//        double targetTurret=target;
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("Turret Target", targetTurret);
         packet.put("Turret Current", -hardware.intake.getCurrentPosition());
-        packet.put("target vel", target);
+        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
         packet.put("curr vel", flywheelVel1);
         packet.put("curr dist", dist);
         dashboard.sendTelemetryPacket(packet);
@@ -295,6 +290,7 @@ public class Teleop extends OpMode {
         telemetry.addData("mode",Values.mode);
         telemetry.addData("vel",follower.getVelocity().getMagnitude());
 //        telemetry.addData("predicted",Values.predicted);
+        telemetry.addData("tx raw",Values.txRaw);
         telemetry.addData("tx",Values.tx);
         telemetry.addData("count",Values.counter);
         telemetry.addData("team",Values.team);
