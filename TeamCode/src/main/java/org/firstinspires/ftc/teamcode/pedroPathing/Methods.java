@@ -5,22 +5,16 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.math.RoundingMode;
 
 @Config
 public class Methods {
@@ -581,11 +575,12 @@ public class Methods {
         double newtarget = y0 + t * (y1 - y0);
         return newtarget;
     }
-    public void targetcomp (double dist){
+    public double targetcomp (double dist){
         if (Values.oldcounter < Values.counter){
             Values.flywheel_Values.flywheelTarget = rpmComp(dist);
         }
         Values.oldcounter=Values.counter;
+        return dist;
     }
 
     public String getstates(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4){

@@ -211,7 +211,7 @@ public class Teleop extends OpMode {
                 }
                 break;
             case SHOOTING:
-
+                boolean changed = false;
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
 
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
@@ -220,8 +220,13 @@ public class Teleop extends OpMode {
                 }else{
                     hardware.led.setPosition(0.444); //green
                 }
+
                 if (Values.oldcounter < Values.counter){
                     Values.flywheel_Values.flywheelTarget = newtarget;
+                    changed = true;
+                    if (changed) {
+                        Values.flywheel_Values.flywheelTarget = newtarget;
+                    }
                 }
                 Values.oldcounter=Values.counter;
                 if (Values.counter==0){
@@ -266,7 +271,6 @@ public class Teleop extends OpMode {
 //        hardware.flywheel2.setPower(1);
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
 
-
         double turretEncoder = -hardware.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, hardware.ll);
@@ -278,6 +282,7 @@ public class Teleop extends OpMode {
         packet.put("target vel", Values.flywheel_Values.flywheelTarget);
         packet.put("curr vel", flywheelVel1);
         packet.put("curr dist", dist);
+        packet.put("pwr",hardware.flywheel1.getPower() );
         dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;

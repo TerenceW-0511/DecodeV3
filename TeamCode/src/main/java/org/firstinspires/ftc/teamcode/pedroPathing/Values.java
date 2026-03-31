@@ -15,6 +15,7 @@ public class Values {
     public static double turretOverride = 0;
     public static double llOverride = 0;
 
+
     public static class flywheel_Values {
 //        public static double fP = 0.0045;
 //        public static double fI = 0;
@@ -113,9 +114,11 @@ public class Values {
             Map.ofEntries(
                     Map.entry(42.2705,1700.0),
                     Map.entry(95.15132439990525,1850.0),
-                    Map.entry(106.96229839415511,1800.0)
-
-
+                    Map.entry(106.96229839415511,1800.0),
+                    Map.entry(61.42823959138319,1750.0),
+                    Map.entry(65.10999637843078,1600.0),
+                    Map.entry(96.73190823163961,1900.0),
+                    Map.entry(29.294521173317268,1470.0)
 
             )
     );
