@@ -100,13 +100,13 @@ public class Values {
             //distance, hood, k
             Map.ofEntries(
 
-                    Map.entry(26.7,1.0),
-                    Map.entry(29.1,1.0),
-                    Map.entry(57.0,0.64),
-                    Map.entry(60.8,0.48),
-                    Map.entry(96.0,0.48),
-                    Map.entry(120.0,0.14),
-                    Map.entry(134.75,0.14)
+                    Map.entry(26.7,1.0), // 1
+                    Map.entry(29.1,1.0), // 1
+                    Map.entry(57.0,0.64), // .64
+                    Map.entry(60.8,0.48), // .48
+                    Map.entry(96.0,0.46), // .48
+                    Map.entry(120.0,0.12), // .14
+                    Map.entry(134.75,0.0)
 
             )
     );
