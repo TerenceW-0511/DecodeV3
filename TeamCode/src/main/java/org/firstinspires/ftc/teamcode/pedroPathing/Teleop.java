@@ -44,8 +44,8 @@ public class Teleop extends OpMode {
     Values.Team lastTeam;
 
     PIDFController pidf = new PIDFController(0,0,0,0);
-    public static double p,i,d,f;
-    public static double target=0;
+//    public static double p,i,d,f;
+    public static double target=0,hood=0,k=0;
     public static double newtarget = 0;
 
 
@@ -158,8 +158,9 @@ public class Teleop extends OpMode {
 //            Values.hoodPos -=0.02;
 //        }
         Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
-        hardware.hood1.setPosition(Values.hoodPos);
-
+//        hardware.hood1.setPosition(Values.hoodPos);
+        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
+        hardware.hood1.setPosition(hood+k*rpme);
         methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4);
 
 
@@ -172,7 +173,8 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+//                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter){
                     case 1:
                         hardware.led.setPosition(0.3);
@@ -223,10 +225,6 @@ public class Teleop extends OpMode {
 
                 if (Values.oldcounter < Values.counter){
                     Values.flywheel_Values.flywheelTarget = newtarget;
-                    changed = true;
-                    if (changed) {
-                        Values.flywheel_Values.flywheelTarget = newtarget;
-                    }
                 }
                 Values.oldcounter=Values.counter;
                 if (Values.counter==0){
@@ -270,6 +268,8 @@ public class Teleop extends OpMode {
 //        hardware.flywheel1.setPower(1);
 //        hardware.flywheel2.setPower(1);
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+
+
 
         double turretEncoder = -hardware.intake.getCurrentPosition();
 

@@ -575,12 +575,11 @@ public class Methods {
         double newtarget = y0 + t * (y1 - y0);
         return newtarget;
     }
-    public double targetcomp (double dist){
+    public void targetcomp (double dist){
         if (Values.oldcounter < Values.counter){
             Values.flywheel_Values.flywheelTarget = rpmComp(dist);
         }
         Values.oldcounter=Values.counter;
-        return dist;
     }
 
     public String getstates(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4){
