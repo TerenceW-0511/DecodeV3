@@ -104,22 +104,20 @@ public class Values {
                     Map.entry(29.1,1.0), // 1
                     Map.entry(57.0,0.64), // .64
                     Map.entry(60.8,0.48), // .48
-                    Map.entry(96.0,0.46), // .48
-                    Map.entry(120.0,0.12), // .14
+                    Map.entry(96.0,0.48), // .48
+                    Map.entry(120.0,0.14), // .14
                     Map.entry(134.75,0.0)
 
             )
     );
     public static final TreeMap<Double,Double> rpmLUT = new TreeMap<>(
             Map.ofEntries(
-                    Map.entry(42.2705,1700.0),
-                    Map.entry(95.15132439990525,1850.0),
-                    Map.entry(106.96229839415511,1800.0),
-                    Map.entry(61.42823959138319,1750.0),
-                    Map.entry(65.10999637843078,1600.0),
-                    Map.entry(96.73190823163961,1900.0),
-                    Map.entry(29.294521173317268,1470.0)
-
+                    Map.entry(40.12464708182086, 1470.0),
+                    Map.entry(49.14520309175569,1500.0),
+                    Map.entry(51.57541835973636,1580.0),
+                    Map.entry(61.20058168254951,1690.0),
+                    Map.entry(72.20668678918508, 1890.0),
+                    Map.entry(85.50943734702756, 2100.0)
             )
     );
 

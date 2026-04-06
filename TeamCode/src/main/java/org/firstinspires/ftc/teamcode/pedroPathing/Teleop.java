@@ -31,6 +31,8 @@ public class Teleop extends OpMode {
     private Methods methods;
 
     private Timer timer;
+
+    private Timer ballTimer;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     private boolean waitingForLimiter = false;
     private double limiterOpenTime = 0;
@@ -41,6 +43,8 @@ public class Teleop extends OpMode {
     private double lastIntakePower = 999;
     private double lastTransferPower = 999;
 
+    private double largestError = 0;
+    private boolean changed = false;
     Values.Team lastTeam;
 
     PIDFController pidf = new PIDFController(0,0,0,0);
@@ -52,10 +56,8 @@ public class Teleop extends OpMode {
 
 
 
-
     public void init(){
         hardware = new Hardware(hardwareMap);
-
         intakePID = new Methods();
         transferPID = new Methods();
         flywheelPID = new Methods();
@@ -158,9 +160,9 @@ public class Teleop extends OpMode {
 //            Values.hoodPos -=0.02;
 //        }
         Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
-//        hardware.hood1.setPosition(Values.hoodPos);
-        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
-        hardware.hood1.setPosition(hood+k*rpme);
+        hardware.hood1.setPosition(Values.hoodPos);
+//        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
+//        hardware.hood1.setPosition(hood+k*rpme);
         methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4);
 
 
@@ -173,8 +175,8 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-//                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
-                Values.flywheel_Values.flywheelTarget=target;
+                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+//                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter){
                     case 1:
                         hardware.led.setPosition(0.3);
@@ -213,34 +215,49 @@ public class Teleop extends OpMode {
                 }
                 break;
             case SHOOTING:
-                boolean changed = false;
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
-
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 if (rpmError > 80){
                     hardware.led.setPosition(0.722); //purple
                 }else{
                     hardware.led.setPosition(0.444); //green
                 }
-
-                if (Values.oldcounter < Values.counter){
-                    Values.flywheel_Values.flywheelTarget = newtarget;
+//
+                if (Values.oldcounter < Values.counter && timer.getElapsedTimeSeconds() > 0.15){
+                    Values.flywheel_Values.flywheelTarget = methods.rpmComp(dist);
+//                    Values.flywheel_Values.flywheelTarget = newtarget;
                 }
                 Values.oldcounter=Values.counter;
-                if (Values.counter==0){
-                    Values.mode = Values.Modes.INTAKING;
-                }
+
+//                if (Values.counter==0){
+//                    Values.mode = Values.Modes.INTAKING;
+//                }
+//                if (dist>90){
+//                    hardware.transfer.setPower(0.5);
+//                    hardware.intake.setPower(0.5);
+//              }
 //                if (dist>120 && gamepad1.atRest()){
 //                    follower.holdPoint(follower.getPose(),true);
 //                }
 
 
-                boolean atSpeed = rpmError < 70;
-//                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
                 if (timer.getElapsedTimeSeconds()>0.15) {
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     hardware.transfer.setPower(1);
                 }
+//                boolean atSpeed = rpmError < 70;
+////                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
+//                if (dist < 90 && timer.getElapsedTimeSeconds()>0.15) {
+//                    setPowerIfChanged(hardware.intake, 1, "intake");
+//                    hardware.transfer.setPower(1);
+//                }else if(dist > 90 && timer.getElapsedTimeSeconds()>0.15){
+//                    setPowerIfChanged(hardware.intake, .65, "intake");
+//                    hardware.transfer.setPower(.65);
+//                    if (rpmError > 200) {
+//                        setPowerIfChanged(hardware.intake, 0.3, "intake");
+//                        hardware.transfer.setPower(0.3);
+//                    }
+//                }
 //
 //                }else if (dist>110){
 //                    setPowerIfChanged(hardware.intake,0,"intake");
@@ -267,10 +284,9 @@ public class Teleop extends OpMode {
 //        }
 //        hardware.flywheel1.setPower(1);
 //        hardware.flywheel2.setPower(1);
+
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
-
-
-
+        double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
         double turretEncoder = -hardware.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, hardware.ll);
@@ -283,6 +299,8 @@ public class Teleop extends OpMode {
         packet.put("curr vel", flywheelVel1);
         packet.put("curr dist", dist);
         packet.put("pwr",hardware.flywheel1.getPower() );
+        packet.put("error",rpmError);
+        packet.put("transfer pwr",hardware.transfer.getPower());
         dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;
