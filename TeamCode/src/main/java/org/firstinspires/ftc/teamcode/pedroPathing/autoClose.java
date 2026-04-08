@@ -315,8 +315,10 @@ public class autoClose extends OpMode {
     }
     public boolean outtake(double wait,double time){
         ;
+        double dist = methods.getDist(follower.getPose());
         double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
         double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
+        methods.closeRapid(dist);
         if (pathTimer.getElapsedTimeSeconds()>wait) {
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
@@ -337,7 +339,6 @@ public class autoClose extends OpMode {
      **/
     @Override
     public void loop() {
-
         // These loop the movements of the robot, these must be called continuously in order to work
         follower.update();
         autonomousPathUpdate();
