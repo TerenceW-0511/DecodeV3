@@ -68,6 +68,7 @@ public class autoClose extends OpMode {
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(scorePose, pickup1Pose))
+                .setReversed()
                 .setTangentHeadingInterpolation()
                 .setNoDeceleration()
                 .build();
@@ -99,6 +100,7 @@ public class autoClose extends OpMode {
         scorePickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(openGate2Pose, scorePickup3Pose))
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
 
@@ -112,6 +114,7 @@ public class autoClose extends OpMode {
         scorePickup4 = follower.pathBuilder()
                 .addPath(new BezierLine(pickup2Pose, scorePickup4Pose))
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
