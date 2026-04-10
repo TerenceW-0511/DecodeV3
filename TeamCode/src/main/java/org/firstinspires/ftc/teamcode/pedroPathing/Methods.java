@@ -493,6 +493,8 @@ public class Methods {
     private boolean intakeLock = false;
     private boolean outtakeLock = false;
 
+    // if ball = 3 intake off
+
     public void countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
         //states
         boolean currentintake = getBeamRaw(breakBeam3,breakBeam4);

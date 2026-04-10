@@ -246,30 +246,30 @@ public class Teleop extends OpMode {
 //                    hardware.transfer.setPower(1);
 //                }
                 /// "just increase the threshold :/"
-                boolean atSpeed = rpmError < 200;
-                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
-                    setPowerIfChanged(hardware.intake, 1, "intake");
-                    hardware.transfer.setPower(1);
-
-                }else if (dist>110){
-                    setPowerIfChanged(hardware.intake,0,"intake");
-                    hardware.transfer.setPower(0);
-                }
+//                boolean atSpeed = rpmError < 200;
+//                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
+//                    setPowerIfChanged(hardware.intake, 1, "intake");
+//                    hardware.transfer.setPower(1);
+//
+//                }else if (dist>110){
+//                    setPowerIfChanged(hardware.intake,0,"intake");
+//                    hardware.transfer.setPower(0);
+//                }
 
 
                 ///  Far rapid code
-//                boolean atSpeed = rpmError < 200;
-//                if (dist < 90 && timer.getElapsedTimeSeconds()>0.15) {
-//                    setPowerIfChanged(hardware.intake, 1, "intake");
-//                    hardware.transfer.setPower(1);
-//                }else if(dist > 90 && timer.getElapsedTimeSeconds()>0.15){
-//                    setPowerIfChanged(hardware.intake, .65, "intake");
-//                    hardware.transfer.setPower(.65);
-//                    if (atSpeed) {
-//                        setPowerIfChanged(hardware.intake, 0.3, "intake");
-//                        hardware.transfer.setPower(0.3);
-//                    }
-//                }
+                boolean atSpeed = rpmError < 200;
+                if (dist < 90 && timer.getElapsedTimeSeconds()>0.15) {
+                    setPowerIfChanged(hardware.intake, 1, "intake");
+                    hardware.transfer.setPower(1);
+                }else if(dist > 90 && timer.getElapsedTimeSeconds()>0.15){
+                    setPowerIfChanged(hardware.intake, .65, "intake");
+                    hardware.transfer.setPower(.65);
+                    if (atSpeed) {
+                        setPowerIfChanged(hardware.intake, 0.3, "intake");
+                        hardware.transfer.setPower(0.3);
+                    }
+                }
 //
 //
 
