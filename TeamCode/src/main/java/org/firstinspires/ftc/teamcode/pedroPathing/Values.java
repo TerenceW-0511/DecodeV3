@@ -79,7 +79,7 @@ public class Values {
     public static boolean turretDeadSpot = false;
     public static double offsetAngle=0,txRaw=0,tx = 0, llOffset = 0;
     public static double hoodPos = 0.5;
-    public static double autonFollowerX=9,autonFollowerY=8,autonHeading = 0,autonTurret=0;
+    public static double autonFollowerX=15.6,autonFollowerY=113.7,autonHeading = Math.toRadians(180),autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose redGoal = new Pose(131.5,137.3);
 
@@ -100,13 +100,11 @@ public class Values {
             //distance, hood, k
             Map.ofEntries(
 
-                    Map.entry(26.7,1.0), // 1
-                    Map.entry(29.1,1.0), // 1
-                    Map.entry(57.0,0.64), // .64
-                    Map.entry(60.8,0.48), // .48
-                    Map.entry(96.0,0.48), // .48
-                    Map.entry(120.0,0.14), // .14
-                    Map.entry(134.75,0.0)
+                    Map.entry(29.6,1.0),
+                    Map.entry(46.6,0.62),
+                    Map.entry(53.6,0.46),
+                    Map.entry(77.4,0.24),
+                    Map.entry(90.0,0.24)
 
             )
     );
@@ -147,6 +145,7 @@ public class Values {
         turretPos = 0.5;
         llOverride = 0;
         Values.counter=0;
+        Values.turretOverride=0;
     }
     //TODO: retune flywheel pid, do auton turret? should be the only thing that changed
 }

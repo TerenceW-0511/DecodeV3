@@ -41,7 +41,7 @@ public class Methods {
     public static double test = -15;
     public static double weight = 1;
     public static double hoodBasex = 0.5;
-    private double a= 2558.3597233948644,b=-16.387017585894974,c=-2356.4076710655913,d=0.08890184449457195,e=1117.6724685437139,f=16.196925315213786;
+    private double a= 3283.900639153952,b=-31.629058512193566,c=431.1574793912657,d=0.27582176046917084,e=-649.871913151707,f=-34.14290767181656;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
@@ -188,11 +188,20 @@ public class Methods {
 
 
     public void manualRelocalize(Follower follower){
-
+        double y = follower.getPose().getY();
         if (Values.team==Values.Team.BLUE) {
-            follower.setPose(new Pose(135-23.5, 6.5, Math.toRadians(0)));
+            if (y>50){
+                follower.setPose(new Pose(16.2,77.5,Math.toRadians(180)));
+            }else {
+                follower.setPose(new Pose(135 - 23.5, 6.5, Math.toRadians(0)));
+            }
         }else{
-            follower.setPose(new Pose(9+23.5,6.5,Math.toRadians(180)));
+            if (y>50){
+                follower.setPose(new Pose(128,77.5,Math.toRadians(0)));
+            }else {
+                follower.setPose(new Pose(9+23.5,6.5,Math.toRadians(180)));
+            }
+
         }
         filteredX=0; 
         Values.turretOverride=0;
@@ -279,7 +288,7 @@ public class Methods {
         }
         filteredX += test*Values.tx;
         double target =filteredX+alpha * 1725/18;
-
+        target += Values.turretOverride;
 
         double wrapped = (target+17000)%34000;
         if (wrapped<0) wrapped+=34000;
@@ -530,7 +539,7 @@ public class Methods {
             Values.counter--;
         }
         //hard count to 3
-        if (currentintake&& currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
+        if (currentintake&& currentoutake&&Values.frameCountBlocked>15 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
         }
 //        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
@@ -552,7 +561,7 @@ public class Methods {
         last1 = currentintake;
         last2 = currentoutake;
     }
-    public static double rpmComp(double dist) {
+    public double rpmComp(double dist) {
 
         if (dist <= Values.rpmLUT.firstKey()) return Values.rpmLUT.firstEntry().getValue();
         if (dist >= Values.rpmLUT.lastKey())  return Values.rpmLUT.lastEntry().getValue();

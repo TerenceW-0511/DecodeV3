@@ -148,18 +148,18 @@ public class Teleop extends OpMode {
         }
 
 
-//        if (gamepad1.dpadUpWasPressed()){
-//            Values.flywheel_Values.flywheelTarget+=20;
-//        }else if (gamepad1.dpadDownWasPressed()){
-//            Values.flywheel_Values.flywheelTarget-=20;
-//        }
-//
-//        if (gamepad1.aWasPressed()){
-//            Values.hoodPos += 0.02;
-//        }else if (gamepad1.yWasPressed()){
-//            Values.hoodPos -=0.02;
-//        }
-        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+        if (gamepad1.dpadUpWasPressed()){
+            Values.flywheel_Values.flywheelTarget+=20;
+        }else if (gamepad1.dpadDownWasPressed()){
+            Values.flywheel_Values.flywheelTarget-=20;
+        }
+
+        if (gamepad1.aWasPressed()){
+            Values.hoodPos += 0.02;
+        }else if (gamepad1.yWasPressed()){
+            Values.hoodPos -=0.02;
+        }
+//        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
         hardware.hood1.setPosition(Values.hoodPos);
 //        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
 //        hardware.hood1.setPosition(hood+k*rpme);
@@ -171,11 +171,11 @@ public class Teleop extends OpMode {
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                 }
-//                hardware.led.setPosition(0.333); //orange=
+//                hardware.led.setPosi  tion(0.333); //orange=
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+//                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
 //                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter){
                     case 1:
@@ -196,11 +196,11 @@ public class Teleop extends OpMode {
                         hardware.led.setPosition(1);
                         break;
                 }
-                if (timer.getElapsedTimeSeconds()>0.4){
-                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
-                }
+//                if (timer.getElapsedTimeSeconds()>0.4){
+//                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+//                }
 
-                if (gamepad1.left_bumper && timer.getElapsedTimeSeconds()>0.5) {
+                if (gamepad1.left_bumper && timer.getElapsedTimeSeconds()>0.5 && Values.counter!=3) {
 
                     setPowerIfChanged(hardware.intake, 1, "intake");
                     if (Values.frameCountBlockedTop<10) {
@@ -216,7 +216,7 @@ public class Teleop extends OpMode {
                 break;
             case SHOOTING:
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
-                hardware.limiter.setPosition(Values.LIMITER_OPEN);
+//                hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 if (rpmError > 80){
                     hardware.led.setPosition(0.722); //purple
                 }else{
@@ -224,7 +224,7 @@ public class Teleop extends OpMode {
                 }
 //&& timer.getElapsedTimeSeconds() > 0.15
                 if (Values.oldcounter < Values.counter){
-                    Values.flywheel_Values.flywheelTarget = methods.rpmComp(dist);
+//                    Values.flywheel_Values.flywheelTarget = methods.rpmComp(dist);
 //                    Values.flywheel_Values.flywheelTarget = newtarget;
                 }
                 Values.oldcounter=Values.counter;
@@ -258,16 +258,19 @@ public class Teleop extends OpMode {
 
 
                 ///  Far rapid code
-                boolean atSpeed = rpmError < 200;
-                if (dist < 90 && timer.getElapsedTimeSeconds()>0.15) {
-                    setPowerIfChanged(hardware.intake, 1, "intake");
-                    hardware.transfer.setPower(1);
-                }else if(dist > 90 && timer.getElapsedTimeSeconds()>0.15){
-                    setPowerIfChanged(hardware.intake, .65, "intake");
-                    hardware.transfer.setPower(.65);
-                    if (atSpeed) {
-                        setPowerIfChanged(hardware.intake, 0.3, "intake");
-                        hardware.transfer.setPower(0.3);
+                boolean atSpeed = rpmError < 70;
+                if (timer.getElapsedTimeSeconds()>0.2) {
+                    if (dist < 90) {
+                        setPowerIfChanged(hardware.intake, 1, "intake");
+                        hardware.transfer.setPower(1);
+                    } else {
+                        if (atSpeed) {
+                            setPowerIfChanged(hardware.intake, 1, "intake");
+                            hardware.transfer.setPower(1);
+                        }else{
+                            setPowerIfChanged(hardware.intake, 0, "intake");
+                            hardware.transfer.setPower(0);
+                        }
                     }
                 }
 //
@@ -293,7 +296,12 @@ public class Teleop extends OpMode {
 //        }
 //        hardware.flywheel1.setPower(1);
 //        hardware.flywheel2.setPower(1);
-
+//        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+        if (Values.counter==3 || Values.mode== Values.Modes.SHOOTING){
+            hardware.limiter.setPosition(Values.LIMITER_OPEN);
+        }else{
+            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
+        }
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
         double turretEncoder = -hardware.intake.getCurrentPosition();
@@ -315,7 +323,7 @@ public class Teleop extends OpMode {
         Values.turretOverride += gamepad1.left_trigger * 500;
         Values.turretOverride -= gamepad1.right_trigger * 500;
         Values.turretOverride = Math.min(10000, Math.max(-10000, Values.turretOverride));
-        Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
+        Values.turretPos = methods.turretPID(turretEncoder, targetTurret);
         hardware.turret1.setPosition(Values.turretPos);
         hardware.turret2.setPosition(Values.turretPos);
 
