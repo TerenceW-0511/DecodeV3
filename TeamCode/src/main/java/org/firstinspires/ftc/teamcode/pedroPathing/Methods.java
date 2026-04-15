@@ -41,7 +41,7 @@ public class Methods {
     public static double test = -15;
     public static double weight = 1;
     public static double hoodBasex = 0.5;
-    private double a= 3283.900639153952,b=-31.629058512193566,c=431.1574793912657,d=0.27582176046917084,e=-649.871913151707,f=-34.14290767181656;
+    private double a = 590.2842059274747 ,b= 19.94326274252894 ,c= 1114.637081758762 ,d= -0.022521414948240448 ,e= -303.75063150261406 ,f= -20.686646888966102;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
