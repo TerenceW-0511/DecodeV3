@@ -31,7 +31,7 @@ public class autoCloseRed extends OpMode {
     private final Pose pickup2Pose = mirrorPose(new Pose(6, 58, Math.toRadians(180))); // Middle (Second Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup2 = mirrorPoint(new Pose(46.5,60.7));
 
-    private final Pose openGatePose = mirrorPose(new Pose(12,72,Math.toRadians(180)));
+    private final Pose openGatePose = mirrorPose(new Pose(12,72,Math.toRadians(160)));
     private final Pose controlGate = mirrorPoint(new Pose(29.2,65.2));
 
     private final Pose scorePickup2Pose = mirrorPose(new Pose(50.2,85,Math.toRadians(180)));
@@ -70,14 +70,14 @@ public class autoCloseRed extends OpMode {
                 .build();
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        grabPickup2 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePickup1Pose,controlPickup2, pickup2Pose))
-                .setTangentHeadingInterpolation()
-                .build();
+//        grabPickup2 = follower.pathBuilder()
+//                .addPath(new BezierCurve(scorePickup1Pose,controlPickup2, pickup2Pose))
+//                .setTangentHeadingInterpolation()
+//                .build();
 
         openGate = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup2Pose,controlGate, openGatePose))
-                .setConstantHeadingInterpolation(openGatePose.getHeading())
+                .addPath(new BezierLine(scorePickup1Pose, openGatePose))
+                .setLinearHeadingInterpolation(scorePickup1Pose.getHeading(), openGatePose.getHeading())
                 .build();
 
 

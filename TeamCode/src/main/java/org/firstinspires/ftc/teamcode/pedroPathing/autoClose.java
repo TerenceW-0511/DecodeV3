@@ -28,7 +28,7 @@ public class autoClose extends OpMode {
     private final Pose pickup1Pose = new Pose(24.9, 61.0, Math.toRadians(180)); // -140 Highest (First Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup1 = new Pose(40.9,74.5);
 
-    private final Pose scorePickup1Pose = new Pose(50.9,83.9,Math.toRadians(180));
+    private final Pose scorePickup1Pose = new Pose(50.9,83.9,Math.toRadians(210));
 
     private final Pose openGatePose = new Pose(15.1,60.8,Math.toRadians(160));
 //    private final Pose controlGate = new Pose(29.2,65.2);
@@ -67,16 +67,16 @@ public class autoClose extends OpMode {
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePose, pickup1Pose))
-                .setReversed()
+                .addPath(new BezierCurve(scorePose, controlPickup1,pickup1Pose))
                 .setTangentHeadingInterpolation()
                 .setNoDeceleration()
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup1 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup1Pose,controlPickup1,scorePickup1Pose))
+                .addPath(new BezierLine(pickup1Pose,scorePickup1Pose))
                 .setTangentHeadingInterpolation()
+                .setReversed()
                 .build();
 
         openGate = follower.pathBuilder()
@@ -119,12 +119,12 @@ public class autoClose extends OpMode {
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup3 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePickup4Pose, pickup3Pose))
+                .addPath(new BezierCurve(scorePickup4Pose,controlPickup3, pickup3Pose))
                 .setTangentHeadingInterpolation()///
                 .build();
 
         ScorePickup5 = follower.pathBuilder()
-                .addPath(new BezierCurve(pickup3Pose,controlPickup3,scorePickup5Pose))
+                .addPath(new BezierLine(pickup3Pose,scorePickup5Pose))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
@@ -169,7 +169,6 @@ public class autoClose extends OpMode {
             - Robot Position: "if(follower.getPose().getX() > 36) {}"
             */
                 if (follower.getPathCompletion()>0.5){
-                    follower.setMaxPower(.5);
                     intake();
                 }
 
@@ -180,21 +179,23 @@ public class autoClose extends OpMode {
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
 
                     follower.followPath(scorePickup1);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                move(true);
-                if (!follower.isBusy()){
-                    if (outtake(0.5,2)) {
-                        setPathState(99);
-                    }
+                    setPathState(99);
                 }
                 break;
             case 99:
-                gate();
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>6){
-                    follower.followPath(openGate2);
+                move(true);
+                if (!follower.isBusy()){
+                    if (outtake(0.5,2)) {
+                        setPathState(3);
+                    }
+                }
+                break;
+            case 3:
+                if (!follower.isBusy()){
+                    follower.followPath(openGate);
+                    if (pathTimer.getElapsedTimeSeconds()>6){
+                        gate(3);
+                    }
                     setPathState(4);
                 }
 //                move(false);
@@ -218,12 +219,13 @@ public class autoClose extends OpMode {
                     }
                 }break;
             case 5:
-                gate();
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>2){
+                if (!follower.isBusy()){
                     follower.followPath(openGate2);
-                    setPathState(6);
-                }
-                break;
+                    if (pathTimer.getElapsedTimeSeconds()>6){
+                        gate(3);
+                    }
+                    setPathState(4);
+                }break;
 //            case 100:
 //                move(true);
 //                if (!follower.isBusy()){
@@ -319,11 +321,18 @@ public class autoClose extends OpMode {
 
     }
 
-    public void gate(){
-        follower.setMaxPower(1);
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        robot.intake.setPower(1);
-        robot.transfer.setPower(.8);
+//    public void gate(){
+//        follower.setMaxPower(1);
+//        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+//        robot.intake.setPower(1);
+//        robot.transfer.setPower(.8);
+//    }
+    public void gate(double time){
+        if (pathTimer.getElapsedTimeSeconds() < time) {
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+            robot.intake.setPower(1);
+            robot.transfer.setPower(.8);
+        }
     }
 
     public void move(boolean intake){
@@ -407,7 +416,6 @@ public class autoClose extends OpMode {
         Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,robot.hood1.getPosition());
         flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2, Values.flywheel_Values.flywheelTarget);
         methods.countBalls(robot.breakBeam,robot.breakBeam2,robot.breakBeam3,robot.breakBeam4);
-        methods.closeRapid(dist);
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
