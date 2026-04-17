@@ -224,7 +224,7 @@ public class autoClose extends OpMode {
                     if (pathTimer.getElapsedTimeSeconds()>6){
                         gate(3);
                     }
-                    setPathState(4);
+                    setPathState(6);
                 }break;
 //            case 100:
 //                move(true);
@@ -406,7 +406,7 @@ public class autoClose extends OpMode {
         Values.hoodPos = methods.hoodControl(follower,robot.flywheel1,robot.flywheel2);
         robot.hood1.setPosition(Values.hoodPos);
 
-        double turretEncoder = -robot.intake.getCurrentPosition();
+        double turretEncoder = robot.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, robot.ll);
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
@@ -455,7 +455,7 @@ public class autoClose extends OpMode {
     @Override
     public void init_loop() {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
-        double turretEncoder = -robot.intake.getCurrentPosition();
+        double turretEncoder = robot.intake.getCurrentPosition();
         robot.hood1.setPosition(1);
         Values.turretPos = methods.turretPID(turretEncoder, -8000);
         robot.turret1.setPosition(Values.turretPos);

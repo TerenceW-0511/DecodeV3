@@ -260,7 +260,7 @@ public class Teleop extends OpMode {
                 ///  Far rapid code
                 boolean atSpeed = rpmError < 70;
                 if (timer.getElapsedTimeSeconds()>0.2) {
-                    if (dist < 90) {
+                    if (dist < 100) {
                         setPowerIfChanged(hardware.intake, 1, "intake");
                         hardware.transfer.setPower(1);
                     } else {
