@@ -37,12 +37,12 @@ public class autoClose extends OpMode {
 
     private final Pose openGatePose2 = new Pose(11,63.5,Math.toRadians(155));
 
-    private final Pose scorePickup3Pose = new Pose(55.1,81.4,Math.toRadians(210));
+    private final Pose scorePickup3Pose = new Pose(57.1,83.4,Math.toRadians(210));
 
     private final Pose pickup2Pose = new Pose(18, 83.4, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
 //    private final Pose controlPickup2 = new Pose(46.5,60.7);
     private final Pose scorePickup4Pose = new Pose(57.2,77.4,Math.toRadians(180));
-    private final Pose pickup3Pose = new Pose(13, 35.8, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
+    private final Pose pickup3Pose = new Pose(13, 37.3, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup3 = new Pose(55.2,36.4);
 //    private final Pose controlPickup3_2 = new Pose(36,38);
 
@@ -150,7 +150,7 @@ public class autoClose extends OpMode {
             case 98:
                 robot.limiter.setPosition(Values.LIMITER_OPEN);
 //                move(false);
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.6){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.65){
                     if (outtake()) {
                         setPathState(1);
                     }
@@ -189,7 +189,7 @@ public class autoClose extends OpMode {
             case 99:
                 move(true);
                 if (!follower.isBusy()){
-                    if(readyToOuttake(0.2)){
+                    if(readyToOuttake(0.6)){
                         if (outtake()){
                             setPathState(3);
                         }
@@ -223,7 +223,7 @@ public class autoClose extends OpMode {
                 move(true);
                 follower.setMaxPower(1);
                 if (!follower.isBusy()) {
-                    if(readyToOuttake(0.2)){
+                    if(readyToOuttake(0.4)){
                         if (outtake()){
                             setPathState(5);
                         }
@@ -269,7 +269,7 @@ public class autoClose extends OpMode {
                 follower.setMaxPower(1);
                 if (!follower.isBusy()){
 
-                    if(readyToOuttake(0.2)){
+                    if(readyToOuttake(0.4)){
                         if (outtake()){
                             setPathState(9);
                         }
@@ -296,7 +296,7 @@ public class autoClose extends OpMode {
             case 102:
                 move(true);
                 if (!follower.isBusy()){
-                    if(readyToOuttake(0.2)){
+                    if(readyToOuttake(0.5)){
                         if (outtake()){
                             setPathState(11);
                         }
@@ -309,7 +309,7 @@ public class autoClose extends OpMode {
                     setPathState(12);
                 }break;
             case 12:
-                if (follower.getPathCompletion()>0.8){
+                if (follower.getPathCompletion()>0.6){
                     intake();
                 }
                 if (!follower.isBusy()){
@@ -319,7 +319,7 @@ public class autoClose extends OpMode {
             case 103:
                 move(true);
                 if (!follower.isBusy()){
-                    if(readyToOuttake(0.2)){
+                    if(readyToOuttake(0.5)){
                         if (outtake()){
                             setPathState(104);
                         }
