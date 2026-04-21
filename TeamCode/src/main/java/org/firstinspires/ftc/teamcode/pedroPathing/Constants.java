@@ -23,7 +23,7 @@ public class Constants {
 //            .translationalPIDFCoefficients(new PIDFCoefficients(.1,0.000001,0.01,0))
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.02,0))
 //            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.01,0,0,1,0))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.1,0.05870021079635862,0.002449644167067265));
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.1,0.05658798237235989,0.002559322193933381));
 
 
     public static PathConstraints pathConstraints = new PathConstraints(0.95, 50, 1.25, 1);

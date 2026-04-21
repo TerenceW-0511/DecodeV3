@@ -168,6 +168,7 @@ public class Teleop extends OpMode {
 
         switch(Values.mode) {
             case INTAKING:
+
                 if (Values.init && timer.getElapsedTimeSeconds()>0.4){
                     Values.init=false;
                 }
@@ -175,7 +176,7 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-//                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+//                Values.flywheel_Values.flywheelTarget = 100+Math.round(methods.flywheelControl(follower,hardware.hood1.getPosition())/100)*100;
 //                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter){
                     case 1:
@@ -296,7 +297,7 @@ public class Teleop extends OpMode {
 //        }
 //        hardware.flywheel1.setPower(1);
 //        hardware.flywheel2.setPower(1);
-        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+
 //        if (Values.mode== Values.Modes.SHOOTING){
 //            hardware.limiter.setPosition(Values.LIMITER_OPEN);
 //        }else if(Values.counter==3 && ){
@@ -304,6 +305,8 @@ public class Teleop extends OpMode {
 //        }else{
 //            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //        }
+        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
         double turretEncoder = hardware.intake.getCurrentPosition();
