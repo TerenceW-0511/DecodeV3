@@ -21,6 +21,8 @@ public class autoClose extends OpMode {
 
     private Methods intakePID,transferPID,flywheelPID,methods;
     private boolean followerDoneDelay = false;
+    private boolean keepShooting = false;
+    private Timer shootingTimer = new Timer();
     private int pathState;
     private final Pose startPose = new Pose(31, 134.5, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49.5, 102.5, Math.toRadians(270));
@@ -143,14 +145,14 @@ public class autoClose extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-
+                setTurretPos(16000);
                 follower.followPath(scorePreload);
                 setPathState(98);
                 break;
             case 98:
                 robot.limiter.setPosition(Values.LIMITER_OPEN);
 //                move(false);
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.65){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds()>1.6){
                     if (outtake()) {
                         setPathState(1);
                     }
@@ -158,7 +160,7 @@ public class autoClose extends OpMode {
                 break;
 
             case 1:
-                move(false);
+//                move(false);
                 if (!follower.isBusy()){
                     follower.followPath(grabPickup1);
                     setPathState(2);
@@ -173,7 +175,10 @@ public class autoClose extends OpMode {
             - Robot Position: "if(follower.getPose().getX() > 36) {}"
             */
                 if (follower.getPose().getY()<80){
+                    setTurretPos(6000);
                     intake();
+                }else{
+                    keepShoot();
                 }
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
@@ -210,6 +215,8 @@ public class autoClose extends OpMode {
             case 4:
                 if (follower.getPathCompletion()>0.5){
                     intake();
+                }else{
+                    keepShoot();
                 }
                 if (follower.getPathCompletion()>0.8){
                     follower.setMaxPower(0.5);
@@ -246,6 +253,8 @@ public class autoClose extends OpMode {
             case 6:
                 if (follower.getPathCompletion()>0.5){
                     intake();
+                }else{
+                    keepShoot();
                 }
                 if (follower.getPathCompletion()>0.8){
                     follower.setMaxPower(0.5);
@@ -289,6 +298,7 @@ public class autoClose extends OpMode {
                 }break;
             case 10:
                 intake();
+                setTurretPos(4000);
                 if (!follower.isBusy()){
                     follower.followPath(scorePickup4);
                     setPathState(102);
@@ -296,7 +306,7 @@ public class autoClose extends OpMode {
             case 102:
                 move(true);
                 if (!follower.isBusy()){
-                    if(readyToOuttake(0.5)){
+                    if(readyToOuttake(0.4)){
                         if (outtake()){
                             setPathState(11);
                         }
@@ -311,6 +321,7 @@ public class autoClose extends OpMode {
             case 12:
                 if (follower.getPathCompletion()>0.6){
                     intake();
+                    setTurretPos(5000);
                 }
                 if (!follower.isBusy()){
                     follower.followPath(ScorePickup5);
@@ -363,6 +374,17 @@ public class autoClose extends OpMode {
         }
     }
 
+    public void keepShoot(){
+        if (Values.counter!=0) {
+            robot.limiter.setPosition(Values.LIMITER_OPEN);
+        }else{
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+        }
+        robot.intake.setPower(1);
+        robot.transfer.setPower(1);
+
+    }
+
     public void move(boolean intake){
 //        if (follower.getPathCompletion()>0.7){
 //            robot.limiter.setPosition(Values.LIMITER_OPEN);
@@ -379,12 +401,12 @@ public class autoClose extends OpMode {
 //        }
 
         if (intake){
-            if (follower.getPathCompletion()>0.7){
+            if (follower.getPathCompletion()>0.7 ){
                 robot.limiter.setPosition(Values.LIMITER_OPEN);
             }else{
                 robot.limiter.setPosition(Values.LIMITER_CLOSE);
             }
-            if (follower.getPathCompletion()<.2){
+            if (follower.getPathCompletion()<.7){
                 robot.intake.setPower(1);
                 robot.transfer.setPower(0.8);
             }else{
@@ -398,6 +420,9 @@ public class autoClose extends OpMode {
 
         }
     }
+    public void setTurretPos(double pos){
+        Values.turretPos = pos;
+    }
     public boolean outtake(){
         ;
         double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
@@ -406,6 +431,12 @@ public class autoClose extends OpMode {
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
         }
+        if (Values.counter<Values.oldcounter || Values.counter==1){
+            keepShooting=true;
+            shootingTimer.resetTimer();
+            return true;
+        }
+        Values.counter=Values.oldcounter;
         return Values.counter==0;
     }
 
@@ -480,6 +511,7 @@ public class autoClose extends OpMode {
         followerDoneTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        shootingTimer = new Timer();
 
 
         robot = new Hardware(hardwareMap);
@@ -504,7 +536,7 @@ public class autoClose extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = robot.intake.getCurrentPosition();
         robot.hood1.setPosition(1);
-        Values.turretPos = methods.turretPID(turretEncoder, -8000);
+//        Values.turretPos = methods.turretPID(turretEncoder, -8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
 
