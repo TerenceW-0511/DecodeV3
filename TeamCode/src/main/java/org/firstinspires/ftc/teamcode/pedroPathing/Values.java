@@ -74,7 +74,7 @@ public class Values {
     }
     public static int oldcounter = 0;
     public static final double TURRET_RIGHT = 0;
-    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.5;
+    public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
     public static double offsetAngle=0,txRaw=0,tx = 0, llOffset = 0;

@@ -176,6 +176,13 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
+                if (pose.getY()<20){
+                    Values.flywheel_Values.flywheelTarget = 2100;
+                }else if (pose.getY()<100){
+                    Values.flywheel_Values.flywheelTarget=1900;
+                }else{
+                    Values.flywheel_Values.flywheelTarget=1400;
+                }
 //                Values.flywheel_Values.flywheelTarget = 100+Math.round(methods.flywheelControl(follower,hardware.hood1.getPosition())/100)*100;
 //                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter){
@@ -216,6 +223,8 @@ public class Teleop extends OpMode {
                 }
                 break;
             case SHOOTING:
+                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
                 if (rpmError > 80){
@@ -223,39 +232,6 @@ public class Teleop extends OpMode {
                 }else{
                     hardware.led.setPosition(0.444); //green
                 }
-//&& timer.getElapsedTimeSeconds() > 0.15
-                if (Values.oldcounter < Values.counter){
-//                    Values.flywheel_Values.flywheelTarget = methods.rpmComp(dist);
-//                    Values.flywheel_Values.flywheelTarget = newtarget;
-                }
-                Values.oldcounter=Values.counter;
-
-//                if (Values.counter==0){
-//                    Values.mode = Values.Modes.INTAKING;
-//                }
-//                if (dist>90){
-//                    hardware.transfer.setPower(0.5);
-//                    hardware.intake.setPower(0.5);
-//              }
-//                if (dist>120 && gamepad1.atRest()){
-//                    follower.holdPoint(follower.getPose(),true);
-//                }
-
-
-//                if (timer.getElapsedTimeSeconds()>0.15) {
-//                    setPowerIfChanged(hardware.intake, 1, "intake");
-//                    hardware.transfer.setPower(1);
-//                }
-                /// "just increase the threshold :/"
-//                boolean atSpeed = rpmError < 200;
-//                if (atSpeed && timer.getElapsedTimeSeconds() > 0.15) {
-//                    setPowerIfChanged(hardware.intake, 1, "intake");
-//                    hardware.transfer.setPower(1);
-//
-//                }else if (dist>110){
-//                    setPowerIfChanged(hardware.intake,0,"intake");
-//                    hardware.transfer.setPower(0);
-//                }
 
 
                 ///  Far rapid code
@@ -305,7 +281,6 @@ public class Teleop extends OpMode {
 //        }else{
 //            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //        }
-        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
 
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
