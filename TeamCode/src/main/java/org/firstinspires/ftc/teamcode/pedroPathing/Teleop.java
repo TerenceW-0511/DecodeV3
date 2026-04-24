@@ -7,6 +7,7 @@ import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.MathFunctions;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,6 +20,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Config
 @TeleOp(name = "Teleop", group = "Teleop")
@@ -46,6 +48,7 @@ public class Teleop extends OpMode {
     private double largestError = 0;
     private boolean changed = false;
     Values.Team lastTeam;
+    List<LynxModule> allHubs;
 
     PIDFController pidf = new PIDFController(0,0,0,0);
 //    public static double p,i,d,f;
@@ -67,6 +70,10 @@ public class Teleop extends OpMode {
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,Values.autonHeading));
         follower.update();
+        allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
     }
     @Override
     public void init_loop(){
@@ -83,6 +90,9 @@ public class Teleop extends OpMode {
 
     @Override
     public void loop() {
+        for (LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
         follower.update();
 
 //        Values.autonFollowerX = follower.getPose().getX();
@@ -113,7 +123,7 @@ public class Teleop extends OpMode {
             Values.counter = 0;
         }
         if ((gamepad1.rightBumperWasPressed() && Values.mode == Values.Modes. INTAKING)){
-            hardware.ll.reloadPipeline();
+
             Values.init=true;
             Values.mode = Values.Modes.SHOOTING;
             Values.rumble=false;
@@ -176,12 +186,12 @@ public class Teleop extends OpMode {
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-                if (pose.getY()<20){
-                    Values.flywheel_Values.flywheelTarget = 2100;
-                }else if (pose.getY()<100){
+                if (dist<50){
+                    Values.flywheel_Values.flywheelTarget = 1400;
+                }else if (dist<120){
                     Values.flywheel_Values.flywheelTarget=1900;
                 }else{
-                    Values.flywheel_Values.flywheelTarget=1400;
+                    Values.flywheel_Values.flywheelTarget=2100;
                 }
 //                Values.flywheel_Values.flywheelTarget = 100+Math.round(methods.flywheelControl(follower,hardware.hood1.getPosition())/100)*100;
 //                Values.flywheel_Values.flywheelTarget=target;
@@ -223,7 +233,7 @@ public class Teleop extends OpMode {
                 }
                 break;
             case SHOOTING:
-                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,hardware.hood1.getPosition());
+                Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,Values.hoodPos);
 
                 double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
@@ -289,16 +299,14 @@ public class Teleop extends OpMode {
         double targetTurret = methods.AutoAim(follower, hardware.ll);
 //        double targetTurret=target;
 
-        TelemetryPacket packet = new TelemetryPacket();
-        packet.put("Turret Target", targetTurret);
-        packet.put("Turret Current", turretEncoder);
-        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
-        packet.put("curr vel", flywheelVel1);
-        packet.put("curr dist", dist);
-        packet.put("pwr",hardware.flywheel1.getPower() );
-        packet.put("error",rpmError);
-        packet.put("transfer pwr",hardware.transfer.getPower());
-        dashboard.sendTelemetryPacket(packet);
+//        TelemetryPacket packet = new TelemetryPacket();
+//        packet.put("Turret Target", targetTurret);
+//        packet.put("Turret Current", turretEncoder);
+//        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
+//        packet.put("curr vel", flywheelVel1);
+//        packet.put("curr dist", dist);
+//        packet.put("error",rpmError);
+//        dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;
         Values.turretOverride -= gamepad1.right_trigger * 500;
