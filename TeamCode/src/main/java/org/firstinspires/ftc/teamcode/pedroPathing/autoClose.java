@@ -461,11 +461,10 @@ public class autoClose extends OpMode {
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
         }
-//        if (Values.counter<Values.oldcounter){
-//            shootingTimer.resetTimer();
-//            return true;
-//        }
-//        Values.oldcounter=Values.counter;
+        if (Values.counter<Values.oldcounter && Values.counter==1){
+            return true;
+        }
+        Values.oldcounter=Values.counter;
         return Values.counter==0;
     }
 

@@ -540,13 +540,13 @@ public class Methods {
             Values.counter--;
         }
         //hard count to 3
-        if (currentintake&& currentoutake&&Values.frameCountBlocked>8 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
+        if (currentintake&& currentoutake&&Values.frameCountBlocked>8 && Values.frameCountBlockedTop>8 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
         }
 //        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
 //            Values.counter=2;
 //        }
-        if (!currentintake && !currentoutake && Values.frameCountUnblocked>10 && Values.frameCountUnblockedTop>10){
+        if (!currentintake && !currentoutake && Values.frameCountUnblocked>8 && Values.frameCountUnblockedTop>8){
             Values.counter=0;
         }
         if (Values.counter==3){
