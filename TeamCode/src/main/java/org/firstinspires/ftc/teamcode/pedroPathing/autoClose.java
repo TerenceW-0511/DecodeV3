@@ -4,6 +4,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
@@ -14,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import java.util.List;
 
-@Autonomous(name = "Blue 18", group = "Blue")
+@Autonomous(name = "Blue 21", group = "Blue")
 public class autoClose extends OpMode {
 
     private Follower follower;
@@ -30,7 +31,8 @@ public class autoClose extends OpMode {
     private double targetTurret;
     private final Pose startPose = new Pose(31, 134.5, Math.toRadians(270)); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49.5, 102.5, Math.toRadians(265));
-    private final Pose pickup1Pose = new Pose(12, 57.7, Math.toRadians(180)); // -140 Highest (First  Set) of Artifacts from the Spike Mark.
+    private final Pose toPickup1 = new Pose(41.6,60.7);
+    private final Pose pickup1Pose = new Pose(12, 60.7, Math.toRadians(180)); // -140 Highest (First  Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup1 = new Pose(46,63.9);
 //    private final Pose controlPickup1_2 = new Po\e(39.6,69.6);
 
@@ -39,13 +41,13 @@ public class autoClose extends OpMode {
     private final Pose openGatePose = new Pose(16,70,Math.toRadians(180));
     private final Pose controlGate = new Pose(35.7,70);
     private final Pose gateBackPose = new Pose(11,55,Math.toRadians(160));
-    private final double rotDeg = Math.toRadians(120);
+    private final double rotDeg = Math.toRadians(140);
 //    private final Pose controlGate = new Pose(29.2,65.2);
 
 
 
 
-    private final Pose pickup2Pose = new Pose(14, 86.4, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
+    private final Pose pickup2Pose = new Pose(16, 86.4, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
 //    private final Pose controlPickup2 = new Pose(46.5,60.7);
 
 
@@ -69,10 +71,25 @@ public class autoClose extends OpMode {
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePose, controlPickup1,pickup1Pose))
-                .setTangentHeadingInterpolation()
+                .addPath(new BezierCurve(scorePose, controlPickup1,toPickup1))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        0.8,
+                                        HeadingInterpolator.linear(scorePose.getHeading(),pickup1Pose.getHeading())),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.6,
+                                        1,
+                                        HeadingInterpolator.tangent
+                                )
 
+                                )
+                        )
+                .addPath(new BezierLine(toPickup1,pickup1Pose))
+                .setTangentHeadingInterpolation()
                 .build();
+
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup1 = follower.pathBuilder()
@@ -132,7 +149,7 @@ public class autoClose extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                setTurretPos(-12500);
+                setTurretPos(-12400);
                 follower.followPath(scorePreload);
                 setPathState(1);
                 break;
@@ -162,7 +179,7 @@ public class autoClose extends OpMode {
             - Robot Position: "if(follower.getPose().getX() > 36) {}"
             */
                 if (follower.getPose().getY()<80){
-                    setTurretPos(-8100);
+                    setTurretPos(-7000);
                     intake();
                 }
 
@@ -209,7 +226,7 @@ public class autoClose extends OpMode {
                 break;
             case 200:
                 if (follower.getPathCompletion()>0.7){
-                    setTurretPos(-8500);
+                    setTurretPos(-8100);
 
                 }
                 if (!follower.isBusy()){
@@ -227,7 +244,7 @@ public class autoClose extends OpMode {
             case 7:
                 move(true);
                 if (!follower.isBusy()) {
-                    if (outtake()){
+                    if (instantOuttake()){
                         setPathState(8);
                     }
 
@@ -264,7 +281,7 @@ public class autoClose extends OpMode {
             case 10:
                 move(true);
                 if (!follower.isBusy()) {
-                    if (outtake()){
+                    if (instantOuttake()){
                         setPathState(11);
                     }
 
@@ -282,7 +299,7 @@ public class autoClose extends OpMode {
                 }
                 if (follower.getPathCompletion()>0.9){
                     follower.followPath(gateBack);
-                    setPathState(203);
+                    setPathState(202);
                 }
                 break;
             case 202:
@@ -302,7 +319,7 @@ public class autoClose extends OpMode {
             case 13:
                 move(true);
                 if (!follower.isBusy()) {
-                    if (outtake()){
+                    if (instantOuttake()){
                         setPathState(14);
                     }
 
@@ -355,7 +372,7 @@ public class autoClose extends OpMode {
             case 18:
                 if (follower.getPathCompletion()>0.3) {
                     intake();
-                    setTurretPos(-6800);
+                    setTurretPos(-6400);
                 }
                 if (!follower.isBusy()){
                     follower.followPath(scorePickup4);
@@ -473,12 +490,7 @@ public class autoClose extends OpMode {
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
         }
-        if (Values.counter<Values.oldcounter || Values.counter==1){
-            shootingTimer.resetTimer();
-            return true;
-        }
-        Values.counter=Values.oldcounter;
-        return Values.counter==0;
+        return true;
     }
 
     public boolean readyToOuttake(double delay) {
@@ -579,7 +591,7 @@ public class autoClose extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = robot.intake.getCurrentPosition();
         robot.hood1.setPosition(1);
-        Values.turretPos = methods.turretPID(turretEncoder, -12800);
+        Values.turretPos = methods.turretPID(turretEncoder, -12400);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
 

@@ -3,12 +3,15 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
+import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import java.security.UnrecoverableEntryException;
 
 @Autonomous(name = "Far Blue", group = "Blue")
 public class autoFar extends OpMode {
@@ -17,225 +20,181 @@ public class autoFar extends OpMode {
     private int pathState;
     private Methods intakePID,transferPID,flywheelPID,methods;
     private Hardware robot;
+    private double targetTurret;
+    private double rpmError = 0;
 
 
-    private final Pose startPose = new Pose(57.5, 6.7, Math.toRadians(180)); // Start Pose of our robot.
-    private final Pose GrabPlayerZone = new Pose(10.325581395348829, 7, Math.toRadians(180)); // Scoring Pose of our robot. It is facing the goal at a 135 degree angle.
-
-    private final Pose regrabPlayer = new Pose(10.4,12,Math.toRadians(180));
-    private final Pose controlRetry = new Pose(24.6,9.3);
-    private final Pose ScorePlayerZone = new Pose(58.527906976744184, 15.406976744186043, Math.toRadians(180)); // Highest (First Set) of Artifacts from the Spike Mark.
-    private final Pose GrabLastChain = new Pose(10, 37.06976744186046, Math.toRadians(180)); // Middle (Second Set) of Artifacts from the Spike Mark.
-    private final Pose ControlToGrabLastChain = new Pose(55.06976744186045, 37.77906976744185); // Lowest (Third Set) of Artifacts from the Spike Mark.
-
-    private final Pose ScoreLastChain = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-
-    private final Pose GrabPlayerZone2 = new Pose(10.3, 13, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-//    private final Pose regrabPlayer2 = new Pose(10,14,Math.toRadians(180));
-//    private final Pose controlRetry2 = new Pose(25,10.9);
-    private final Pose ScorePlayerZone2 = new Pose(49.4, 8.5, Math.toRadians(180)); // Lowest (Third Set) of Artifacts from the Spike Mark.
-    private final Pose leave = new Pose(37.1,8.5);
+    private final Pose startPose = new Pose(57.3, 6.5, Math.toRadians(180)); // Start Pose of our robot.
+    private final Pose shootPreloadPose = new Pose(50,8.6,Math.toRadians(180));
+    private final Pose grabPose1 = new Pose(9.5,8.6,Math.toRadians(180));
+    private final Pose scorePose1 = new Pose(56.7,16.6,Math.toRadians(190));
+    private final Pose grabPose2 = new Pose(16.5,35.2,Math.toRadians(180));
+    private final Pose controlPickup2 = new Pose(54.8,36);
+    private final Pose scorePose2 = new Pose(50,8.6,Math.toRadians(142));
 
     //    private Path scorePreload;
     private Path grabPlayer;
-    private PathChain Retry,ScorePlayer, GrabLast, ScoreLast, GrabPlayer2,Retry2, Scoreplayer2,GrabTunnel3,ScoreTunnel3,Leave;
+    private PathChain shootPreload,grabBack,scoreBack,grabSecond,scoreSecond;
 
     public void buildPaths() {
 //        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //        scorePreload = new Path(new BezierLine(startPose, GrabPlayerZone));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), GrabPlayerZone.getHeading());
-        grabPlayer = new Path(new BezierLine(startPose, GrabPlayerZone));
-        grabPlayer.setLinearHeadingInterpolation(startPose.getHeading(), GrabPlayerZone.getHeading());
+        shootPreload = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, shootPreloadPose))
+                .setConstantHeadingInterpolation(shootPreloadPose.getHeading())
+                .build();
+        grabBack = follower.pathBuilder()
+                .addPath(new BezierLine(shootPreloadPose, grabPose1))
+                .setTangentHeadingInterpolation()
+                .build();
+        scoreBack = follower.pathBuilder()
+                .addPath(new BezierLine(grabPose1, scorePose1))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+        grabSecond = follower.pathBuilder()
+                .addPath(new BezierCurve(scorePose1, controlPickup2,grabPose2))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        0.5,
+                                        HeadingInterpolator.linear(scorePose1.getHeading(),grabPose2.getHeading())),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.5,
+                                        1,
+                                        HeadingInterpolator.tangent
+                                )
+                        )
+                )
+                .build();
+        scoreSecond = follower.pathBuilder()
+                .addPath(new BezierLine(grabPose2, scorePose2))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+
+
+
+
     /* Here is an example for Constant Interpolation
     scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
-        Retry = follower.pathBuilder()
-                .addPath(new BezierCurve(GrabPlayerZone,controlRetry,regrabPlayer))
-                .setConstantHeadingInterpolation(regrabPlayer.getHeading())
-                .build();
 
-        /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        ScorePlayer = follower.pathBuilder()
-                .addPath(new BezierLine(regrabPlayer, ScorePlayerZone))
-                .setTangentHeadingInterpolation()
-                .setReversed()
-                .build();
-
-
-
-        /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        GrabLast = follower.pathBuilder()
-                .addPath(new BezierCurve(ScorePlayerZone, ControlToGrabLastChain,GrabLastChain))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        ScoreLast = follower.pathBuilder()
-                .addPath(new BezierLine(GrabLastChain, ScoreLastChain))
-                .setConstantHeadingInterpolation(ScoreLastChain.getHeading())
-                .build();
-
-        /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        GrabPlayer2 = follower.pathBuilder()
-                .addPath(new BezierLine(ScoreLastChain, GrabPlayerZone2))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        GrabTunnel3 = follower.pathBuilder()
-                .addPath(new BezierCurve(ScorePlayerZone2,ControlToGrabLastChain,GrabLastChain))
-                .setTangentHeadingInterpolation()
-                .build();
-
-        ScoreTunnel3 = follower.pathBuilder()
-                .addPath(new BezierLine(GrabLastChain,ScorePlayerZone2))
-                .setConstantHeadingInterpolation(ScorePlayerZone2.getHeading())
-                .build();
-
-
-//        Retry2 = follower.pathBuilder()
-//                .addPath(new BezierCurve(GrabPlayerZone2,controlRetry2,regrabPlayer2))
-//                .setConstantHeadingInterpolation(regrabPlayer2.getHeading())
-//                .build();
-
-        /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        Scoreplayer2 = follower.pathBuilder()
-                .addPath(new BezierLine(GrabPlayerZone2, ScorePlayerZone2))
-                .setTangentHeadingInterpolation()
-                .setReversed()
-                .build();
-
-        Leave =  follower.pathBuilder()
-                .addPath(new BezierLine(ScorePlayerZone2,leave))
-                .setTangentHeadingInterpolation()
-                .build();
     }
 
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                if (outtake(1,2.5)){
-                    setPathState(1);
-                }
+                setTurretPos(-8000);
+                follower.followPath(shootPreload);
+                nextPath();
                 break;
             case 1:
-                follower.followPath(grabPlayer);
-                setPathState(2);
+                robot.limiter.setPosition(Values.LIMITER_OPEN);
+                if (!follower.isBusy() && rpmError<40){
+                    if (outtake()){
+                        nextPath();
+                    }
+                }
                 break;
             case 2:
-                if (follower.getPathCompletion()>0.5){
-                    intake();
-                }
-                if (!follower.isBusy()){
-                    follower.followPath(Retry);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                intake();
-                if (!follower.isBusy()) {
-                    follower.followPath(ScorePlayer);
-                    setPathState(4);
-                }break;
-            case 4:
-                move(true);
-                if (!follower.isBusy()) {
-                    if (outtake(1, 2.5)) {
-                        setPathState(5);
-                    }
-                }break;
-            case 5:
-                move(false);
-                if (!follower.isBusy()){
-                    follower.followPath(GrabLast);
-                    setPathState(6);
-                }break;
-            case 6:
-                if (follower.getPathCompletion()>0.5){
-                    intake();
-                }
-                if (!follower.isBusy()){
-                    follower.followPath(ScoreLast);
-                    setPathState(7);
-                }break;
-            case 7:
-                move(true);
-                if (!follower.isBusy()){
-                    if (outtake(1,2.5)){
-                        setPathState(8);
-                    }
-                }break;
             case 8:
-                move(false);
+            case 11:
+            case 14:
+            case 17:
+            case 20:
                 if (!follower.isBusy()){
-                    follower.followPath(GrabPlayer2);
+                    follower.followPath(grabBack);
+                    nextPath();
+                }break;
+            case 3:
+            case 9:
+            case 12:
+            case 15:
+            case 18:
+            case 21:
+                if (follower.getPathCompletion()>0.5){
+                    setTurretPos(-8000);
+                    intake();
+                }
+                if (!follower.isBusy()){
+                    follower.followPath(scoreBack);
                     nextPath();
                 }
                 break;
-            case 9:
-                if (follower.getPathCompletion()>0.5) {
-                    intake();
-                }
-                if (!follower.isBusy()) {
-                    follower.followPath(Scoreplayer2);
-                    nextPath();
-                }break;
+            case 4:
+            case 7:
             case 10:
-            case 14:
-//                intake();
-//                if (!follower.isBusy()) {
-//                    follower.followPath(Scoreplayer2);
-//                    nextPath();
-//                }
-                nextPath();
-            case 11:
-            case 15:
+            case 13:
+            case 16:
+            case 19:
+            case 22:
                 move(true);
                 if (!follower.isBusy()){
-                    if (outtake(1,2.5)){
+                    if (outtake()){
                         nextPath();
                     }
                 }break;
-            case 12:
-                move(false);
+            case 5:
+                follower.followPath(grabSecond);
+                nextPath();
+                break;
+            case 6:
+                if (follower.getPathCompletion()>0.5){
+                    setTurretPos(-8000);
+                    intake();
+                }
                 if (!follower.isBusy()){
-                    follower.followPath(GrabTunnel3);
+                    follower.followPath(scoreSecond);
                     nextPath();
                 }
                 break;
-            case 13:
-                if (follower.getPathCompletion()>0.5) {
-                    intake();
-                }
-                if (!follower.isBusy()) {
-                    follower.followPath(ScoreTunnel3);
-                    nextPath();
-                }break;
-            case 16:
-                move(false);
-                if (!follower.isBusy()){
-                    follower.followPath(Leave);
-                    setPathState(17);
-                }
-
-
-
 
 
         }
     }
+
     public void intake(){
-        follower.setMaxPower(0.4);
+//        follower.setMaxPower(0.4);
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         robot.intake.setPower(1);
-        robot.transfer.setPower(.8);
-
+        if (Values.frameCountBlockedTop>10){
+            robot.transfer.setPower(0);
+        }else {
+            robot.transfer.setPower(1);
+        }
     }
 
-    public void gate(){
-        follower.setMaxPower(1);
-        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+    //    public void gate(){
+//        follower.setMaxPower(1);
+//        robot.limiter.setPosition(Values.LIMITER_CLOSE);
+//        robot.intake.setPower(1);
+//        robot.transfer.setPower(.8);
+//    }
+    public void gate(double time){
+        if (pathTimer.getElapsedTimeSeconds() < time) {
+            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+            robot.intake.setPower(1);
+            if (Values.frameCountBlockedTop>10){
+                robot.transfer.setPower(0);
+            }else {
+                robot.transfer.setPower(1);
+            }
+        }
+    }
+
+    public void keepShoot(){
+        robot.limiter.setPosition(Values.LIMITER_OPEN);
+//        if (Values.counter!=0) {
+//            robot.limiter.setPosition(Values.LIMITER_OPEN);
+//        }else{
+//            robot.limiter.setPosition(Values.LIMITER_CLOSE);
+//        }
         robot.intake.setPower(1);
-        robot.transfer.setPower(.8);
+        robot.transfer.setPower(1);
+
     }
 
     public void move(boolean intake){
@@ -254,12 +213,12 @@ public class autoFar extends OpMode {
 //        }
 
         if (intake){
-            if (follower.getPathCompletion()>0.7){
+            if (follower.getPathCompletion()>0.2){
                 robot.limiter.setPosition(Values.LIMITER_OPEN);
             }else{
                 robot.limiter.setPosition(Values.LIMITER_CLOSE);
             }
-            if (follower.getPathCompletion()<.2){
+            if (follower.getPathCompletion()<.1){
                 robot.intake.setPower(1);
                 robot.transfer.setPower(0.8);
             }else{
@@ -273,18 +232,26 @@ public class autoFar extends OpMode {
 
         }
     }
-    public boolean outtake(double wait,double time){
-
-        double avgFlywheel = (robot.flywheel1.getVelocity() + robot.flywheel2.getVelocity()) / 2.0;
-        double rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
-        if (pathTimer.getElapsedTimeSeconds()>wait && rpmError<70) {
+    public void setTurretPos(double pos){
+        targetTurret = pos;
+    }
+    public boolean outtake(){
+        if (rpmError<40){
             robot.intake.setPower(1);
             robot.transfer.setPower(1);
         }else{
             robot.intake.setPower(0);
             robot.transfer.setPower(0);
         }
-        return pathTimer.getElapsedTimeSeconds() > time+1;
+        return Values.counter==0;
+    }
+
+    public boolean instantOuttake(){
+        if (Values.counter!=0) {
+            robot.intake.setPower(1);
+            robot.transfer.setPower(1);
+        }
+        return true;
     }
 
     /**
@@ -318,11 +285,15 @@ public class autoFar extends OpMode {
 
         double turretEncoder = -robot.intake.getCurrentPosition();
 
-        double targetTurret = methods.AutoAim(follower, robot.ll);
+//        double targetTurret = methods.AutoAim(follower, robot.ll);
         Values.turretPos = methods.turretPID(turretEncoder, targetTurret + Values.turretOverride);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
 
+        double flywheelVel1 = robot.flywheel1.getVelocity();
+        double flywheelVel2 = robot.flywheel2.getVelocity();
+        double avgFlywheel = (flywheelVel1 + flywheelVel2) / 2.0;
+        rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
         Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,robot.hood1.getPosition());
         flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2, Values.flywheel_Values.flywheelTarget);
 
@@ -342,6 +313,7 @@ public class autoFar extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+        Values.farCoded=true;
 
         robot = new Hardware(hardwareMap);
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

@@ -8,6 +8,7 @@ import com.pedropathing.math.MathFunctions;
 import com.pedropathing.util.Timer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -156,6 +157,9 @@ public class Teleop extends OpMode {
                 Values.team=Values.Team.RED;
                 }
         }
+        if (gamepad1.xWasPressed()){
+            Values.farCoded = !Values.farCoded;
+        }
 
 
 //        if (gamepad1.dpadUpWasPressed()){
@@ -163,14 +167,19 @@ public class Teleop extends OpMode {
 //        }else if (gamepad1.dpadDownWasPressed()){
 //            Values.flywheel_Values.flywheelTarget-=20;
 //        }
-//
+
 //        if (gamepad1.aWasPressed()){
 //            Values.hoodPos += 0.02;
 //        }else if (gamepad1.yWasPressed()){
 //            Values.hoodPos -=0.02;
 //        }
-        Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+        if (Values.farCoded){
+            Values.hoodPos = 0.24;
+        }else {
+            Values.hoodPos = methods.hoodControl(follower,hardware.flywheel1,hardware.flywheel2);
+        }
         hardware.hood1.setPosition(Values.hoodPos);
+
 //        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
 //        hardware.hood1.setPosition(hood+k*rpme);
         methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4);
@@ -179,23 +188,27 @@ public class Teleop extends OpMode {
         switch(Values.mode) {
             case INTAKING:
 
-                if (Values.init && timer.getElapsedTimeSeconds()>0.4){
-                    Values.init=false;
+                if (Values.init && timer.getElapsedTimeSeconds() > 0.4) {
+                    Values.init = false;
                 }
 //                hardware.led.setPosi  tion(0.333); //orange=
 //                if (timer.getElapsedTimeSeconds()>0.1) {
 //                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //                }
-                if (dist<50){
-                    Values.flywheel_Values.flywheelTarget = 1400;
-                }else if (dist<120){
-                    Values.flywheel_Values.flywheelTarget=1900;
+                if (!Values.farCoded) {
+                    if (dist < 50) {
+                        Values.flywheel_Values.flywheelTarget = 1400;
+                    } else if (dist < 120) {
+                        Values.flywheel_Values.flywheelTarget = 1900;
+                    } else {
+                        Values.flywheel_Values.flywheelTarget = 2100;
+                    }
                 }else{
-                    Values.flywheel_Values.flywheelTarget=2100;
+                    Values.flywheel_Values.flywheelTarget = 2000;
                 }
 //                Values.flywheel_Values.flywheelTarget = 100+Math.round(methods.flywheelControl(follower,hardware.hood1.getPosition())/100)*100;
 //                Values.flywheel_Values.flywheelTarget=target;
-                switch (Values.counter){
+                switch (Values.counter) {
                     case 1:
                         hardware.led.setPosition(0.3);
                         break;
@@ -207,46 +220,47 @@ public class Teleop extends OpMode {
                             gamepad1.rumble(200);
 
                         }
-                        Values.rumble=true;
+                        Values.rumble = true;
                         hardware.led.setPosition(0.5);
                         break;
                     default:
                         hardware.led.setPosition(1);
                         break;
                 }
-                if (timer.getElapsedTimeSeconds()>0.15){
+                if (timer.getElapsedTimeSeconds() > 0.15) {
                     hardware.limiter.setPosition(Values.LIMITER_CLOSE);
                 }
 
                 if (gamepad1.left_bumper) {
 
                     setPowerIfChanged(hardware.intake, 1, "intake");
-                    if (Values.frameCountBlockedTop<10) {
+                    if (Values.frameCountBlockedTop < 10) {
                         hardware.transfer.setPower(.6);
-                    }else{
+                    } else {
                         hardware.transfer.setPower(0);
                     }
-                }else {
+                } else {
 //                    hardware.limiter.setPosition(Values.LIMITER_OPEN);
-                    setPowerIfChanged(hardware.intake,  0, "intake");
+                    setPowerIfChanged(hardware.intake, 0, "intake");
                     hardware.transfer.setPower(0);
                 }
                 break;
             case SHOOTING:
                 Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,Values.hoodPos);
 
-                double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
+                double rpmError = Math.abs((flywheelVel1 + flywheelVel2) / 2 - Values.flywheel_Values.flywheelTarget);
                 hardware.limiter.setPosition(Values.LIMITER_OPEN);
-                if (rpmError > 80){
+                if (rpmError > 80) {
                     hardware.led.setPosition(0.722); //purple
-                }else{
+                } else {
                     hardware.led.setPosition(0.444); //green
                 }
 
 
                 ///  Far rapid code
-                boolean atSpeed = rpmError < 70;
-                if (timer.getElapsedTimeSeconds()>0.2) {
+                if (timer.getElapsedTimeSeconds() > 0.2) {
+                    boolean atSpeed = rpmError < 50;
+
                     if (dist < 100) {
                         setPowerIfChanged(hardware.intake, 1, "intake");
                         hardware.transfer.setPower(1);
@@ -254,12 +268,14 @@ public class Teleop extends OpMode {
                         if (atSpeed) {
                             setPowerIfChanged(hardware.intake, 1, "intake");
                             hardware.transfer.setPower(1);
-                        }else{
+                        } else {
                             setPowerIfChanged(hardware.intake, -0.02, "intake");
                             hardware.transfer.setPower(-0.02);
                         }
                     }
+
                 }
+
 //
 //
 
@@ -291,7 +307,7 @@ public class Teleop extends OpMode {
 //        }else{
 //            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //        }
-
+//        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,Values.hoodPos);
         flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
         double turretEncoder = hardware.intake.getCurrentPosition();
