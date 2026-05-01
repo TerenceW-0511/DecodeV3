@@ -25,23 +25,23 @@ public class autoCloseRed extends OpMode {
 
     private Methods intakePID,transferPID,flywheelPID,methods;
     private boolean followerDoneDelay = false;
-    private double rpmError = 0;
+    private double curr=0,rpmError = 0;
     private Timer shootingTimer = new Timer();
     private int pathState;
     private double targetTurret;
-    private final Pose startPose = new Pose(31, 134.5, Math.toRadians(270)).mirror(); // Start Pose of our robot.
+    private final Pose startPose = new Pose(33, 134.5, Math.toRadians(270)).mirror(); // Start Pose of our robot.
     private final Pose scorePose = new Pose(49.5, 102.5, Math.toRadians(265)).mirror();
-    private final Pose toPickup1 = new Pose(41.6,60.7).mirror();
+    private final Pose toPickup1 = new Pose(41.6,  60.7).mirror();
     private final Pose pickup1Pose = new Pose(12, 60.7, Math.toRadians(180)).mirror(); // -140 Highest (First  Set) of Artifacts from the Spike Mark.
     private final Pose controlPickup1 = new Pose(46,63.9).mirror();
 //    private final Pose controlPickup1_2 = new Po\e(39.6,69.6);
 
-    private final Pose scorePoses = new Pose(54.6,75,Math.toRadians(210)).mirror();
+    private final Pose scorePoses = new Pose(54.6,80,Math.toRadians(210)).mirror();
 
     private final Pose openGatePose = new Pose(16,70,Math.toRadians(180)).mirror();
     private final Pose controlGate = new Pose(35.7,70).mirror();
     private final Pose gateBackPose = new Pose(11,55,Math.toRadians(160)).mirror();
-    private final double rotDeg = Math.toRadians(220);
+    private final double rotDeg = Math.toRadians(40);
 //    private final Pose controlGate = new Pose(29.2,65.2);
 
 
@@ -108,7 +108,7 @@ public class autoCloseRed extends OpMode {
         gateBack = follower.pathBuilder()
                 .addPath(new BezierLine(openGatePose,gateBackPose))
                 .setLinearHeadingInterpolation(openGatePose.getHeading(), gateBackPose.getHeading())
-                .setTranslationalConstraint(2)
+//                .setTranslationalConstraint(2)
                 .setHeadingConstraint(0.5)
                 .build();
 
@@ -120,6 +120,8 @@ public class autoCloseRed extends OpMode {
         scoreGates = follower.pathBuilder()
                 .addPath(new BezierLine(gateBackPose, scorePoses))
                 .setConstantHeadingInterpolation(scorePoses.getHeading())
+                .setTranslationalConstraint(0.5)
+                .setHeadingConstraint(0.01)
                 .build();
 
 
@@ -179,7 +181,7 @@ public class autoCloseRed extends OpMode {
             - Robot Position: "if(follower.getPose().getX() > 36) {}"
             */
                 if (follower.getPose().getY()<80){
-                    setTurretPos(7000);
+                    setTurretPos(7100);
                     intake();
                 }
 
@@ -230,7 +232,7 @@ public class autoCloseRed extends OpMode {
 
                 }
                 if (!follower.isBusy()){
-                    follower.turn(gateBackPose.getHeading()-rotDeg,false);
+                    follower.turn(rotDeg-gateBackPose.getHeading(),true);
                     setPathState(6);
                 }
                 break;
@@ -268,7 +270,7 @@ public class autoCloseRed extends OpMode {
                 break;
             case 201:
                 if (!follower.isBusy()){
-                    follower.turn(gateBackPose.getHeading()-rotDeg,false);
+                    follower.turn(rotDeg-gateBackPose.getHeading(),true);
                     setPathState(9);
                 }
                 break;
@@ -304,7 +306,7 @@ public class autoCloseRed extends OpMode {
                 break;
             case 202:
                 if (!follower.isBusy()){
-                    follower.turn(gateBackPose.getHeading()-rotDeg,false);
+                    follower.turn(rotDeg-gateBackPose.getHeading(),true);
                     setPathState(12);
                 }
                 break;
@@ -342,7 +344,7 @@ public class autoCloseRed extends OpMode {
                 break;
             case 203:
                 if (!follower.isBusy()){
-                    follower.turn(gateBackPose.getHeading()-rotDeg,false);
+                    follower.turn(rotDeg-gateBackPose.getHeading(),true);
                     setPathState(15);
                 }
                 break;
@@ -540,14 +542,17 @@ public class autoCloseRed extends OpMode {
 
         double flywheelVel1 = robot.flywheel1.getVelocity();
         double flywheelVel2 = robot.flywheel2.getVelocity();
-        double avgFlywheel = (flywheelVel1 + flywheelVel2) / 2.0;
-        rpmError = Math.abs(avgFlywheel - Values.flywheel_Values.flywheelTarget);
+
         Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,robot.hood1.getPosition());
-        flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2, Values.flywheel_Values.flywheelTarget);
-        methods.countBalls(robot.breakBeam,robot.breakBeam2,robot.breakBeam3,robot.breakBeam4);
+
+        curr=flywheelPID.flywheelFFTele(robot.flywheel1, robot.flywheel2, Values.flywheel_Values.flywheelTarget);
+        rpmError = Math.abs(curr - Values.flywheel_Values.flywheelTarget);
+        methods.countBalls(robot.breakBeam,robot.breakBeam2,robot.breakBeam3,robot.breakBeam4,true);
         // Feedback to Driver Hub for debugging
         telemetry.addData("path state", pathState);
-
+        telemetry.addData("turret",targetTurret);
+        telemetry.addData("target",Values.flywheel_Values.flywheelTarget);
+        telemetry.addData("curr",curr);
         telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",flywheelVel1,flywheelVel2));
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -567,6 +572,7 @@ public class autoCloseRed extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         shootingTimer = new Timer();
+        Values.farCoded=false;
 
 
         robot = new Hardware(hardwareMap);
@@ -579,7 +585,7 @@ public class autoCloseRed extends OpMode {
         buildPaths();
         follower.setStartingPose(startPose);
 
-        Values.team = Values.Team.BLUE;
+        Values.team = Values.Team.RED;
 
     }
 
@@ -594,7 +600,7 @@ public class autoCloseRed extends OpMode {
         Values.turretPos = methods.turretPID(turretEncoder, 12400);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
-
+        telemetry.addData("turret",turretEncoder);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

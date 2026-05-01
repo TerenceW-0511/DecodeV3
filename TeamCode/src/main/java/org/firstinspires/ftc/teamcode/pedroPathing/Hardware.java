@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing;
 
 import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -13,7 +14,8 @@ public class Hardware {
     public DcMotorEx intake, transfer, flywheel1, flywheel2;
     public Servo led;
     public DigitalChannel breakBeam, breakBeam2, breakBeam3, breakBeam4;
-    public Servo hood1, limiter, turret1, turret2, kicker;
+    public Servo hood1, limiter, turret1, turret2, tiltLeft;
+    public GoBildaPinpointDriver pp;
 
     public Hardware(HardwareMap hardwareMap) {
         ll = hardwareMap.get(Limelight3A.class, "ll");
@@ -25,10 +27,12 @@ public class Hardware {
         limiter = hardwareMap.get(Servo.class,"limiter");
         turret1 = hardwareMap.get(Servo.class, "turret1");
         turret2 = hardwareMap.get(Servo.class, "turret2");
+        tiltLeft = hardwareMap.get(Servo.class,"tiltL");
         breakBeam = hardwareMap.get(DigitalChannel.class,"breakBeam");
         breakBeam2 = hardwareMap.get(DigitalChannel.class,"breakBeam2");
         breakBeam3 = hardwareMap.get(DigitalChannel.class, "breakBeam3");
         breakBeam4 = hardwareMap.get(DigitalChannel.class, "breakBeam4");
+        pp = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
 
         breakBeam.setMode(DigitalChannel.Mode.INPUT);
         breakBeam.setState(false);

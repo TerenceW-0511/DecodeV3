@@ -33,7 +33,7 @@ public class Teleop extends OpMode {
     private Methods flywheelPID;
     private Methods methods;
 
-    private Timer timer;
+    private Timer timer,yawTimer;
 
     private Timer ballTimer;
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -50,6 +50,7 @@ public class Teleop extends OpMode {
     private boolean changed = false;
     Values.Team lastTeam;
     List<LynxModule> allHubs;
+    private double yawScalar=0,lastYawScalar=0;
 
     PIDFController pidf = new PIDFController(0,0,0,0);
 //    public static double p,i,d,f;
@@ -62,11 +63,13 @@ public class Teleop extends OpMode {
 
     public void init(){
         hardware = new Hardware(hardwareMap);
+        hardware.tiltLeft.setPosition(Values.leftUp);
         intakePID = new Methods();
         transferPID = new Methods();
         flywheelPID = new Methods();
         methods = new Methods();
         timer = new Timer();
+        yawTimer = new Timer();
         Values.reset();
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(Values.autonFollowerX,Values.autonFollowerY,Values.autonHeading));
@@ -94,6 +97,15 @@ public class Teleop extends OpMode {
         for (LynxModule hub : allHubs) {
             hub.clearBulkCache();
         }
+
+//        if (yawTimer.getElapsedTimeSeconds()>0.5){
+//            yawTimer.resetTimer();
+//            yawScalar = hardware.pp.getYawScalar();
+//            if (yawScalar!=lastYawScalar){
+//                yawScalar=lastYawScalar;
+//                hardware.pp.setYawScalar(yawScalar);
+//            }
+//        }
         follower.update();
 
 //        Values.autonFollowerX = follower.getPose().getX();
@@ -114,7 +126,7 @@ public class Teleop extends OpMode {
         double dist = methods.getDist(pose);
         double flywheelVel1 = hardware.flywheel1.getVelocity();
         double flywheelVel2 = hardware.flywheel2.getVelocity();
-        double curr = ((flywheelVel1+flywheelVel2)/2);
+//        double curr = ((flywheelVel1+flywheelVel2)/2);
 
         //MODE SWITCHING
         if (gamepad1.leftBumperWasPressed() && Values.mode== Values.Modes.SHOOTING){
@@ -136,8 +148,25 @@ public class Teleop extends OpMode {
 
         if (gamepad1.bWasPressed()){
             Values.tx=0;
+
+            hardware.ll.pause();
+            hardware.ll.start();
+
             methods.manualRelocalize(follower);
         }
+        if (gamepad1.dpadLeftWasPressed()){
+            Values.txStale=!Values.txStale;
+        }
+        if (gamepad1.dpadRightWasPressed()&& !Values.tilting){
+            Values.tilting =true;
+        }
+
+        if (Values.tilting){
+            hardware.tiltLeft.setPosition(Values.leftTilt);
+        }else{
+            hardware.tiltLeft.setPosition(Values.leftUp);
+        }
+
         if (gamepad1.rightStickButtonWasPressed()){
             hardware.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             hardware.intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -162,12 +191,17 @@ public class Teleop extends OpMode {
         }
 
 
+        if (gamepad1.dpadUpWasPressed()){
+            Values.flywheelOffset+=20;
+        }else if (gamepad1.dpadDownWasPressed()){
+            Values.flywheelOffset-=20;
+        }
 //        if (gamepad1.dpadUpWasPressed()){
 //            Values.flywheel_Values.flywheelTarget+=20;
 //        }else if (gamepad1.dpadDownWasPressed()){
 //            Values.flywheel_Values.flywheelTarget-=20;
 //        }
-
+//
 //        if (gamepad1.aWasPressed()){
 //            Values.hoodPos += 0.02;
 //        }else if (gamepad1.yWasPressed()){
@@ -182,7 +216,7 @@ public class Teleop extends OpMode {
 
 //        double rpme = Math.abs(Values.flywheel_Values.flywheelTarget - (curr));
 //        hardware.hood1.setPosition(hood+k*rpme);
-        methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4);
+        methods.countBalls(hardware.breakBeam, hardware.breakBeam2, hardware.breakBeam3, hardware.breakBeam4,true);
 
 
         switch(Values.mode) {
@@ -191,10 +225,6 @@ public class Teleop extends OpMode {
                 if (Values.init && timer.getElapsedTimeSeconds() > 0.4) {
                     Values.init = false;
                 }
-//                hardware.led.setPosi  tion(0.333); //orange=
-//                if (timer.getElapsedTimeSeconds()>0.1) {
-//                    hardware.limiter.setPosition(Values.LIMITER_CLOSE);
-//                }
                 if (!Values.farCoded) {
                     if (dist < 50) {
                         Values.flywheel_Values.flywheelTarget = 1400;
@@ -206,8 +236,6 @@ public class Teleop extends OpMode {
                 }else{
                     Values.flywheel_Values.flywheelTarget = 2000;
                 }
-//                Values.flywheel_Values.flywheelTarget = 100+Math.round(methods.flywheelControl(follower,hardware.hood1.getPosition())/100)*100;
-//                Values.flywheel_Values.flywheelTarget=target;
                 switch (Values.counter) {
                     case 1:
                         hardware.led.setPosition(0.3);
@@ -259,7 +287,7 @@ public class Teleop extends OpMode {
 
                 ///  Far rapid code
                 if (timer.getElapsedTimeSeconds() > 0.2) {
-                    boolean atSpeed = rpmError < 50;
+                    boolean atSpeed = rpmError < 20;
 
                     if (dist < 100) {
                         setPowerIfChanged(hardware.intake, 1, "intake");
@@ -307,22 +335,27 @@ public class Teleop extends OpMode {
 //        }else{
 //            hardware.limiter.setPosition(Values.LIMITER_CLOSE);
 //        }
+
 //        Values.flywheel_Values.flywheelTarget = methods.flywheelControl(follower,Values.hoodPos);
-        flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget);
+        double curr = flywheelPID.flywheelFFTele(hardware.flywheel1,hardware.flywheel2,Values.flywheel_Values.flywheelTarget+Values.flywheelOffset);
         double rpmError = Math.abs((flywheelVel1+flywheelVel2)/2 - Values.flywheel_Values.flywheelTarget);
         double turretEncoder = hardware.intake.getCurrentPosition();
 
         double targetTurret = methods.AutoAim(follower, hardware.ll);
 //        double targetTurret=target;
 
-//        TelemetryPacket packet = new TelemetryPacket();
-//        packet.put("Turret Target", targetTurret);
-//        packet.put("Turret Current", turretEncoder);
-//        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
-//        packet.put("curr vel", flywheelVel1);
-//        packet.put("curr dist", dist);
-//        packet.put("error",rpmError);
-//        dashboard.sendTelemetryPacket(packet);
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("Turret Target", targetTurret);
+        packet.put("Turret Current", turretEncoder);
+        packet.put("target vel", Values.flywheel_Values.flywheelTarget);
+        packet.put("power",hardware.flywheel1.getPower());
+        packet.put("power2",hardware.flywheel2.getPower());
+        packet.put("curr vel", curr);
+        packet.put("vel1", flywheelVel1);
+        packet.put("vel2", flywheelVel2);
+        packet.put("curr dist", dist);
+        packet.put("error",rpmError);
+        dashboard.sendTelemetryPacket(packet);
 
         Values.turretOverride += gamepad1.left_trigger * 500;
         Values.turretOverride -= gamepad1.right_trigger * 500;
@@ -332,8 +365,8 @@ public class Teleop extends OpMode {
         hardware.turret2.setPosition(Values.turretPos);
 
         telemetry.addData("mode",Values.mode);
-        telemetry.addData("vel",follower.getVelocity().getMagnitude());
 //        telemetry.addData("predicted",Values.predicted);
+        telemetry.addData("connection info",hardware.ll.getConnectionInfo());
         telemetry.addData("tx raw",Values.txRaw);
         telemetry.addData("tx",Values.tx);
         telemetry.addData("count",Values.counter);
@@ -344,7 +377,7 @@ public class Teleop extends OpMode {
         telemetry.addData("hood",Values.hoodPos);
         telemetry.addData("flywheel target",Values.flywheel_Values.flywheelTarget);
         telemetry.addData("flywheel rpm", String.format("1: %f,2: %f",flywheelVel1,flywheelVel2));
-
+        telemetry.addData("curr",curr);
         telemetry.update();
 
     }

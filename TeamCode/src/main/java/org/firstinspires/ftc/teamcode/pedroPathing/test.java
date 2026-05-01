@@ -99,7 +99,7 @@ public class test extends LinearOpMode {
                 Values.mode = Values.Modes.INTAKING;
             }
             methods.flywheelFFTele(flywheel1,flywheel2,1000);
-            methods.countBalls(breakBeam,breakBeam2,breakBeam3,breakBeam4);
+            methods.countBalls(breakBeam,breakBeam2,breakBeam3,breakBeam4,true);
             telemetry.addData("states",String.format("1: "+state1+" 2: "+state2+" 3: "+state3+" 4: "+state4));
 //            telemetry.addData("counter",counter);
             telemetry.addData("count",Values.counter);

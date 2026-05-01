@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(12.83666)
+            .mass(13.608)
             .forwardZeroPowerAcceleration(-42.88)
             .lateralZeroPowerAcceleration(-65.984)
             .automaticHoldEnd(true)
@@ -59,4 +59,5 @@ public class Constants {
                 .mecanumDrivetrain(driveConstants)
                 .build();
     }
+
 }
