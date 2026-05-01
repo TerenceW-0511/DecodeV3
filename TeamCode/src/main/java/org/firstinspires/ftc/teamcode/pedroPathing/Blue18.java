@@ -66,8 +66,84 @@ public class Blue18 extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
         tapGate = follower.pathBuilder()
-                .addPath(new BezierLine(pickup1Pose,gatePose))
+                .addPath(new BezierLine(pickup1Pose,tapGatePose))
+                .setConstantHeadingInterpolation(tapGatePose.getHeading())
+                .build();
+        scorePickup1 = follower.pathBuilder()
+                .addPath(new BezierLine(gatePose,score1Pose))
                 .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+        gate1 = follower.pathBuilder()
+                .addPath(new BezierCurve(score1Pose,controlGate1,gatePose))
+                .setTangentHeadingInterpolation()
+                .addPath(new BezierLine(gatePose,gateBackPose))
+                .setLinearHeadingInterpolation(gatePose.getHeading(), gateBackPose.getHeading())
+                .build();
+
+        scoreGates = follower.pathBuilder()
+                .addPath(new BezierLine(gateBackPose,gatePose))
+                .setLinearHeadingInterpolation(gateBackPose.getHeading(),gatePose.getHeading())
+                .addPath(new BezierLine(gatePose,scoreGatePose))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+
+        gate2 = follower.pathBuilder()
+                .addPath(new BezierLine(scoreGatePose,gatePose))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        0.7,
+                                        HeadingInterpolator.tangent
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.7,
+                                        1,
+                                        HeadingInterpolator.linear(scoreGatePose.getHeading(),gatePose.getHeading())
+                                )
+                        )
+
+                )
+                .addPath(new BezierLine(gatePose,gateBackPose))
+                .setLinearHeadingInterpolation(gatePose.getHeading(), gateBackPose.getHeading())
+                .build();
+
+
+
+        grabPickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(scoreGatePose,pickup2Pose))
+                .setTangentHeadingInterpolation()
+                .build();
+        scorePickup2 = follower.pathBuilder()
+                .addPath(new BezierLine(pickup2Pose,score2Pose))
+                .setTangentHeadingInterpolation()
+                .setReversed()
+                .build();
+        gate3 = follower.pathBuilder()
+                .addPath(new BezierLine(score2Pose,gatePose))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        0.7,
+                                        HeadingInterpolator.tangent
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.7,
+                                        0.9,
+                                        HeadingInterpolator.linear(score2Pose.getHeading(),gatePose.getHeading())
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.9,
+                                        1,
+                                        HeadingInterpolator.tangent
+                                )
+                        )
+                )
+                .addPath(new BezierLine(gatePose,gateBackPose))
+                .setLinearHeadingInterpolation(gatePose.getHeading(), gateBackPose.getHeading())
                 .build();
 
 
