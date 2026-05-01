@@ -34,7 +34,7 @@ public class Values {
         public static double kS = 0;
 
 
-        public static double flywheelTarget=1000;
+        public static double flywheelTarget=1500;
         public static double flywheelIdle = 1500; //MAX 2300
 
     }
@@ -78,12 +78,15 @@ public class Values {
     public static final double LIMITER_OPEN=1,LIMITER_CLOSE=0.4;
     public static double turretPos=0.5,lastTurret = 0.5;
     public static boolean turretDeadSpot = false;
-    public static double offsetAngle=0,txRaw=0,tx = 0, llOffset = 0;
+    public static double offsetAngle=0,txRaw=0,tx = 0,lastTxRaw=0, llOffset = 0;
+    public static boolean txStale = false;
     public static double hoodPos = 0.5;
     public static double autonFollowerX=15.6,autonFollowerY=113.7,autonHeading = Math.toRadians(180),autonTurret=0;
     public static Pose blueGoal = new Pose(12.5,137.3);
     public static Pose redGoal = new Pose(131.5,137.3);
-
+    public static double leftUp = 0, leftTilt = 0.6;
+    public static double flywheelOffset = 0;
+    public static boolean tilting = false;
     public static boolean topBlocked=false,bottomBlocked=false;
     public static int counter = 0,frameCountBlocked = 0,frameCountBlockedTop = 0,frameCountUnblocked=0,frameCountUnblockedTop=0;
     public static double rDecay = 0, mDecay = 0,aMax = 0;
@@ -122,7 +125,8 @@ public class Values {
 
     public static final TreeMap<Double,Double> llLUT = new TreeMap<>(
         Map.ofEntries(
-                Map.entry(-3.33,-6.6),
+                Map.entry(-5.0,-3.5),
+                Map.entry(-3.33,-3.0),
                 Map.entry(-1.8,-4.0),
                 Map.entry(-0.7,-1.3),
                 Map.entry(0.2,0.4),

@@ -42,7 +42,7 @@ public class Methods {
     public static double weight = 1;
     public static double hoodBasex = 0.5;
     private double
-            a = 1181.9636301231592 ,b= 6.343087194928404 ,c= 1034.239659924927 ,d= 0.04438020133808873 ,e= -484.5681382686682 ,f= -18.650611738281544;
+            a = 1680.4891016113431 ,b= -4.442225981313465 ,c= -243.4175209008495 ,d= 0.0812416731656187 ,e= 28.037707876061603 ,f= -0.024491548525589817;
     public double filteredX=0,aprilx = 0;
     private double lastFly1Power = 999;
     private double lastFly2Power = 999;
@@ -51,9 +51,20 @@ public class Methods {
     private double lastFlywheelTime = System.nanoTime() / 1e9;
 
     public double flywheelFFTele(DcMotorEx m1, DcMotorEx m2, double target){
-//
+        double v1 = m1.getVelocity();
+        double v2 = m2.getVelocity();
 //        pidf.setPIDF(fP,fI,fD,fF);
-        double curr = (m1.getVelocity()+m2.getVelocity())/2;
+        boolean v1Dead = Math.abs(v1) < 50;
+        boolean v2Dead = Math.abs(v2) < 50;
+
+        double curr;
+        if (v1Dead && !v2Dead) {
+            curr = v2;
+        } else if (v2Dead && !v1Dead) {
+            curr = v1;
+        } else {
+            curr = (v1 + v2) / 2.0;
+        }
         double power = Values.flywheel_Values.fV*target + Values.flywheel_Values.fS +Values.flywheel_Values.flywheelPIDController.calculate(curr,target);
         m1.setPower(power);
         m2.setPower(power);
@@ -279,18 +290,34 @@ public class Methods {
         LLResult result= ll.getLatestResult();
         Values.txRaw = result.getTx();
         Values.tx = result.getTx();
-        double angle = llAngle(botPose);
-        double offsetAmt = LLOffset(angle);
-        offsetAmt *= (Values.team == Values.Team.BLUE) ?1:-1;
-        if (!result.isValid()){
-            Values.tx=0;
-        }else {
-            Values.tx = result.getTx() - offsetAmt;
-        }
-        filteredX += test*Values.tx;
-        double target =filteredX+alpha * 1725/18;
-        target += Values.turretOverride;
 
+        double angle = llAngle(botPose);
+        double offsetAmt;
+        if (!Values.farCoded) {
+            offsetAmt = LLOffset(angle);
+        }else{
+            if (Values.team== Values.Team.BLUE){
+                offsetAmt = 3;
+            }else {
+                offsetAmt = -3;
+            }
+        }
+        double target;
+
+        if (!Values.txStale) {
+            offsetAmt *= (Values.team == Values.Team.BLUE) ? 1 : -1;
+            if (!result.isValid()) {
+                Values.tx = 0;
+            } else {
+                Values.tx = result.getTx() - offsetAmt;
+            }
+            filteredX += test * Values.tx;
+            target = filteredX + alpha * 1725 / 18;
+        }else{
+            target = alpha*1725/18;
+        }
+        target += Values.turretOverride;
+        Values.lastTxRaw = Values.txRaw;
         double wrapped = (target+17000)%34000;
         if (wrapped<0) wrapped+=34000;
         wrapped-=17000;
@@ -485,19 +512,20 @@ public class Methods {
         double x = getDist(follower.getPose());
         double y = hoodPos;
         if (Values.farCoded){
-            a = -589.910157251605;
-            b= 20.733244672939108;
-            c= 5531.474201366972;
-            d= -0.048345247109043754;
-            e= -12271.553075761596;
-            f= 2.670888544158813;
+            a = 1343.9607193379752;
+            b= 7.439418491669927;
+            c= -1372.0147732696132;
+            d= -0.018302768978257333;
+            e= 1382.9024962961876;
+            f= 5.61783938806457;
         }else{
-            a = 1181.9636301231592;
-            b= 6.343087194928404;
-            c= 1034.239659924927;
-            d= 0.04438020133808873;
-            e= -484.5681382686682;
-            f= -18.650611738281544;
+            a = 1680.4891016113431;
+            b= -4.442225981313465;
+            c= -243.4175209008495;
+            d= 0.0812416731656187;
+            e= 28.037707876061603;
+            f= -0.024491548525589817;
+
         }
         return a
                 + b * x
@@ -520,7 +548,7 @@ public class Methods {
 
     // if ball = 3 intake off
 
-    public void countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4) {
+    public void countBalls(DigitalChannel breakBeam1,DigitalChannel breakBeam2,DigitalChannel breakBeam3,DigitalChannel breakBeam4, boolean fastCount) {
         //states
         boolean currentintake = getBeamRaw(breakBeam3,breakBeam4);
         boolean currentoutake = getBeamRaw(breakBeam1,breakBeam2);
@@ -554,6 +582,10 @@ public class Methods {
         if (!currentoutake && last2){
             Values.counter--;
         }
+        double frameThreshold = 20;
+        if (fastCount){
+            frameThreshold=8;
+        }
         //hard count to 3
         if (currentintake&& currentoutake&&Values.frameCountBlocked>8 && Values.frameCountBlockedTop>8 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
@@ -561,7 +593,7 @@ public class Methods {
 //        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
 //            Values.counter=2;
 //        }
-        if (!currentintake && !currentoutake && Values.frameCountUnblocked>8 && Values.frameCountUnblockedTop>8){
+        if (!currentintake && !currentoutake && Values.frameCountUnblocked>frameThreshold && Values.frameCountUnblockedTop>frameThreshold){
             Values.counter=0;
         }
         if (Values.counter==3){
