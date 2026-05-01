@@ -30,24 +30,48 @@ public class Blue18 extends OpMode {
     private int pathState;
     private double targetTurret;
 
+
+    private final Pose startPose = new Pose(15.8,114.2,Math.toRadians(225));
+    private final Pose scorepreload = new Pose(44.5, 114.2, Math.toRadians(270));
+    private final Pose toPickup1 = new Pose(43.2,60);
+    private final Pose pickup1Pose = new Pose(12, 60, Math.toRadians(180));
+
+    private final Pose tapGatePose = new Pose(16,55,Math.toRadians(160));
+
+    private final Pose ControlTapPose = new Pose(26,69.2);
+
+    private final Pose score1Pose = new Pose(52.3,79.3,Math.toRadians(180));
+
+    private final Pose gatePose = new Pose(17.2,65.5,Math.toRadians(180));
+
+    private final Pose controlGate1 = new Pose(39.6,70.8);
+    private final Pose gateBackPose = new Pose(13.1,61.2,Math.toRadians(160));
+
+    private final Pose scoreGatePose = new Pose(57.8,78.3,Math.toRadians(180));
+
+    private final Pose pickup2Pose = new Pose(20.7,84.3,Math.toRadians(180));
+
+    private final Pose score2Pose = new Pose(46,84.3,Math.toRadians(180));
+
+
 //    private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
 //    private final Pose pickup4Pose = new Pose(9,50,Math.toRadians(270));
 //    private final Pose controlPickup4 = new Pose(36.4,50.5);
 //
     ////    private final Pose scorePickup4Pose = new Pose(51,117.6,Math.toRadians(180));
 //    private final Pose controlScore4Pose = new Pose(38.8,76.6);
-    private PathChain scorePreload
+    private PathChain scorePreload,grabPickup1,tapGate,scorePickup1,gate1,scoreGates,gate2,grabPickup2,scorePickup2,gate3;
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 
         scorePreload = follower.pathBuilder()
-                .addPath(new BezierLine(startPose,scorePreload))
+                .addPath(new BezierLine(startPose,scorepreload))
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .build();
 
         grabPickup1 = follower.pathBuilder()
-                .addPath(new BezierLine(scorePreload,toPickup1))
+                .addPath(new BezierLine(scorepreload,toPickup1))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
                             new HeadingInterpolator.PiecewiseNode(
@@ -58,7 +82,7 @@ public class Blue18 extends OpMode {
                             new HeadingInterpolator.PiecewiseNode(
                                     0.8,
                                     1,
-                                    HeadingInterpolator.linear(scorePreload.getHeading(),pickup1Pose.getHeading())
+                                    HeadingInterpolator.linear(scorepreload.getHeading(),pickup1Pose.getHeading())
                             )
                         )
                         )
@@ -66,7 +90,7 @@ public class Blue18 extends OpMode {
                 .setTangentHeadingInterpolation()
                 .build();
         tapGate = follower.pathBuilder()
-                .addPath(new BezierLine(pickup1Pose,tapGatePose))
+                .addPath(new BezierCurve(pickup1Pose,ControlTapPose,tapGatePose))
                 .setConstantHeadingInterpolation(tapGatePose.getHeading())
                 .build();
         scorePickup1 = follower.pathBuilder()
