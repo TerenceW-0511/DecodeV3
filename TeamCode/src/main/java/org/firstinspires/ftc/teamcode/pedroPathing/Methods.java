@@ -294,7 +294,7 @@ public class Methods {
         double angle = llAngle(botPose);
         double offsetAmt;
         if (!Values.farCoded) {
-            offsetAmt = LLOffset(angle);
+            offsetAmt = 0;
         }else{
             if (Values.team== Values.Team.BLUE){
                 offsetAmt = 3;
@@ -587,13 +587,13 @@ public class Methods {
             frameThreshold=8;
         }
         //hard count to 3
-        if (currentintake&& currentoutake&&Values.frameCountBlocked>8 && Values.frameCountBlockedTop>8 && Values.mode==Values.Modes.INTAKING){
+        if (currentintake&& currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
             Values.counter=3;
         }
 //        if (Values.counter==3 && !currentintake && currentoutake&&Values.frameCountBlocked>10 && Values.frameCountBlockedTop>10 && Values.mode==Values.Modes.INTAKING){
 //            Values.counter=2;
 //        }
-        if (!currentintake && !currentoutake && Values.frameCountUnblocked>frameThreshold && Values.frameCountUnblockedTop>frameThreshold){
+        if (!currentintake && !currentoutake && Values.frameCountUnblocked>10 && Values.frameCountUnblockedTop>frameThreshold){
             Values.counter=0;
         }
         if (Values.counter==3){

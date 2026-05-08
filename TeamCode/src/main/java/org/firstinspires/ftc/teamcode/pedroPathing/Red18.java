@@ -15,8 +15,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import java.util.List;
 
-@Autonomous(name = "B18 Consistent", group = "Blue")
-public class Blue18 extends OpMode {
+@Autonomous(name = "R18 Consistent", group = "Blue")
+public class Red18 extends OpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer, followerDoneTimer;
@@ -30,29 +30,29 @@ public class Blue18 extends OpMode {
     private int pathState;
 
 
-    private final Pose startPose = new Pose(15.8,114.2,Math.toRadians(180));
-    private final Pose scorepreload = new Pose(44.5, 114.2, Math.toRadians(269));
-    private final Pose toPickup1 = new Pose(43.2,60,Math.toRadians(180));
-    private final Pose pickup1Pose = new Pose(12, 60, Math.toRadians(180));
+    private final Pose startPose = new Pose(15.8,114.2,Math.toRadians(180)).mirror();
+    private final Pose scorepreload = new Pose(44.5, 114.2, Math.toRadians(269)).mirror();
+    private final Pose toPickup1 = new Pose(43.2,60,Math.toRadians(180)).mirror();
+    private final Pose pickup1Pose = new Pose(12, 60, Math.toRadians(180)).mirror();
 
-    private final Pose tapGatePose = new Pose(16,55,Math.toRadians(160));
+    private final Pose tapGatePose = new Pose(16,55,Math.toRadians(160)).mirror();
 
     private final Pose ControlTapPose = new Pose(26,69.2);
 
-    private final Pose score1Pose = new Pose(52.3,79.3,Math.toRadians(180));
+    private final Pose score1Pose = new Pose(52.3,79.3,Math.toRadians(180)).mirror();
 
-    private final Pose gatePose = new Pose(16,70,Math.toRadians(180));
+    private final Pose gatePose = new Pose(16,70,Math.toRadians(180)).mirror();
 
-    private final Pose controlGate1 = new Pose(39.6,70.8);
-    private final Pose gateBackPose = new Pose(11,55,Math.toRadians(160));
+    private final Pose controlGate1 = new Pose(39.6,70.8).mirror();
+    private final Pose gateBackPose = new Pose(11,55,Math.toRadians(160)).mirror();
     private final double rotDeg = Math.toRadians(140);
 
-    private final Pose scoreGatePose = new Pose(57.8,78.3,Math.toRadians(180));
+    private final Pose scoreGatePose = new Pose(57.8,78.3,Math.toRadians(180)).mirror();
 
-    private final Pose pickup2Pose = new Pose(16,84.3,Math.toRadians(180));
+    private final Pose pickup2Pose = new Pose(16,84.3,Math.toRadians(180)).mirror();
 
-    private final Pose score2Pose = new Pose(46,84.3,Math.toRadians(180));
-    private final Pose leavePose = new Pose(40.4,74.6,Math.toRadians(180));
+    private final Pose score2Pose = new Pose(46,84.3,Math.toRadians(180)).mirror();
+    private final Pose leavePose = new Pose(40.4,74.6,Math.toRadians(180)).mirror();
 
 
 //    private final Pose toLoadingPose = new Pose(7,35.5,Math.toRadians(225));
@@ -329,6 +329,7 @@ public class Blue18 extends OpMode {
                 }
                 break;
             case 24:
+                move(false);
                 follower.followPath(leave);
                 setPathState(25);
                 break;
@@ -514,7 +515,7 @@ public class Blue18 extends OpMode {
         buildPaths();
         follower.setStartingPose(startPose);
 
-        Values.team = Values.Team.BLUE;
+        Values.team = Values.Team.RED;
 
     }
 
@@ -526,7 +527,7 @@ public class Blue18 extends OpMode {
         robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = robot.intake.getCurrentPosition();
         robot.hood1.setPosition(1);
-        Values.turretPos = methods.turretPID(turretEncoder, -8000);
+        Values.turretPos = methods.turretPID(turretEncoder, 8000);
         robot.turret1.setPosition(Values.turretPos);
         robot.turret2.setPosition(Values.turretPos);
         telemetry.addData("turret",turretEncoder);
@@ -543,7 +544,7 @@ public class Blue18 extends OpMode {
     public void start() {
 
         opmodeTimer.resetTimer();
-        robot.ll.pipelineSwitch(2);
+        robot.ll.pipelineSwitch(1);
         robot.ll.start();
         setPathState(0);
     }

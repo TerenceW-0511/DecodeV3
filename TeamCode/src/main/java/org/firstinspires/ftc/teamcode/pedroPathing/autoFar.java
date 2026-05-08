@@ -26,7 +26,7 @@ public class autoFar extends OpMode {
 
     private final Pose startPose = new Pose(40, 6.5, Math.toRadians(180)); // Start Pose of our robot.
     //    private final Pose shootPreloadPose = new Pose(40,8.6,Math.toRadians(180));
-    private final Pose grabPose1 = new Pose(9.5,6.5,Math.toRadians(180));
+    private final Pose grabPose1 = new Pose(20,6.5,Math.toRadians(180));
     private final Pose regrabPose = new Pose(9.5,10,Math.toRadians(180));
     private final Pose controlRegrab = new Pose(23.9,8.2);
     private final Pose scorePose1 = new Pose(56.7,16.6,Math.toRadians(190));
@@ -113,33 +113,35 @@ public class autoFar extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                setPathState(1);
+                robot.limiter.setPosition(Values.LIMITER_CLOSE);
+                setPathState(2);
                 break;
-            case 1:
-                robot.limiter.setPosition(Values.LIMITER_OPEN);
-                if (!follower.isBusy() && rpmError<20){
-                    if (outtake()){
-                        setPathState(2);
-                    }
-                }
-                break;
+//            case 1:
+//                robot.limiter.setPosition(Values.LIMITER_OPEN);
+//                if (!follower.isBusy() && rpmError<20){
+//                    if (outtake()){
+//                        setPathState(2);
+//                    }
+//                }
+//                break;
             case 2:
+                robot.limiter.setPosition(Values.LIMITER_CLOSE);
                 if (!follower.isBusy()){
                     follower.followPath(grabBack);
                     setPathState(3);
                 }break;
 
-            case 3:
-                if (follower.getPathCompletion()>0.5){
-                    intake();
-                }else{
-                    move(false);
-                }
-                if (!follower.isBusy()){
-                    follower.followPath(regrab);
-                    setPathState(4);
-                }
-                break;
+//            case 3:
+//                if (follower.getPathCompletion()>0.5){
+//                    intake();
+//                }else{
+//                    move(false);
+//                }
+//                if (!follower.isBusy()){
+//                    follower.followPath(regrab);
+//                    setPathState(4);
+//                }
+//                break;
             case 4:
                 if (!follower.isBusy()){
                     follower.followPath(scoreBack);
@@ -449,7 +451,7 @@ public class autoFar extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        Values.farCoded=true;
+        Values.farCoded=false;
 
         robot = new Hardware(hardwareMap);
         robot.intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -469,7 +471,7 @@ public class autoFar extends OpMode {
      **/
     @Override
     public void init_loop() {
-        robot.limiter.setPosition(Values.LIMITER_OPEN);
+        robot.limiter.setPosition(Values.LIMITER_CLOSE);
         double turretEncoder = robot.intake.getCurrentPosition();
         robot.hood1.setPosition(0);
         Values.turretPos = methods.turretPID(turretEncoder, -7200);
